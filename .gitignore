@@ -2,6 +2,9 @@ lidar_localization/slam_data
 
 **.vscode
 
+**build**
+**devel**
+
 *.INFO
 *.INFO.*
 *.log.*
