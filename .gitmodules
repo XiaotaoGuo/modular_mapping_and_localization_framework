@@ -1,3 +1,6 @@
 [submodule "third_party_libs/g2o"]
 	path = third_party_libs/g2o
 	url = https://github.com/RainerKuemmerle/g2o.git
+[submodule "lidar_localization_ws/geographiclib-code"]
+	path = lidar_localization_ws/geographiclib-code
+	url = https://github.com/geographiclib/geographiclib
