@@ -1,13 +1,18 @@
 /*
- * @Description: 
+ * @Description:
+ * @Created Date: 2020-02-29 03:32:14
  * @Author: Ren Qian
- * @Date: 2020-02-29 03:32:14
+ * -----
+ * @Last Modified: 2021-11-24 00:17:04
+ * @Modified By: Xiaotao Guo
  */
+
 #ifndef LIDAR_LOCALIZATION_MAPPING_LOOP_CLOSING_LOOP_CLOSING_FLOW_HPP_
 #define LIDAR_LOCALIZATION_MAPPING_LOOP_CLOSING_LOOP_CLOSING_FLOW_HPP_
 
-#include <deque>
 #include <ros/ros.h>
+
+#include <deque>
 // subscriber
 #include "lidar_localization/subscriber/key_frame_subscriber.hpp"
 // publisher
@@ -17,18 +22,18 @@
 
 namespace lidar_localization {
 class LoopClosingFlow {
-  public:
+public:
     LoopClosingFlow(ros::NodeHandle& nh);
 
     bool Run();
 
-  private:
+private:
     bool ReadData();
     bool HasData();
     bool ValidData();
     bool PublishData();
 
-  private:
+private:
     // subscriber
     std::shared_ptr<KeyFrameSubscriber> key_frame_sub_ptr_;
     std::shared_ptr<KeyFrameSubscriber> key_gnss_sub_ptr_;
@@ -43,6 +48,6 @@ class LoopClosingFlow {
     KeyFrame current_key_frame_;
     KeyFrame current_key_gnss_;
 };
-}
+}  // namespace lidar_localization
 
 #endif

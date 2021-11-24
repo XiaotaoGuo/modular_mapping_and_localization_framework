@@ -1,13 +1,17 @@
 /*
  * @Description: 数据预处理的node文件
+ * @Created Date: 2020-02-05 02:56:27
  * @Author: Ren Qian
- * @Date: 2020-02-05 02:56:27
+ * -----
+ * @Last Modified: 2021-11-24 00:32:37
+ * @Modified By: Xiaotao Guo
  */
-#include <ros/ros.h>
-#include "glog/logging.h"
 
-#include "lidar_localization/global_defination/global_defination.h"
+#include <ros/ros.h>
+
+#include "glog/logging.h"
 #include "lidar_localization/data_pretreat/data_pretreat_flow.hpp"
+#include "lidar_localization/global_defination/global_defination.h"
 
 using namespace lidar_localization;
 
@@ -22,7 +26,8 @@ int main(int argc, char *argv[]) {
     std::string cloud_topic;
     nh.param<std::string>("cloud_topic", cloud_topic, "/synced_cloud");
 
-    std::shared_ptr<DataPretreatFlow> data_pretreat_flow_ptr = std::make_shared<DataPretreatFlow>(nh, cloud_topic);
+    std::shared_ptr<DataPretreatFlow> data_pretreat_flow_ptr =
+        std::make_shared<DataPretreatFlow>(nh, cloud_topic);
 
     ros::Rate rate(100);
     while (ros::ok()) {

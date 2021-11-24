@@ -1,18 +1,22 @@
 /*
  * @Description: 从点云中截取一个立方体部分
+ * @Created Date: 2020-03-04 20:09:37
  * @Author: Ren Qian
- * @Date: 2020-03-04 20:09:37
+ * -----
+ * @Last Modified: 2021-11-24 00:19:13
+ * @Modified By: Xiaotao Guo
  */
 
 #ifndef LIDAR_LOCALIZATION_MODELS_CLOUD_FILTER_BOX_FILTER_HPP_
 #define LIDAR_LOCALIZATION_MODELS_CLOUD_FILTER_BOX_FILTER_HPP_
 
 #include <pcl/filters/crop_box.h>
+
 #include "lidar_localization/models/cloud_filter/cloud_filter_interface.hpp"
 
 namespace lidar_localization {
-class BoxFilter: public CloudFilterInterface {
-  public:
+class BoxFilter : public CloudFilterInterface {
+public:
     BoxFilter(YAML::Node node);
     BoxFilter() = default;
 
@@ -22,16 +26,16 @@ class BoxFilter: public CloudFilterInterface {
     void SetOrigin(std::vector<float> origin);
     std::vector<float> GetEdge();
 
-  private:
+private:
     void CalculateEdge();
 
-  private:
+private:
     pcl::CropBox<CloudData::POINT> pcl_box_filter_;
 
     std::vector<float> origin_;
     std::vector<float> size_;
     std::vector<float> edge_;
 };
-}
+}  // namespace lidar_localization
 
-#endif 
+#endif

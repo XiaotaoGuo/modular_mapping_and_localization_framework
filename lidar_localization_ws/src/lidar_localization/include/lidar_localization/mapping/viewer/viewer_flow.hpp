@@ -1,40 +1,45 @@
 /*
- * @Description: 
+ * @Description:
+ * @Created Date: 2020-02-29 03:32:14
  * @Author: Ren Qian
- * @Date: 2020-02-29 03:32:14
+ * -----
+ * @Last Modified: 2021-11-24 00:17:34
+ * @Modified By: Xiaotao Guo
  */
+
 #ifndef LIDAR_LOCALIZATION_MAPPING_VIEWER_VIEWER_FLOW_HPP_
 #define LIDAR_LOCALIZATION_MAPPING_VIEWER_VIEWER_FLOW_HPP_
 
-#include <deque>
 #include <ros/ros.h>
+
+#include <deque>
 // subscriber
 #include "lidar_localization/subscriber/cloud_subscriber.hpp"
-#include "lidar_localization/subscriber/odometry_subscriber.hpp"
 #include "lidar_localization/subscriber/key_frame_subscriber.hpp"
 #include "lidar_localization/subscriber/key_frames_subscriber.hpp"
+#include "lidar_localization/subscriber/odometry_subscriber.hpp"
 // publisher
-#include "lidar_localization/publisher/odometry_publisher.hpp"
 #include "lidar_localization/publisher/cloud_publisher.hpp"
+#include "lidar_localization/publisher/odometry_publisher.hpp"
 // viewer
 #include "lidar_localization/mapping/viewer/viewer.hpp"
 
 namespace lidar_localization {
 class ViewerFlow {
-  public:
+public:
     ViewerFlow(ros::NodeHandle& nh, std::string cloud_topic);
 
     bool Run();
     bool SaveMap();
 
-  private:
+private:
     bool ReadData();
     bool HasData();
     bool ValidData();
     bool PublishGlobalData();
     bool PublishLocalData();
 
-  private:
+private:
     // subscriber
     std::shared_ptr<CloudSubscriber> cloud_sub_ptr_;
     std::shared_ptr<OdometrySubscriber> transformed_odom_sub_ptr_;
@@ -57,6 +62,6 @@ class ViewerFlow {
     CloudData current_cloud_data_;
     PoseData current_transformed_odom_;
 };
-}
+}  // namespace lidar_localization
 
 #endif

@@ -1,13 +1,18 @@
 /*
  * @Description: 从点云中截取一个立方体部分
+ * @Created Date: 2019-03-12 23:38:31
  * @Author: Ren Qian
- * @Date: 2019-03-12 23:38:31
+ * -----
+ * @Last Modified: 2021-11-24 00:35:48
+ * @Modified By: Xiaotao Guo
  */
-#include <vector>
-#include <iostream>
-#include "glog/logging.h"
 
 #include "lidar_localization/models/cloud_filter/box_filter.hpp"
+
+#include <iostream>
+#include <vector>
+
+#include "glog/logging.h"
 
 namespace lidar_localization {
 BoxFilter::BoxFilter(YAML::Node node) {
@@ -24,7 +29,8 @@ BoxFilter::BoxFilter(YAML::Node node) {
 bool BoxFilter::Filter(const CloudData::CLOUD_PTR& input_cloud_ptr,
                        CloudData::CLOUD_PTR& output_cloud_ptr) {
     output_cloud_ptr->clear();
-    pcl_box_filter_.setMin(Eigen::Vector4f(edge_.at(0), edge_.at(2), edge_.at(4), 1.0e-6));
+    pcl_box_filter_.setMin(
+        Eigen::Vector4f(edge_.at(0), edge_.at(2), edge_.at(4), 1.0e-6));
     pcl_box_filter_.setMax(Eigen::Vector4f(edge_.at(1), edge_.at(3), edge_.at(5), 1.0e6));
     pcl_box_filter_.setInputCloud(input_cloud_ptr);
     pcl_box_filter_.filter(*output_cloud_ptr);
@@ -40,9 +46,9 @@ void BoxFilter::SetSize(std::vector<float> size) {
               << "min_y: " << size.at(2) << ", "
               << "max_y: " << size.at(3) << ", "
               << "min_z: " << size.at(4) << ", "
-              << "max_z: " << size.at(5)
-              << std::endl << std::endl;
-    
+              << "max_z: " << size.at(5) << std::endl
+              << std::endl;
+
     CalculateEdge();
 }
 
@@ -58,7 +64,5 @@ void BoxFilter::CalculateEdge() {
     }
 }
 
-std::vector<float> BoxFilter::GetEdge() {
-    return edge_;
-}
-} // namespace lidar_slam
+std::vector<float> BoxFilter::GetEdge() { return edge_; }
+}  // namespace lidar_localization

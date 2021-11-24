@@ -1,21 +1,26 @@
 /*
  * @Description: 发送闭环检测的相对位姿
+ * @Created Date: 2020-02-06 21:11:44
  * @Author: Ren Qian
- * @Date: 2020-02-06 21:11:44
+ * -----
+ * @Last Modified: 2021-11-24 00:38:43
+ * @Modified By: Xiaotao Guo
  */
+
 #include "lidar_localization/publisher/loop_pose_publisher.hpp"
 
 #include <Eigen/Dense>
+
 #include "glog/logging.h"
 
 namespace lidar_localization {
-LoopPosePublisher::LoopPosePublisher(ros::NodeHandle& nh, 
-                                     std::string topic_name, 
+LoopPosePublisher::LoopPosePublisher(ros::NodeHandle& nh,
+                                     std::string topic_name,
                                      std::string frame_id,
                                      int buff_size)
-    :nh_(nh), frame_id_(frame_id) {
-
-    publisher_ = nh_.advertise<geometry_msgs::PoseWithCovarianceStamped>(topic_name, buff_size);
+    : nh_(nh), frame_id_(frame_id) {
+    publisher_ =
+        nh_.advertise<geometry_msgs::PoseWithCovarianceStamped>(topic_name, buff_size);
 }
 
 void LoopPosePublisher::Publish(LoopPose& loop_pose) {
@@ -25,9 +30,9 @@ void LoopPosePublisher::Publish(LoopPose& loop_pose) {
     pose_stamped.header.stamp = ros_time;
     pose_stamped.header.frame_id = frame_id_;
 
-    pose_stamped.pose.pose.position.x = loop_pose.pose(0,3);
-    pose_stamped.pose.pose.position.y = loop_pose.pose(1,3);
-    pose_stamped.pose.pose.position.z = loop_pose.pose(2,3);
+    pose_stamped.pose.pose.position.x = loop_pose.pose(0, 3);
+    pose_stamped.pose.pose.position.y = loop_pose.pose(1, 3);
+    pose_stamped.pose.pose.position.z = loop_pose.pose(2, 3);
 
     Eigen::Quaternionf q = loop_pose.GetQuaternion();
     pose_stamped.pose.pose.orientation.x = q.x();
@@ -41,7 +46,5 @@ void LoopPosePublisher::Publish(LoopPose& loop_pose) {
     publisher_.publish(pose_stamped);
 }
 
-bool LoopPosePublisher::HasSubscribers() {
-    return publisher_.getNumSubscribers() != 0;
-}
-}
+bool LoopPosePublisher::HasSubscribers() { return publisher_.getNumSubscribers() != 0; }
+}  // namespace lidar_localization

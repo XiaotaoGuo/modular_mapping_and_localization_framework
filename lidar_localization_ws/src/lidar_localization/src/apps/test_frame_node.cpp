@@ -1,23 +1,23 @@
 /*
- * @Description: 
+ * @Description:
  * @Created Date: 2020-02-05 02:56:27
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-23 23:37:19
+ * @Last Modified: 2021-11-24 00:33:37
  * @Modified By: Xiaotao Guo
  */
 
-#include <ros/ros.h>
 #include <pcl/common/transforms.h>
-#include "glog/logging.h"
+#include <ros/ros.h>
 
+#include "glog/logging.h"
 #include "lidar_localization/global_defination/global_defination.h"
-#include "lidar_localization/subscriber/cloud_subscriber.hpp"
-#include "lidar_localization/subscriber/imu_subscriber.hpp"
-#include "lidar_localization/subscriber/gnss_subscriber.hpp"
-#include "lidar_localization/tf_listener/tf_listener.hpp"
 #include "lidar_localization/publisher/cloud_publisher.hpp"
 #include "lidar_localization/publisher/odometry_publisher.hpp"
+#include "lidar_localization/subscriber/cloud_subscriber.hpp"
+#include "lidar_localization/subscriber/gnss_subscriber.hpp"
+#include "lidar_localization/subscriber/imu_subscriber.hpp"
+#include "lidar_localization/tf_listener/tf_listener.hpp"
 
 using namespace lidar_localization;
 
@@ -29,13 +29,19 @@ int main(int argc, char *argv[]) {
     ros::init(argc, argv, "test_frame_node");
     ros::NodeHandle nh;
 
-    std::shared_ptr<CloudSubscriber> cloud_sub_ptr = std::make_shared<CloudSubscriber>(nh, "/kitti/velo/pointcloud", 100000);
-    std::shared_ptr<IMUSubscriber> imu_sub_ptr = std::make_shared<IMUSubscriber>(nh, "/kitti/oxts/imu", 1000000);
-    std::shared_ptr<GNSSSubscriber> gnss_sub_ptr = std::make_shared<GNSSSubscriber>(nh, "/kitti/oxts/gps/fix", 1000000);
-    std::shared_ptr<TFListener> lidar_to_imu_ptr = std::make_shared<TFListener>(nh, "/velo_link", "/imu_link");
+    std::shared_ptr<CloudSubscriber> cloud_sub_ptr =
+        std::make_shared<CloudSubscriber>(nh, "/kitti/velo/pointcloud", 100000);
+    std::shared_ptr<IMUSubscriber> imu_sub_ptr =
+        std::make_shared<IMUSubscriber>(nh, "/kitti/oxts/imu", 1000000);
+    std::shared_ptr<GNSSSubscriber> gnss_sub_ptr =
+        std::make_shared<GNSSSubscriber>(nh, "/kitti/oxts/gps/fix", 1000000);
+    std::shared_ptr<TFListener> lidar_to_imu_ptr =
+        std::make_shared<TFListener>(nh, "/velo_link", "/imu_link");
 
-    std::shared_ptr<CloudPublisher> cloud_pub_ptr = std::make_shared<CloudPublisher>(nh, "/current_scan", "map", 100);
-    std::shared_ptr<OdometryPublisher> odom_pub_ptr = std::make_shared<OdometryPublisher>(nh, "/lidar_odom", "map", "lidar", 100);
+    std::shared_ptr<CloudPublisher> cloud_pub_ptr =
+        std::make_shared<CloudPublisher>(nh, "/current_scan", "map", 100);
+    std::shared_ptr<OdometryPublisher> odom_pub_ptr =
+        std::make_shared<OdometryPublisher>(nh, "/lidar_odom", "map", "lidar", 100);
 
     std::deque<CloudData> cloud_data_buff;
     std::deque<IMUData> imu_data_buff;
@@ -55,10 +61,12 @@ int main(int argc, char *argv[]) {
         if (!transform_received) {
             if (lidar_to_imu_ptr->LookupData(lidar_to_imu)) {
                 transform_received = true;
-                // LOG(INFO) << "lidar to imu transform matrix is:" << std::endl << lidar_to_imu;
+                // LOG(INFO) << "lidar to imu transform matrix is:" << std::endl <<
+                // lidar_to_imu;
             }
         } else {
-            while (cloud_data_buff.size() > 0 && imu_data_buff.size() > 0 && gnss_data_buff.size() > 0) {
+            while (cloud_data_buff.size() > 0 && imu_data_buff.size() > 0 &&
+                   gnss_data_buff.size() > 0) {
                 CloudData cloud_data = cloud_data_buff.front();
                 IMUData imu_data = imu_data_buff.front();
                 GNSSData gnss_data = gnss_data_buff.front();
@@ -81,13 +89,14 @@ int main(int argc, char *argv[]) {
                         gnss_origin_position_inited = true;
                     }
                     gnss_data.UpdateXYZ();
-                    odometry_matrix(0,3) = gnss_data.local_E;
-                    odometry_matrix(1,3) = gnss_data.local_N;
-                    odometry_matrix(2,3) = gnss_data.local_U;
-                    odometry_matrix.block<3,3>(0,0) = imu_data.GetOrientationMatrix();
+                    odometry_matrix(0, 3) = gnss_data.local_E;
+                    odometry_matrix(1, 3) = gnss_data.local_N;
+                    odometry_matrix(2, 3) = gnss_data.local_U;
+                    odometry_matrix.block<3, 3>(0, 0) = imu_data.GetOrientationMatrix();
                     odometry_matrix *= lidar_to_imu;
 
-                    pcl::transformPointCloud(*cloud_data.cloud_ptr, *cloud_data.cloud_ptr, odometry_matrix);
+                    pcl::transformPointCloud(
+                        *cloud_data.cloud_ptr, *cloud_data.cloud_ptr, odometry_matrix);
 
                     cloud_pub_ptr->Publish(cloud_data.cloud_ptr);
                     odom_pub_ptr->Publish(odometry_matrix);

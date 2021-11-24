@@ -1,11 +1,20 @@
 /*
  * @Description: 闭环检测的node文件
+ * @Created Date: 2020-02-05 02:56:27
+ * @Author: Ren Qian
+ * -----
+ * @Last Modified: 2021-11-24 00:33:15
+ * @Modified By: Xiaotao Guo
+ */
+
+/*
+ * @Description: 闭环检测的node文件
  * @Author: Ren Qian
  * @Date: 2020-02-05 02:56:27
  */
 #include <ros/ros.h>
-#include "glog/logging.h"
 
+#include "glog/logging.h"
 #include "lidar_localization/global_defination/global_defination.h"
 #include "lidar_localization/mapping/loop_closing/loop_closing_flow.hpp"
 
@@ -19,7 +28,8 @@ int main(int argc, char *argv[]) {
     ros::init(argc, argv, "loop_closing_node");
     ros::NodeHandle nh;
 
-    std::shared_ptr<LoopClosingFlow> loop_closing_flow_ptr = std::make_shared<LoopClosingFlow>(nh);
+    std::shared_ptr<LoopClosingFlow> loop_closing_flow_ptr =
+        std::make_shared<LoopClosingFlow>(nh);
 
     ros::Rate rate(100);
     while (ros::ok()) {

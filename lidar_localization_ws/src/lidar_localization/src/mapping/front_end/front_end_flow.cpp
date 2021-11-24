@@ -3,29 +3,31 @@
  * @Created Date: 2020-02-10 08:38:42
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-23 23:39:25
+ * @Last Modified: 2021-11-24 00:34:17
  * @Modified By: Xiaotao Guo
  */
 
 #include "lidar_localization/mapping/front_end/front_end_flow.hpp"
+
 #include "glog/logging.h"
 #include "lidar_localization/global_defination/global_defination.h"
 
 namespace lidar_localization {
-FrontEndFlow::FrontEndFlow(ros::NodeHandle& nh, std::string cloud_topic, std::string odom_topic) {
+FrontEndFlow::FrontEndFlow(ros::NodeHandle& nh,
+                           std::string cloud_topic,
+                           std::string odom_topic) {
     cloud_sub_ptr_ = std::make_shared<CloudSubscriber>(nh, cloud_topic, 100000);
-    laser_odom_pub_ptr_ = std::make_shared<OdometryPublisher>(nh, odom_topic, "map", "lidar", 100);
+    laser_odom_pub_ptr_ =
+        std::make_shared<OdometryPublisher>(nh, odom_topic, "map", "lidar", 100);
 
     front_end_ptr_ = std::make_shared<FrontEnd>();
 }
 
 bool FrontEndFlow::Run() {
-    if (!ReadData())
-        return false;
+    if (!ReadData()) return false;
 
-    while(HasData()) {
-        if (!ValidData())
-            continue;
+    while (HasData()) {
+        if (!ValidData()) continue;
 
         if (UpdateLaserOdometry()) {
             PublishData();
@@ -40,9 +42,7 @@ bool FrontEndFlow::ReadData() {
     return true;
 }
 
-bool FrontEndFlow::HasData() {
-    return cloud_data_buff_.size() > 0;
-}
+bool FrontEndFlow::HasData() { return cloud_data_buff_.size() > 0; }
 
 bool FrontEndFlow::ValidData() {
     current_cloud_data_ = cloud_data_buff_.front();
@@ -67,4 +67,4 @@ bool FrontEndFlow::PublishData() {
 
     return true;
 }
-}
+}  // namespace lidar_localization

@@ -9,9 +9,9 @@
 #include <ros/ros.h>
 // subscriber
 #include "lidar_localization/subscriber/cloud_subscriber.hpp"
+#include "lidar_localization/subscriber/gnss_subscriber.hpp"
 #include "lidar_localization/subscriber/imu_subscriber.hpp"
 #include "lidar_localization/subscriber/velocity_subscriber.hpp"
-#include "lidar_localization/subscriber/gnss_subscriber.hpp"
 #include "lidar_localization/tf_listener/tf_listener.hpp"
 // publisher
 #include "lidar_localization/publisher/cloud_publisher.hpp"
@@ -21,12 +21,12 @@
 
 namespace lidar_localization {
 class DataPretreatFlow {
-  public:
+public:
     DataPretreatFlow(ros::NodeHandle& nh, std::string cloud_topic);
 
     bool Run();
 
-  private:
+private:
     bool ReadData();
     bool InitCalibration();
     bool InitGNSS();
@@ -35,7 +35,7 @@ class DataPretreatFlow {
     bool TransformData();
     bool PublishData();
 
-  private:
+private:
     // subscriber
     std::shared_ptr<CloudSubscriber> cloud_sub_ptr_;
     std::shared_ptr<IMUSubscriber> imu_sub_ptr_;
@@ -62,6 +62,6 @@ class DataPretreatFlow {
 
     Eigen::Matrix4f gnss_pose_ = Eigen::Matrix4f::Identity();
 };
-}
+}  // namespace lidar_localization
 
 #endif

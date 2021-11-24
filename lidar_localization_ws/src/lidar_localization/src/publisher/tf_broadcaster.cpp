@@ -1,7 +1,10 @@
 /*
  * @Description: 发布tf的类
+ * @Created Date: 2020-03-05 15:23:26
  * @Author: Ren Qian
- * @Date: 2020-03-05 15:23:26
+ * -----
+ * @Last Modified: 2021-11-24 00:39:19
+ * @Modified By: Xiaotao Guo
  */
 
 #include "lidar_localization/publisher/tf_broadcaster.hpp"
@@ -13,11 +16,11 @@ TFBroadCaster::TFBroadCaster(std::string frame_id, std::string child_frame_id) {
 }
 
 void TFBroadCaster::SendTransform(Eigen::Matrix4f pose, double time) {
-    Eigen::Quaternionf q(pose.block<3,3>(0,0));
+    Eigen::Quaternionf q(pose.block<3, 3>(0, 0));
     ros::Time ros_time((float)time);
     transform_.stamp_ = ros_time;
     transform_.setRotation(tf::Quaternion(q.x(), q.y(), q.z(), q.w()));
-    transform_.setOrigin(tf::Vector3(pose(0,3), pose(1,3), pose(2,3)));
+    transform_.setOrigin(tf::Vector3(pose(0, 3), pose(1, 3), pose(2, 3)));
     broadcaster_.sendTransform(transform_);
 }
-}
+}  // namespace lidar_localization

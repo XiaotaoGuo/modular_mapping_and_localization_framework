@@ -1,13 +1,14 @@
 /*
- * @Description: 
+ * @Description:
  * @Created Date: 2020-02-10 08:38:42
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-23 23:39:42
+ * @Last Modified: 2021-11-24 00:34:36
  * @Modified By: Xiaotao Guo
  */
 
 #include "lidar_localization/mapping/loop_closing/loop_closing_flow.hpp"
+
 #include "glog/logging.h"
 #include "lidar_localization/global_defination/global_defination.h"
 
@@ -17,21 +18,20 @@ LoopClosingFlow::LoopClosingFlow(ros::NodeHandle& nh) {
     key_frame_sub_ptr_ = std::make_shared<KeyFrameSubscriber>(nh, "/key_frame", 100000);
     key_gnss_sub_ptr_ = std::make_shared<KeyFrameSubscriber>(nh, "/key_gnss", 100000);
     // publisher
-    loop_pose_pub_ptr_ = std::make_shared<LoopPosePublisher>(nh, "/loop_pose", "map", 100);
+    loop_pose_pub_ptr_ =
+        std::make_shared<LoopPosePublisher>(nh, "/loop_pose", "map", 100);
     // loop closing
     loop_closing_ptr_ = std::make_shared<LoopClosing>();
 }
 
 bool LoopClosingFlow::Run() {
-    if (!ReadData())
-        return false;
+    if (!ReadData()) return false;
 
-    while(HasData()) {
-        if (!ValidData())
-            continue;
-        
+    while (HasData()) {
+        if (!ValidData()) continue;
+
         loop_closing_ptr_->Update(current_key_frame_, current_key_gnss_);
-        
+
         PublishData();
     }
 
@@ -46,10 +46,8 @@ bool LoopClosingFlow::ReadData() {
 }
 
 bool LoopClosingFlow::HasData() {
-    if (key_frame_buff_.size() == 0)
-        return false;
-    if (key_gnss_buff_.size() == 0)
-        return false;
+    if (key_frame_buff_.size() == 0) return false;
+    if (key_gnss_buff_.size() == 0) return false;
 
     return true;
 }
@@ -77,9 +75,9 @@ bool LoopClosingFlow::ValidData() {
 }
 
 bool LoopClosingFlow::PublishData() {
-    if (loop_closing_ptr_->HasNewLoopPose()) 
+    if (loop_closing_ptr_->HasNewLoopPose())
         loop_pose_pub_ptr_->Publish(loop_closing_ptr_->GetCurrentLoopPose());
 
     return true;
 }
-}
+}  // namespace lidar_localization

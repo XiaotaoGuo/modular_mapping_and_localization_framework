@@ -1,19 +1,22 @@
 /*
  * @Description: key frames 信息发布
+ * @Created Date: 2020-02-06 21:11:44
  * @Author: Ren Qian
- * @Date: 2020-02-06 21:11:44
+ * -----
+ * @Last Modified: 2021-11-24 00:38:24
+ * @Modified By: Xiaotao Guo
  */
+
 #include "lidar_localization/publisher/key_frames_publisher.hpp"
 
 #include <Eigen/Dense>
 
 namespace lidar_localization {
-KeyFramesPublisher::KeyFramesPublisher(ros::NodeHandle& nh, 
-                                     std::string topic_name, 
-                                     std::string frame_id,
-                                     int buff_size)
-    :nh_(nh), frame_id_(frame_id) {
-
+KeyFramesPublisher::KeyFramesPublisher(ros::NodeHandle& nh,
+                                       std::string topic_name,
+                                       std::string frame_id,
+                                       int buff_size)
+    : nh_(nh), frame_id_(frame_id) {
     publisher_ = nh_.advertise<nav_msgs::Path>(topic_name, buff_size);
 }
 
@@ -32,9 +35,9 @@ void KeyFramesPublisher::Publish(const std::deque<KeyFrame>& key_frames) {
 
         pose_stamped.header.seq = key_frame.index;
 
-        pose_stamped.pose.position.x = key_frame.pose(0,3);
-        pose_stamped.pose.position.y = key_frame.pose(1,3);
-        pose_stamped.pose.position.z = key_frame.pose(2,3);
+        pose_stamped.pose.position.x = key_frame.pose(0, 3);
+        pose_stamped.pose.position.y = key_frame.pose(1, 3);
+        pose_stamped.pose.position.z = key_frame.pose(2, 3);
 
         Eigen::Quaternionf q = key_frame.GetQuaternion();
         pose_stamped.pose.orientation.x = q.x();
@@ -48,7 +51,5 @@ void KeyFramesPublisher::Publish(const std::deque<KeyFrame>& key_frames) {
     publisher_.publish(path);
 }
 
-bool KeyFramesPublisher::HasSubscribers() {
-    return publisher_.getNumSubscribers() != 0;
-}
-}
+bool KeyFramesPublisher::HasSubscribers() { return publisher_.getNumSubscribers() != 0; }
+}  // namespace lidar_localization

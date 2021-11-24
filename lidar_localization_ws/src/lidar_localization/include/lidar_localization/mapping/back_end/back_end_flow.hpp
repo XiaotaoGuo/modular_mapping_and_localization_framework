@@ -8,26 +8,24 @@
 
 #include <ros/ros.h>
 
-#include "lidar_localization/subscriber/cloud_subscriber.hpp"
-#include "lidar_localization/subscriber/odometry_subscriber.hpp"
-#include "lidar_localization/subscriber/loop_pose_subscriber.hpp"
-
-#include "lidar_localization/publisher/odometry_publisher.hpp"
+#include "lidar_localization/mapping/back_end/back_end.hpp"
 #include "lidar_localization/publisher/key_frame_publisher.hpp"
 #include "lidar_localization/publisher/key_frames_publisher.hpp"
-
-#include "lidar_localization/mapping/back_end/back_end.hpp"
+#include "lidar_localization/publisher/odometry_publisher.hpp"
+#include "lidar_localization/subscriber/cloud_subscriber.hpp"
+#include "lidar_localization/subscriber/loop_pose_subscriber.hpp"
+#include "lidar_localization/subscriber/odometry_subscriber.hpp"
 
 namespace lidar_localization {
 class BackEndFlow {
-  public:
+public:
     BackEndFlow(ros::NodeHandle& nh, std::string cloud_topic, std::string odom_topic);
 
     bool Run();
 
     bool ForceOptimize();
 
-  private:
+private:
     bool ReadData();
     bool MaybeInsertLoopPose();
     bool HasData();
@@ -35,7 +33,7 @@ class BackEndFlow {
     bool UpdateBackEnd();
     bool PublishData();
 
-  private:
+private:
     std::shared_ptr<CloudSubscriber> cloud_sub_ptr_;
     std::shared_ptr<OdometrySubscriber> gnss_pose_sub_ptr_;
     std::shared_ptr<OdometrySubscriber> laser_odom_sub_ptr_;
@@ -56,6 +54,6 @@ class BackEndFlow {
     PoseData current_laser_odom_data_;
     CloudData current_cloud_data_;
 };
-}
+}  // namespace lidar_localization
 
 #endif

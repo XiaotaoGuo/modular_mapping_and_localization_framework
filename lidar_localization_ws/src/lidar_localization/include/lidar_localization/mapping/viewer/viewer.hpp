@@ -1,29 +1,32 @@
 /*
  * @Description: 实时显示，主要是点云
+ * @Created Date: 2020-02-29 03:19:45
  * @Author: Ren Qian
- * @Date: 2020-02-29 03:19:45
+ * -----
+ * @Last Modified: 2021-11-24 00:24:06
+ * @Modified By: Xiaotao Guo
  */
+
 #ifndef LIDAR_LOCALIZATION_MAPPING_VIEWER_VIEWER_HPP_
 #define LIDAR_LOCALIZATION_MAPPING_VIEWER_VIEWER_HPP_
 
-#include <string>
-#include <Eigen/Dense>
 #include <yaml-cpp/yaml.h>
 
+#include <Eigen/Dense>
+#include <string>
+
+#include "lidar_localization/models/cloud_filter/voxel_filter.hpp"
 #include "lidar_localization/sensor_data/cloud_data.hpp"
 #include "lidar_localization/sensor_data/key_frame.hpp"
 #include "lidar_localization/sensor_data/pose_data.hpp"
-#include "lidar_localization/models/cloud_filter/voxel_filter.hpp"
 
 namespace lidar_localization {
 class Viewer {
-  public:
+public:
     Viewer();
 
     bool UpdateWithOptimizedKeyFrames(std::deque<KeyFrame>& optimized_key_frames);
-    bool UpdateWithNewKeyFrame(std::deque<KeyFrame>& new_key_frames,
-                               PoseData transformed_data,
-                               CloudData cloud_data);
+    bool UpdateWithNewKeyFrame(std::deque<KeyFrame>& new_key_frames, PoseData transformed_data, CloudData cloud_data);
 
     bool SaveMap();
     Eigen::Matrix4f& GetCurrentPose();
@@ -33,21 +36,20 @@ class Viewer {
     bool HasNewLocalMap();
     bool HasNewGlobalMap();
 
-  private:
+private:
     bool InitWithConfig();
     bool InitParam(const YAML::Node& config_node);
     bool InitDataPath(const YAML::Node& config_node);
-    bool InitFilter(std::string filter_user, 
-                    std::shared_ptr<CloudFilterInterface>& filter_ptr, 
+    bool InitFilter(std::string filter_user,
+                    std::shared_ptr<CloudFilterInterface>& filter_ptr,
                     const YAML::Node& config_node);
 
     bool OptimizeKeyFrames();
     bool JointGlobalMap(CloudData::CLOUD_PTR& global_map_ptr);
     bool JointLocalMap(CloudData::CLOUD_PTR& local_map_ptr);
-    bool JointCloudMap(const std::deque<KeyFrame>& key_frames, 
-                             CloudData::CLOUD_PTR& map_cloud_ptr);
+    bool JointCloudMap(const std::deque<KeyFrame>& key_frames, CloudData::CLOUD_PTR& map_cloud_ptr);
 
-  private:
+private:
     std::string data_path_ = "";
     int local_frame_num_ = 20;
 
@@ -67,6 +69,6 @@ class Viewer {
     bool has_new_global_map_ = false;
     bool has_new_local_map_ = false;
 };
-}
+}  // namespace lidar_localization
 
 #endif

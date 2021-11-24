@@ -7,16 +7,16 @@
 #ifndef LIDAR_LOCALIZATION_PUBLISHER_CLOUD_PUBLISHER_HPP_
 #define LIDAR_LOCALIZATION_PUBLISHER_CLOUD_PUBLISHER_HPP_
 
-#include <sensor_msgs/PointCloud2.h>
-#include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
 #include <pcl_conversions/pcl_conversions.h>
+#include <sensor_msgs/PointCloud2.h>
 
 #include "lidar_localization/sensor_data/cloud_data.hpp"
 
 namespace lidar_localization {
 class CloudPublisher {
-  public:
+public:
     CloudPublisher(ros::NodeHandle& nh,
                    std::string topic_name,
                    std::string frame_id,
@@ -27,14 +27,14 @@ class CloudPublisher {
     void Publish(CloudData::CLOUD_PTR& cloud_ptr_input);
 
     bool HasSubscribers();
-  
-  private:
+
+private:
     void PublishData(CloudData::CLOUD_PTR& cloud_ptr_input, ros::Time time);
 
-  private:
+private:
     ros::NodeHandle nh_;
     ros::Publisher publisher_;
     std::string frame_id_;
 };
-} 
+}  // namespace lidar_localization
 #endif

@@ -1,19 +1,27 @@
 /*
  * @Description: 订阅imu数据
+ * @Created Date: 2019-06-14 16:44:18
  * @Author: Ren Qian
- * @Date: 2019-06-14 16:44:18
+ * -----
+ * @Last Modified: 2021-11-24 00:43:20
+ * @Modified By: Xiaotao Guo
  */
+
 #include "lidar_localization/subscriber/velocity_subscriber.hpp"
 
 #include "glog/logging.h"
 
-namespace lidar_localization{
-VelocitySubscriber::VelocitySubscriber(ros::NodeHandle& nh, std::string topic_name, size_t buff_size)
-    :nh_(nh) {
-    subscriber_ = nh_.subscribe(topic_name, buff_size, &VelocitySubscriber::msg_callback, this);
+namespace lidar_localization {
+VelocitySubscriber::VelocitySubscriber(ros::NodeHandle& nh,
+                                       std::string topic_name,
+                                       size_t buff_size)
+    : nh_(nh) {
+    subscriber_ =
+        nh_.subscribe(topic_name, buff_size, &VelocitySubscriber::msg_callback, this);
 }
 
-void VelocitySubscriber::msg_callback(const geometry_msgs::TwistStampedConstPtr& twist_msg_ptr) {
+void VelocitySubscriber::msg_callback(
+    const geometry_msgs::TwistStampedConstPtr& twist_msg_ptr) {
     buff_mutex_.lock();
     VelocityData velocity_data;
     velocity_data.time = twist_msg_ptr->header.stamp.toSec();
@@ -33,9 +41,11 @@ void VelocitySubscriber::msg_callback(const geometry_msgs::TwistStampedConstPtr&
 void VelocitySubscriber::ParseData(std::deque<VelocityData>& velocity_data_buff) {
     buff_mutex_.lock();
     if (new_velocity_data_.size() > 0) {
-        velocity_data_buff.insert(velocity_data_buff.end(), new_velocity_data_.begin(), new_velocity_data_.end());
+        velocity_data_buff.insert(velocity_data_buff.end(),
+                                  new_velocity_data_.begin(),
+                                  new_velocity_data_.end());
         new_velocity_data_.clear();
     }
     buff_mutex_.unlock();
 }
-}
+}  // namespace lidar_localization

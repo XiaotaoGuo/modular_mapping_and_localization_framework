@@ -6,21 +6,21 @@
 #ifndef LIDAR_LOCALIZATION_MAPPING_BACK_END_BACK_END_HPP_
 #define LIDAR_LOCALIZATION_MAPPING_BACK_END_BACK_END_HPP_
 
-#include <string>
-#include <deque>
 #include <yaml-cpp/yaml.h>
-#include <fstream>
 
-#include "lidar_localization/sensor_data/cloud_data.hpp"
-#include "lidar_localization/sensor_data/pose_data.hpp"
-#include "lidar_localization/sensor_data/key_frame.hpp"
-#include "lidar_localization/sensor_data/loop_pose.hpp"
+#include <deque>
+#include <fstream>
+#include <string>
 
 #include "lidar_localization/models/graph_optimizer/g2o/g2o_graph_optimizer.hpp"
+#include "lidar_localization/sensor_data/cloud_data.hpp"
+#include "lidar_localization/sensor_data/key_frame.hpp"
+#include "lidar_localization/sensor_data/loop_pose.hpp"
+#include "lidar_localization/sensor_data/pose_data.hpp"
 
 namespace lidar_localization {
 class BackEnd {
-  public:
+public:
     BackEnd();
 
     bool Update(const CloudData& cloud_data, const PoseData& laser_odom, const PoseData& gnss_pose);
@@ -33,7 +33,7 @@ class BackEnd {
     void GetLatestKeyFrame(KeyFrame& key_frame);
     void GetLatestKeyGNSS(KeyFrame& key_frame);
 
-  private:
+private:
     bool InitWithConfig();
     bool InitParam(const YAML::Node& config_node);
     bool InitGraphOptimizer(const YAML::Node& config_node);
@@ -46,7 +46,7 @@ class BackEnd {
     bool MaybeOptimized();
     bool SaveOptimizedPose();
 
-  private:
+private:
     std::string key_frames_path_ = "";
     std::string trajectory_path_ = "";
 
@@ -68,14 +68,14 @@ class BackEnd {
     std::shared_ptr<InterfaceGraphOptimizer> graph_optimizer_ptr_;
 
     class GraphOptimizerConfig {
-      public:
+    public:
         GraphOptimizerConfig() {
-          odom_edge_noise.resize(6);
-          close_loop_noise.resize(6);
-          gnss_noise.resize(3);
+            odom_edge_noise.resize(6);
+            close_loop_noise.resize(6);
+            gnss_noise.resize(3);
         }
 
-      public:
+    public:
         bool use_gnss = true;
         bool use_loop_close = false;
 
@@ -93,6 +93,6 @@ class BackEnd {
     int new_loop_cnt_ = 0;
     int new_key_frame_cnt_ = 0;
 };
-}
+}  // namespace lidar_localization
 
 #endif

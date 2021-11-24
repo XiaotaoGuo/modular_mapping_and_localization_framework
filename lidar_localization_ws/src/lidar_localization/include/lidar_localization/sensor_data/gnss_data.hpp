@@ -1,22 +1,21 @@
 /*
- * @Description: 
+ * @Description:
  * @Created Date: 2019-07-17 18:25:13
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-23 18:48:53
+ * @Last Modified: 2021-11-24 00:27:49
  * @Modified By: Xiaotao Guo
  */
 
 #ifndef LIDAR_LOCALIZATION_SENSOR_DATA_GNSS_DATA_HPP_
 #define LIDAR_LOCALIZATION_SENSOR_DATA_GNSS_DATA_HPP_
 
-#include <deque>
-
 #include <GeographicLib/LocalCartesian.hpp>
+#include <deque>
 
 namespace lidar_localization {
 class GNSSData {
-  public:
+public:
     double time = 0.0;
     double longitude = 0.0;
     double latitude = 0.0;
@@ -31,14 +30,16 @@ class GNSSData {
     static double origin_latitude;
     static double origin_altitude;
 
-  private:
+private:
     static GeographicLib::LocalCartesian geo_converter;
     static bool origin_position_inited;
 
-  public: 
+public:
     void InitOriginPosition();
     void UpdateXYZ();
-    static bool SyncData(std::deque<GNSSData>& UnsyncedData, std::deque<GNSSData>& SyncedData, double sync_time);
+    static bool SyncData(std::deque<GNSSData>& UnsyncedData,
+                         std::deque<GNSSData>& SyncedData,
+                         double sync_time);
 };
-}
+}  // namespace lidar_localization
 #endif

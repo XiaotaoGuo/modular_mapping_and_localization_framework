@@ -1,8 +1,12 @@
 /*
  * @Description: matching 模块任务管理， 放在类里使代码更清晰
+ * @Created Date: 2020-02-10 08:31:22
  * @Author: Ren Qian
- * @Date: 2020-02-10 08:31:22
+ * -----
+ * @Last Modified: 2021-11-24 00:18:12
+ * @Modified By: Xiaotao Guo
  */
+
 #ifndef LIDAR_LOCALIZATION_MATCHING_MATCHING_FLOW_HPP_
 #define LIDAR_LOCALIZATION_MATCHING_MATCHING_FLOW_HPP_
 
@@ -19,20 +23,20 @@
 
 namespace lidar_localization {
 class MatchingFlow {
-  public:
+public:
     MatchingFlow(ros::NodeHandle& nh);
 
     bool Run();
 
-  private:
+private:
     bool ReadData();
     bool HasData();
     bool ValidData();
     bool UpdateMatching();
     bool PublishData();
 
-  private:
-    // subscriber 
+private:
+    // subscriber
     std::shared_ptr<CloudSubscriber> cloud_sub_ptr_;
     std::shared_ptr<OdometrySubscriber> gnss_sub_ptr_;
     // publisher
@@ -52,6 +56,6 @@ class MatchingFlow {
 
     Eigen::Matrix4f laser_odometry_ = Eigen::Matrix4f::Identity();
 };
-}
+}  // namespace lidar_localization
 
 #endif

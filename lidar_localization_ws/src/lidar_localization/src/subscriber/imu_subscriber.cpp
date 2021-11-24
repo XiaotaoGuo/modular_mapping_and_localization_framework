@@ -1,15 +1,23 @@
 /*
  * @Description: 订阅imu数据
+ * @Created Date: 2019-06-14 16:44:18
  * @Author: Ren Qian
- * @Date: 2019-06-14 16:44:18
+ * -----
+ * @Last Modified: 2021-11-24 00:41:51
+ * @Modified By: Xiaotao Guo
  */
+
 #include "lidar_localization/subscriber/imu_subscriber.hpp"
+
 #include "glog/logging.h"
 
-namespace lidar_localization{
-IMUSubscriber::IMUSubscriber(ros::NodeHandle& nh, std::string topic_name, size_t buff_size)
-    :nh_(nh) {
-    subscriber_ = nh_.subscribe(topic_name, buff_size, &IMUSubscriber::msg_callback, this);
+namespace lidar_localization {
+IMUSubscriber::IMUSubscriber(ros::NodeHandle& nh,
+                             std::string topic_name,
+                             size_t buff_size)
+    : nh_(nh) {
+    subscriber_ =
+        nh_.subscribe(topic_name, buff_size, &IMUSubscriber::msg_callback, this);
 }
 
 void IMUSubscriber::msg_callback(const sensor_msgs::ImuConstPtr& imu_msg_ptr) {
@@ -37,9 +45,10 @@ void IMUSubscriber::msg_callback(const sensor_msgs::ImuConstPtr& imu_msg_ptr) {
 void IMUSubscriber::ParseData(std::deque<IMUData>& imu_data_buff) {
     buff_mutex_.lock();
     if (new_imu_data_.size() > 0) {
-        imu_data_buff.insert(imu_data_buff.end(), new_imu_data_.begin(), new_imu_data_.end());
+        imu_data_buff.insert(
+            imu_data_buff.end(), new_imu_data_.begin(), new_imu_data_.end());
         new_imu_data_.clear();
     }
     buff_mutex_.unlock();
 }
-}
+}  // namespace lidar_localization

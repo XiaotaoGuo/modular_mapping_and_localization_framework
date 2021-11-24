@@ -1,11 +1,16 @@
 /*
  * @Description: 一些文件读写的方法
+ * @Created Date: 2020-02-24 20:09:32
  * @Author: Ren Qian
- * @Date: 2020-02-24 20:09:32
+ * -----
+ * @Last Modified: 2021-11-24 00:43:50
+ * @Modified By: Xiaotao Guo
  */
+
 #include "lidar_localization/tools/file_manager.hpp"
 
 #include <boost/filesystem.hpp>
+
 #include "glog/logging.h"
 
 namespace lidar_localization {
@@ -15,7 +20,9 @@ bool FileManager::CreateFile(std::ofstream& ofs, std::string file_path) {
 
     ofs.open(file_path.c_str(), std::ios::out);
     if (!ofs) {
-        LOG(WARNING) << "无法生成文件: " << std::endl << file_path << std::endl << std::endl;
+        LOG(WARNING) << "无法生成文件: " << std::endl
+                     << file_path << std::endl
+                     << std::endl;
         return false;
     }
 
@@ -36,11 +43,15 @@ bool FileManager::CreateDirectory(std::string directory_path, std::string use_fo
     }
 
     if (!boost::filesystem::is_directory(directory_path)) {
-        LOG(WARNING) << "无法创建文件夹: " << std::endl << directory_path << std::endl << std::endl;
+        LOG(WARNING) << "无法创建文件夹: " << std::endl
+                     << directory_path << std::endl
+                     << std::endl;
         return false;
     }
 
-    std::cout << use_for << "存放地址：" << std::endl << directory_path << std::endl << std::endl;
+    std::cout << use_for << "存放地址：" << std::endl
+              << directory_path << std::endl
+              << std::endl;
     return true;
 }
 
@@ -50,10 +61,12 @@ bool FileManager::CreateDirectory(std::string directory_path) {
     }
 
     if (!boost::filesystem::is_directory(directory_path)) {
-        LOG(WARNING) << "无法创建文件夹: " << std::endl << directory_path << std::endl << std::endl;
+        LOG(WARNING) << "无法创建文件夹: " << std::endl
+                     << directory_path << std::endl
+                     << std::endl;
         return false;
     }
 
     return true;
 }
-}
+}  // namespace lidar_localization

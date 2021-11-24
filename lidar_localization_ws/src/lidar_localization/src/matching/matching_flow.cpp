@@ -3,11 +3,12 @@
  * @Created Date: 2020-02-10 08:38:42
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-23 23:49:08
+ * @Last Modified: 2021-11-24 00:35:18
  * @Modified By: Xiaotao Guo
  */
 
 #include "lidar_localization/matching/matching_flow.hpp"
+
 #include "glog/logging.h"
 #include "lidar_localization/global_defination/global_defination.h"
 
@@ -18,8 +19,10 @@ MatchingFlow::MatchingFlow(ros::NodeHandle& nh) {
 
     global_map_pub_ptr_ = std::make_shared<CloudPublisher>(nh, "/global_map", "map", 100);
     local_map_pub_ptr_ = std::make_shared<CloudPublisher>(nh, "/local_map", "map", 100);
-    current_scan_pub_ptr_ = std::make_shared<CloudPublisher>(nh, "/current_scan", "map", 100);
-    laser_odom_pub_ptr_ = std::make_shared<OdometryPublisher>(nh, "/laser_localization", "map", "lidar", 100);
+    current_scan_pub_ptr_ =
+        std::make_shared<CloudPublisher>(nh, "/current_scan", "map", 100);
+    laser_odom_pub_ptr_ = std::make_shared<OdometryPublisher>(
+        nh, "/laser_localization", "map", "lidar", 100);
     laser_tf_pub_ptr_ = std::make_shared<TFBroadCaster>("map", "/vehicle_link");
 
     matching_ptr_ = std::make_shared<Matching>();
@@ -37,9 +40,8 @@ bool MatchingFlow::Run() {
 
     ReadData();
 
-    while(HasData()) {
-        if (!ValidData())
-            continue;
+    while (HasData()) {
+        if (!ValidData()) continue;
 
         if (UpdateMatching()) {
             PublishData();
@@ -56,15 +58,12 @@ bool MatchingFlow::ReadData() {
 }
 
 bool MatchingFlow::HasData() {
-    if (cloud_data_buff_.size() == 0)
-        return false;
-    
-    if (matching_ptr_->HasInited())
-        return true;
-    
-    if (gnss_data_buff_.size() == 0)
-        return false;
-    
+    if (cloud_data_buff_.size() == 0) return false;
+
+    if (matching_ptr_->HasInited()) return true;
+
+    if (gnss_data_buff_.size() == 0) return false;
+
     return true;
 }
 
@@ -110,4 +109,4 @@ bool MatchingFlow::PublishData() {
 
     return true;
 }
-}
+}  // namespace lidar_localization

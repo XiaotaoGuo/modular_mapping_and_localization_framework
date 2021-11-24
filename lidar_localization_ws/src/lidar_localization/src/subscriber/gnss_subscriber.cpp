@@ -1,16 +1,23 @@
 /*
- * @Description: 
+ * @Description:
+ * @Created Date: 2019-03-31 13:10:51
  * @Author: Ren Qian
- * @Date: 2019-03-31 13:10:51
+ * -----
+ * @Last Modified: 2021-11-24 00:41:29
+ * @Modified By: Xiaotao Guo
  */
+
 #include "lidar_localization/subscriber/gnss_subscriber.hpp"
 
 #include "glog/logging.h"
 
 namespace lidar_localization {
-GNSSSubscriber::GNSSSubscriber(ros::NodeHandle& nh, std::string topic_name, size_t buff_size) 
-    :nh_(nh) {
-    subscriber_ = nh_.subscribe(topic_name, buff_size, &GNSSSubscriber::msg_callback, this);
+GNSSSubscriber::GNSSSubscriber(ros::NodeHandle& nh,
+                               std::string topic_name,
+                               size_t buff_size)
+    : nh_(nh) {
+    subscriber_ =
+        nh_.subscribe(topic_name, buff_size, &GNSSSubscriber::msg_callback, this);
 }
 
 void GNSSSubscriber::msg_callback(const sensor_msgs::NavSatFixConstPtr& nav_sat_fix_ptr) {
@@ -30,9 +37,10 @@ void GNSSSubscriber::msg_callback(const sensor_msgs::NavSatFixConstPtr& nav_sat_
 void GNSSSubscriber::ParseData(std::deque<GNSSData>& gnss_data_buff) {
     buff_mutex_.lock();
     if (new_gnss_data_.size() > 0) {
-        gnss_data_buff.insert(gnss_data_buff.end(), new_gnss_data_.begin(), new_gnss_data_.end());
+        gnss_data_buff.insert(
+            gnss_data_buff.end(), new_gnss_data_.begin(), new_gnss_data_.end());
         new_gnss_data_.clear();
     }
     buff_mutex_.unlock();
 }
-}
+}  // namespace lidar_localization

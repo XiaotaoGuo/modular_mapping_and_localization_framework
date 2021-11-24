@@ -1,22 +1,24 @@
 /*
- * @Description: 
+ * @Description:
+ * @Created Date: 2020-02-29 03:49:12
  * @Author: Ren Qian
- * @Date: 2020-02-29 03:49:12
+ * -----
+ * @Last Modified: 2021-11-24 00:35:15
+ * @Modified By: Xiaotao Guo
  */
+
 #include "lidar_localization/mapping/viewer/viewer.hpp"
 
 #include <pcl/common/transforms.h>
 #include <pcl/io/pcd_io.h>
-#include "glog/logging.h"
 
-#include "lidar_localization/tools/file_manager.hpp"
-#include "lidar_localization/models/cloud_filter/voxel_filter.hpp"
+#include "glog/logging.h"
 #include "lidar_localization/global_defination/global_defination.h"
+#include "lidar_localization/models/cloud_filter/voxel_filter.hpp"
+#include "lidar_localization/tools/file_manager.hpp"
 
 namespace lidar_localization {
-Viewer::Viewer() {
-    InitWithConfig();
-}
+Viewer::Viewer() { InitWithConfig(); }
 
 bool Viewer::InitWithConfig() {
     std::string config_file_path = WORK_SPACE_PATH + "/config/mapping/viewer.yaml";
@@ -46,20 +48,24 @@ bool Viewer::InitDataPath(const YAML::Node& config_node) {
     key_frames_path_ = data_path + "/slam_data/key_frames";
     map_path_ = data_path + "/slam_data/map";
 
-    if (!FileManager::CreateDirectory(map_path_, "点云地图文件"))
-        return false;
+    if (!FileManager::CreateDirectory(map_path_, "点云地图文件")) return false;
 
     return true;
 }
 
-bool Viewer::InitFilter(std::string filter_user, std::shared_ptr<CloudFilterInterface>& filter_ptr, const YAML::Node& config_node) {
+bool Viewer::InitFilter(std::string filter_user,
+                        std::shared_ptr<CloudFilterInterface>& filter_ptr,
+                        const YAML::Node& config_node) {
     std::string filter_mothod = config_node[filter_user + "_filter"].as<std::string>();
-    std::cout << "显示模块" << filter_user << "选择的滤波方法为：" << filter_mothod << std::endl;
+    std::cout << "显示模块" << filter_user << "选择的滤波方法为：" << filter_mothod
+              << std::endl;
 
     if (filter_mothod == "voxel_filter") {
-        filter_ptr = std::make_shared<VoxelFilter>(config_node[filter_mothod][filter_user]);
+        filter_ptr =
+            std::make_shared<VoxelFilter>(config_node[filter_mothod][filter_user]);
     } else {
-        LOG(ERROR) << "没有为 " << filter_user << " 找到与 " << filter_mothod << " 相对应的滤波方法!";
+        LOG(ERROR) << "没有为 " << filter_user << " 找到与 " << filter_mothod
+                   << " 相对应的滤波方法!";
         return false;
     }
 
@@ -68,7 +74,7 @@ bool Viewer::InitFilter(std::string filter_user, std::shared_ptr<CloudFilterInte
 
 bool Viewer::UpdateWithOptimizedKeyFrames(std::deque<KeyFrame>& optimized_key_frames) {
     has_new_global_map_ = false;
-    
+
     if (optimized_key_frames.size() > 0) {
         optimized_key_frames_ = optimized_key_frames;
         optimized_key_frames.clear();
@@ -99,7 +105,8 @@ bool Viewer::UpdateWithNewKeyFrame(std::deque<KeyFrame>& new_key_frames,
     optimized_odom_.pose = pose_to_optimize_ * optimized_odom_.pose;
 
     optimized_cloud_ = cloud_data;
-    pcl::transformPointCloud(*cloud_data.cloud_ptr, *optimized_cloud_.cloud_ptr, optimized_odom_.pose);
+    pcl::transformPointCloud(
+        *cloud_data.cloud_ptr, *optimized_cloud_.cloud_ptr, optimized_odom_.pose);
 
     return true;
 }
@@ -107,22 +114,27 @@ bool Viewer::UpdateWithNewKeyFrame(std::deque<KeyFrame>& new_key_frames,
 bool Viewer::OptimizeKeyFrames() {
     size_t optimized_index = 0;
     size_t all_index = 0;
-    while (optimized_index < optimized_key_frames_.size() && all_index < all_key_frames_.size()) {
-        if (optimized_key_frames_.at(optimized_index).index < all_key_frames_.at(all_index).index) {
-            optimized_index ++;
-        } else if (optimized_key_frames_.at(optimized_index).index < all_key_frames_.at(all_index).index) {
-            all_index ++;
+    while (optimized_index < optimized_key_frames_.size() &&
+           all_index < all_key_frames_.size()) {
+        if (optimized_key_frames_.at(optimized_index).index <
+            all_key_frames_.at(all_index).index) {
+            optimized_index++;
+        } else if (optimized_key_frames_.at(optimized_index).index <
+                   all_key_frames_.at(all_index).index) {
+            all_index++;
         } else {
-            pose_to_optimize_ = optimized_key_frames_.at(optimized_index).pose * all_key_frames_.at(all_index).pose.inverse();
+            pose_to_optimize_ = optimized_key_frames_.at(optimized_index).pose *
+                                all_key_frames_.at(all_index).pose.inverse();
             all_key_frames_.at(all_index) = optimized_key_frames_.at(optimized_index);
-            optimized_index ++;
-            all_index ++;
+            optimized_index++;
+            all_index++;
         }
     }
 
     while (all_index < all_key_frames_.size()) {
-        all_key_frames_.at(all_index).pose = pose_to_optimize_ * all_key_frames_.at(all_index).pose;
-        all_index ++;
+        all_key_frames_.at(all_index).pose =
+            pose_to_optimize_ * all_key_frames_.at(all_index).pose;
+        all_index++;
     }
 
     return true;
@@ -147,14 +159,16 @@ bool Viewer::JointLocalMap(CloudData::CLOUD_PTR& local_map_ptr) {
     return true;
 }
 
-bool Viewer::JointCloudMap(const std::deque<KeyFrame>& key_frames, CloudData::CLOUD_PTR& map_cloud_ptr) {
+bool Viewer::JointCloudMap(const std::deque<KeyFrame>& key_frames,
+                           CloudData::CLOUD_PTR& map_cloud_ptr) {
     map_cloud_ptr.reset(new CloudData::CLOUD());
 
     CloudData::CLOUD_PTR cloud_ptr(new CloudData::CLOUD());
     std::string file_path = "";
 
     for (size_t i = 0; i < key_frames.size(); ++i) {
-        file_path = key_frames_path_ + "/key_frame_" + std::to_string(key_frames.at(i).index) + ".pcd";
+        file_path = key_frames_path_ + "/key_frame_" +
+                    std::to_string(key_frames.at(i).index) + ".pcd";
         pcl::io::loadPCDFile(file_path, *cloud_ptr);
         pcl::transformPointCloud(*cloud_ptr, *cloud_ptr, key_frames.at(i).pose);
         *map_cloud_ptr += *cloud_ptr;
@@ -163,8 +177,7 @@ bool Viewer::JointCloudMap(const std::deque<KeyFrame>& key_frames, CloudData::CL
 }
 
 bool Viewer::SaveMap() {
-    if (optimized_key_frames_.size() == 0)
-        return false;
+    if (optimized_key_frames_.size() == 0) return false;
     // 生成地图
     CloudData::CLOUD_PTR global_map_ptr(new CloudData::CLOUD());
     JointCloudMap(optimized_key_frames_, global_map_ptr);
@@ -173,20 +186,21 @@ bool Viewer::SaveMap() {
     pcl::io::savePCDFileBinary(map_file_path, *global_map_ptr);
     // 保存滤波后地图
     if (global_map_ptr->points.size() > 1000000) {
-        std::shared_ptr<VoxelFilter> map_filter_ptr = std::make_shared<VoxelFilter>(0.5, 0.5, 0.5);
+        std::shared_ptr<VoxelFilter> map_filter_ptr =
+            std::make_shared<VoxelFilter>(0.5, 0.5, 0.5);
         map_filter_ptr->Filter(global_map_ptr, global_map_ptr);
     }
     std::string filtered_map_file_path = map_path_ + "/filtered_map.pcd";
     pcl::io::savePCDFileBinary(filtered_map_file_path, *global_map_ptr);
 
-    LOG(INFO) << "地图保存完成，地址是：" << std::endl << map_path_ << std::endl << std::endl;
+    LOG(INFO) << "地图保存完成，地址是：" << std::endl
+              << map_path_ << std::endl
+              << std::endl;
 
     return true;
 }
 
-Eigen::Matrix4f& Viewer::GetCurrentPose() {
-    return optimized_odom_.pose;
-}
+Eigen::Matrix4f& Viewer::GetCurrentPose() { return optimized_odom_.pose; }
 
 CloudData::CLOUD_PTR& Viewer::GetCurrentScan() {
     frame_filter_ptr_->Filter(optimized_cloud_.cloud_ptr, optimized_cloud_.cloud_ptr);
@@ -205,11 +219,7 @@ bool Viewer::GetGlobalMap(CloudData::CLOUD_PTR& global_map_ptr) {
     return true;
 }
 
-bool Viewer::HasNewLocalMap() {
-    return has_new_local_map_;
-}
+bool Viewer::HasNewLocalMap() { return has_new_local_map_; }
 
-bool Viewer::HasNewGlobalMap() {
-    return has_new_global_map_;
-}
-}
+bool Viewer::HasNewGlobalMap() { return has_new_global_map_; }
+}  // namespace lidar_localization
