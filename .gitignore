@@ -1,13 +1,11 @@
-lidar_localization/slam_data
+# lidar_localization/slam_data
 
 **.vscode
 
 **build**
 **devel**
 
-**slam_data/key_frames/key_frame**
-**slam_data/map/**
-**slam_data/trajectory/**
+**slam_data**
 
 *.INFO
 *.INFO.*
