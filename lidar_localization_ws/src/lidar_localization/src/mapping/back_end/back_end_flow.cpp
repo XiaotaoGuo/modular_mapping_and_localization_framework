@@ -1,8 +1,12 @@
 /*
  * @Description: front end 任务管理， 放在类里使代码更清晰
+ * @Created Date: 2020-02-10 08:38:42
  * @Author: Ren Qian
- * @Date: 2020-02-10 08:38:42
+ * -----
+ * @Last Modified: 2021-11-23 23:38:15
+ * @Modified By: Xiaotao Guo
  */
+
 #include "lidar_localization/mapping/back_end/back_end_flow.hpp"
 
 #include "glog/logging.h"
@@ -17,10 +21,10 @@ BackEndFlow::BackEndFlow(ros::NodeHandle& nh, std::string cloud_topic, std::stri
     laser_odom_sub_ptr_ = std::make_shared<OdometrySubscriber>(nh, odom_topic, 100000);
     loop_pose_sub_ptr_ = std::make_shared<LoopPoseSubscriber>(nh, "/loop_pose", 100000);
 
-    transformed_odom_pub_ptr_ = std::make_shared<OdometryPublisher>(nh, "/transformed_odom", "/map", "/lidar", 100);
-    key_frame_pub_ptr_ = std::make_shared<KeyFramePublisher>(nh, "/key_frame", "/map", 100);
-    key_gnss_pub_ptr_ = std::make_shared<KeyFramePublisher>(nh, "/key_gnss", "/map", 100);
-    key_frames_pub_ptr_ = std::make_shared<KeyFramesPublisher>(nh, "/optimized_key_frames", "/map", 100);
+    transformed_odom_pub_ptr_ = std::make_shared<OdometryPublisher>(nh, "/transformed_odom", "map", "lidar", 100);
+    key_frame_pub_ptr_ = std::make_shared<KeyFramePublisher>(nh, "/key_frame", "map", 100);
+    key_gnss_pub_ptr_ = std::make_shared<KeyFramePublisher>(nh, "/key_gnss", "map", 100);
+    key_frames_pub_ptr_ = std::make_shared<KeyFramesPublisher>(nh, "/optimized_key_frames", "map", 100);
 
     back_end_ptr_ = std::make_shared<BackEnd>();
 }

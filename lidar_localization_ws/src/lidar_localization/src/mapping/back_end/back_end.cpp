@@ -1,8 +1,12 @@
 /*
  * @Description: back end 具体实现
+ * @Created Date: 2020-02-28 01:02:51
  * @Author: Ren Qian
- * @Date: 2020-02-28 01:02:51
+ * -----
+ * @Last Modified: 2021-11-23 23:38:56
+ * @Modified By: Xiaotao Guo
  */
+
 #include "lidar_localization/mapping/back_end/back_end.hpp"
 
 #include <Eigen/Dense>
@@ -38,7 +42,7 @@ bool BackEnd::InitParam(const YAML::Node& config_node) {
 bool BackEnd::InitGraphOptimizer(const YAML::Node& config_node) {
     std::string graph_optimizer_type = config_node["graph_optimizer_type"].as<std::string>();
     if (graph_optimizer_type == "g2o") {
-        graph_optimizer_ptr_ = std::make_shared<G2oGraphOptimizer>("lm_var");
+        graph_optimizer_ptr_ = std::make_shared<G2oGraphOptimizer>("lm_var_cholmod");
     } else {
         LOG(ERROR) << "没有找到与 " << graph_optimizer_type << " 对应的图优化模式,请检查配置文件";
         return false;

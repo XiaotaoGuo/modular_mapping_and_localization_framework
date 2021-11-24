@@ -1,7 +1,10 @@
 /*
  * @Description: 
+ * @Created Date: 2020-03-01 18:07:42
  * @Author: Ren Qian
- * @Date: 2020-03-01 18:07:42
+ * -----
+ * @Last Modified: 2021-11-23 23:36:28
+ * @Modified By: Xiaotao Guo
  */
 
 #ifndef LIDAR_LOCALIZATION_MODELS_GRAPH_OPTIMIZER_G2O_G2O_GRAPH_OPTIMIZER_HPP_
@@ -52,7 +55,7 @@ G2O_USE_OPTIMIZATION_LIBRARY(csparse)
 namespace lidar_localization {
 class G2oGraphOptimizer: public InterfaceGraphOptimizer {
   public:
-    G2oGraphOptimizer(const std::string &solver_type = "lm_var");
+    G2oGraphOptimizer(const std::string &solver_type = "lm_var_cholmod");
     // 优化
     bool Optimize() override;
     // 输出数据

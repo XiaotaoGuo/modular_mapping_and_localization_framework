@@ -1,8 +1,12 @@
 /*
  * @Description: 地图匹配任务管理， 放在类里使代码更清晰
+ * @Created Date: 2020-02-10 08:38:42
  * @Author: Ren Qian
- * @Date: 2020-02-10 08:38:42
+ * -----
+ * @Last Modified: 2021-11-23 23:49:08
+ * @Modified By: Xiaotao Guo
  */
+
 #include "lidar_localization/matching/matching_flow.hpp"
 #include "glog/logging.h"
 #include "lidar_localization/global_defination/global_defination.h"
@@ -12,11 +16,11 @@ MatchingFlow::MatchingFlow(ros::NodeHandle& nh) {
     cloud_sub_ptr_ = std::make_shared<CloudSubscriber>(nh, "/synced_cloud", 100000);
     gnss_sub_ptr_ = std::make_shared<OdometrySubscriber>(nh, "/synced_gnss", 100000);
 
-    global_map_pub_ptr_ = std::make_shared<CloudPublisher>(nh, "/global_map", "/map", 100);
-    local_map_pub_ptr_ = std::make_shared<CloudPublisher>(nh, "/local_map", "/map", 100);
-    current_scan_pub_ptr_ = std::make_shared<CloudPublisher>(nh, "/current_scan", "/map", 100);
-    laser_odom_pub_ptr_ = std::make_shared<OdometryPublisher>(nh, "/laser_localization", "/map", "/lidar", 100);
-    laser_tf_pub_ptr_ = std::make_shared<TFBroadCaster>("/map", "/vehicle_link");
+    global_map_pub_ptr_ = std::make_shared<CloudPublisher>(nh, "/global_map", "map", 100);
+    local_map_pub_ptr_ = std::make_shared<CloudPublisher>(nh, "/local_map", "map", 100);
+    current_scan_pub_ptr_ = std::make_shared<CloudPublisher>(nh, "/current_scan", "map", 100);
+    laser_odom_pub_ptr_ = std::make_shared<OdometryPublisher>(nh, "/laser_localization", "map", "lidar", 100);
+    laser_tf_pub_ptr_ = std::make_shared<TFBroadCaster>("map", "/vehicle_link");
 
     matching_ptr_ = std::make_shared<Matching>();
 }

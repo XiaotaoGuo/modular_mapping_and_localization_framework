@@ -1,8 +1,12 @@
 /*
  * @Description: 
+ * @Created Date: 2020-02-05 02:56:27
  * @Author: Ren Qian
- * @Date: 2020-02-05 02:56:27
+ * -----
+ * @Last Modified: 2021-11-23 23:37:19
+ * @Modified By: Xiaotao Guo
  */
+
 #include <ros/ros.h>
 #include <pcl/common/transforms.h>
 #include "glog/logging.h"
@@ -28,10 +32,10 @@ int main(int argc, char *argv[]) {
     std::shared_ptr<CloudSubscriber> cloud_sub_ptr = std::make_shared<CloudSubscriber>(nh, "/kitti/velo/pointcloud", 100000);
     std::shared_ptr<IMUSubscriber> imu_sub_ptr = std::make_shared<IMUSubscriber>(nh, "/kitti/oxts/imu", 1000000);
     std::shared_ptr<GNSSSubscriber> gnss_sub_ptr = std::make_shared<GNSSSubscriber>(nh, "/kitti/oxts/gps/fix", 1000000);
-    std::shared_ptr<TFListener> lidar_to_imu_ptr = std::make_shared<TFListener>(nh, "velo_link", "imu_link");
+    std::shared_ptr<TFListener> lidar_to_imu_ptr = std::make_shared<TFListener>(nh, "/velo_link", "/imu_link");
 
-    std::shared_ptr<CloudPublisher> cloud_pub_ptr = std::make_shared<CloudPublisher>(nh, "current_scan", "/map", 100);
-    std::shared_ptr<OdometryPublisher> odom_pub_ptr = std::make_shared<OdometryPublisher>(nh, "lidar_odom", "/map", "/lidar", 100);
+    std::shared_ptr<CloudPublisher> cloud_pub_ptr = std::make_shared<CloudPublisher>(nh, "/current_scan", "map", 100);
+    std::shared_ptr<OdometryPublisher> odom_pub_ptr = std::make_shared<OdometryPublisher>(nh, "/lidar_odom", "map", "lidar", 100);
 
     std::deque<CloudData> cloud_data_buff;
     std::deque<IMUData> imu_data_buff;

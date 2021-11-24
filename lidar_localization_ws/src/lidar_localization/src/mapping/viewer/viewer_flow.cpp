@@ -1,8 +1,12 @@
 /*
  * @Description: 
+ * @Created Date: 2020-02-10 08:38:42
  * @Author: Ren Qian
- * @Date: 2020-02-10 08:38:42
+ * -----
+ * @Last Modified: 2021-11-23 23:39:59
+ * @Modified By: Xiaotao Guo
  */
+
 #include "lidar_localization/mapping/viewer/viewer_flow.hpp"
 #include "glog/logging.h"
 #include "lidar_localization/global_defination/global_defination.h"
@@ -15,10 +19,10 @@ ViewerFlow::ViewerFlow(ros::NodeHandle& nh, std::string cloud_topic) {
     transformed_odom_sub_ptr_ = std::make_shared<OdometrySubscriber>(nh, "/transformed_odom", 100000);
     optimized_key_frames_sub_ptr_ = std::make_shared<KeyFramesSubscriber>(nh, "/optimized_key_frames", 100000);
     // publisher
-    optimized_odom_pub_ptr_ = std::make_shared<OdometryPublisher>(nh, "/optimized_odom", "/map", "/lidar", 100);
-    current_scan_pub_ptr_ = std::make_shared<CloudPublisher>(nh, "/current_scan", "/map", 100);
-    global_map_pub_ptr_ = std::make_shared<CloudPublisher>(nh, "/global_map", "/map", 100);
-    local_map_pub_ptr_ = std::make_shared<CloudPublisher>(nh, "/local_map", "/map", 100);
+    optimized_odom_pub_ptr_ = std::make_shared<OdometryPublisher>(nh, "/optimized_odom", "map", "lidar", 100);
+    current_scan_pub_ptr_ = std::make_shared<CloudPublisher>(nh, "/current_scan", "map", 100);
+    global_map_pub_ptr_ = std::make_shared<CloudPublisher>(nh, "/global_map", "map", 100);
+    local_map_pub_ptr_ = std::make_shared<CloudPublisher>(nh, "/local_map", "map", 100);
     // viewer
     viewer_ptr_ = std::make_shared<Viewer>();
 }

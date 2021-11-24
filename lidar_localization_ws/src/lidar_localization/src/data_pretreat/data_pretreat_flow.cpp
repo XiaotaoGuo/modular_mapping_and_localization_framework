@@ -1,8 +1,12 @@
 /*
  * @Description: 数据预处理模块，包括时间同步、点云去畸变等
+ * @Created Date: 2020-02-10 08:38:42
  * @Author: Ren Qian
- * @Date: 2020-02-10 08:38:42
+ * -----
+ * @Last Modified: 2021-11-24 00:01:06
+ * @Modified By: Xiaotao Guo
  */
+
 #include "lidar_localization/data_pretreat/data_pretreat_flow.hpp"
 
 #include "glog/logging.h"
@@ -15,10 +19,10 @@ DataPretreatFlow::DataPretreatFlow(ros::NodeHandle& nh, std::string cloud_topic)
     imu_sub_ptr_ = std::make_shared<IMUSubscriber>(nh, "/kitti/oxts/imu", 1000000);
     velocity_sub_ptr_ = std::make_shared<VelocitySubscriber>(nh, "/kitti/oxts/gps/vel", 1000000);
     gnss_sub_ptr_ = std::make_shared<GNSSSubscriber>(nh, "/kitti/oxts/gps/fix", 1000000);
-    lidar_to_imu_ptr_ = std::make_shared<TFListener>(nh, "/imu_link", "/velo_link");
+    lidar_to_imu_ptr_ = std::make_shared<TFListener>(nh, "imu_link", "velo_link");
     // publisher
-    cloud_pub_ptr_ = std::make_shared<CloudPublisher>(nh, cloud_topic, "/velo_link", 100);
-    gnss_pub_ptr_ = std::make_shared<OdometryPublisher>(nh, "/synced_gnss", "/map", "/velo_link", 100);
+    cloud_pub_ptr_ = std::make_shared<CloudPublisher>(nh, cloud_topic, "velo_link", 100);
+    gnss_pub_ptr_ = std::make_shared<OdometryPublisher>(nh, "/synced_gnss", "map", "velo_link", 100);
 
     distortion_adjust_ptr_ = std::make_shared<DistortionAdjust>();
 }
