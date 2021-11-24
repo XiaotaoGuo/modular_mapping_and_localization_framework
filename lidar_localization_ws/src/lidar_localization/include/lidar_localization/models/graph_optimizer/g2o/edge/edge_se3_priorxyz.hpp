@@ -1,8 +1,12 @@
 /*
  * @Description: GNSS 坐标做观测时使用的先验边
+ * @Created Date: 2020-03-01 18:05:35
  * @Author: Ren Qian
- * @Date: 2020-03-01 18:05:35
+ * -----
+ * @Last Modified: 2021-11-23 18:53:48
+ * @Modified By: Xiaotao Guo
  */
+
 #ifndef LIDAR_LOCALIZATION_MODELS_GRAPH_OPTIMIZER_G2O_EDGE_EDGE_SE3_PRIORXYZ_HPP_
 #define LIDAR_LOCALIZATION_MODELS_GRAPH_OPTIMIZER_G2O_EDGE_EDGE_SE3_PRIORXYZ_HPP_
 
