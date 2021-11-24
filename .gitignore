@@ -5,6 +5,10 @@ lidar_localization/slam_data
 **build**
 **devel**
 
+**slam_data/key_frames/key_frame**
+**slam_data/map/**
+**slam_data/trajectory/**
+
 *.INFO
 *.INFO.*
 *.log.*
