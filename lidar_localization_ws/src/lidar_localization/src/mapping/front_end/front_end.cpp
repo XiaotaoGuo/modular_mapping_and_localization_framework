@@ -3,15 +3,10 @@
  * @Created Date: 2020-02-04 18:53:06
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-24 00:34:34
+ * @Last Modified: 2021-11-25 00:13:27
  * @Modified By: Xiaotao Guo
  */
 
-/*
- * @Description: 前端里程计算法
- * @Author: Ren Qian
- * @Date: 2020-02-04 18:53:06
- */
 #include "lidar_localization/mapping/front_end/front_end.hpp"
 
 #include <pcl/common/transforms.h>
@@ -24,7 +19,8 @@
 #include "lidar_localization/global_defination/global_defination.h"
 #include "lidar_localization/models/cloud_filter/no_filter.hpp"
 #include "lidar_localization/models/cloud_filter/voxel_filter.hpp"
-#include "lidar_localization/models/registration/ndt_registration.hpp"
+#include "lidar_localization/models/registration/pcl_icp_registration.hpp"
+#include "lidar_localization/models/registration/pcl_ndt_registration.hpp"
 #include "lidar_localization/tools/print_info.hpp"
 
 namespace lidar_localization {
@@ -56,9 +52,12 @@ bool FrontEnd::InitRegistration(std::shared_ptr<RegistrationInterface>& registra
         config_node["registration_method"].as<std::string>();
     std::cout << "前端选择的点云匹配方式为：" << registration_method << std::endl;
 
-    if (registration_method == "NDT") {
+    if (registration_method == "PCL-NDT") {
         registration_ptr =
-            std::make_shared<NDTRegistration>(config_node[registration_method]);
+            std::make_shared<PCLNDTRegistration>(config_node[registration_method]);
+    } else if (registration_method == "PCL-ICP") {
+        registration_ptr =
+            std::make_shared<PCLICPRegistration>(config_node[registration_method]);
     } else {
         LOG(ERROR) << "没找到与 " << registration_method << " 相对应的点云匹配方式!";
         return false;

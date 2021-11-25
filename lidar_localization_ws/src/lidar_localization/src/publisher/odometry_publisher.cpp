@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-06 21:11:44
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-24 00:39:02
+ * @Last Modified: 2021-11-25 00:46:33
  * @Modified By: Xiaotao Guo
  */
 
@@ -41,6 +41,7 @@ void OdometryPublisher::PublishData(const Eigen::Matrix4f& transform_matrix,
 
     Eigen::Quaternionf q;
     q = transform_matrix.block<3, 3>(0, 0);
+    q.normalize();
     odometry_.pose.pose.orientation.x = q.x();
     odometry_.pose.pose.orientation.y = q.y();
     odometry_.pose.pose.orientation.z = q.z();

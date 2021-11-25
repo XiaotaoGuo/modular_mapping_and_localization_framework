@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-04 18:53:06
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-24 00:34:56
+ * @Last Modified: 2021-11-24 23:23:45
  * @Modified By: Xiaotao Guo
  */
 
@@ -19,7 +19,7 @@
 #include "lidar_localization/global_defination/global_defination.h"
 #include "lidar_localization/models/cloud_filter/no_filter.hpp"
 #include "lidar_localization/models/cloud_filter/voxel_filter.hpp"
-#include "lidar_localization/models/registration/ndt_registration.hpp"
+#include "lidar_localization/models/registration/pcl_ndt_registration.hpp"
 #include "lidar_localization/tools/print_info.hpp"
 
 namespace lidar_localization {
@@ -67,9 +67,9 @@ bool LoopClosing::InitRegistration(
         config_node["registration_method"].as<std::string>();
     std::cout << "闭环点云匹配方式为：" << registration_method << std::endl;
 
-    if (registration_method == "NDT") {
+    if (registration_method == "PCL-NDT") {
         registration_ptr =
-            std::make_shared<NDTRegistration>(config_node[registration_method]);
+            std::make_shared<PCLNDTRegistration>(config_node[registration_method]);
     } else {
         LOG(ERROR) << "没找到与 " << registration_method << " 相对应的点云匹配方式!";
         return false;

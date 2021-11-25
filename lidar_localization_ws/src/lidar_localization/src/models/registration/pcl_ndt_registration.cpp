@@ -3,17 +3,17 @@
  * @Created Date: 2020-02-08 21:46:45
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-24 00:37:17
+ * @Last Modified: 2021-11-24 22:55:50
  * @Modified By: Xiaotao Guo
  */
 
-#include "lidar_localization/models/registration/ndt_registration.hpp"
+#include "lidar_localization/models/registration/pcl_ndt_registration.hpp"
 
 #include "glog/logging.h"
 
 namespace lidar_localization {
 
-NDTRegistration::NDTRegistration(const YAML::Node& node)
+PCLNDTRegistration::PCLNDTRegistration(const YAML::Node& node)
     : ndt_ptr_(
           new pcl::NormalDistributionsTransform<CloudData::POINT, CloudData::POINT>()) {
     float res = node["res"].as<float>();
@@ -24,19 +24,19 @@ NDTRegistration::NDTRegistration(const YAML::Node& node)
     SetRegistrationParam(res, step_size, trans_eps, max_iter);
 }
 
-NDTRegistration::NDTRegistration(float res,
-                                 float step_size,
-                                 float trans_eps,
-                                 int max_iter)
+PCLNDTRegistration::PCLNDTRegistration(float res,
+                                       float step_size,
+                                       float trans_eps,
+                                       int max_iter)
     : ndt_ptr_(
           new pcl::NormalDistributionsTransform<CloudData::POINT, CloudData::POINT>()) {
     SetRegistrationParam(res, step_size, trans_eps, max_iter);
 }
 
-bool NDTRegistration::SetRegistrationParam(float res,
-                                           float step_size,
-                                           float trans_eps,
-                                           int max_iter) {
+bool PCLNDTRegistration::SetRegistrationParam(float res,
+                                              float step_size,
+                                              float trans_eps,
+                                              int max_iter) {
     ndt_ptr_->setResolution(res);
     ndt_ptr_->setStepSize(step_size);
     ndt_ptr_->setTransformationEpsilon(trans_eps);
@@ -52,16 +52,16 @@ bool NDTRegistration::SetRegistrationParam(float res,
     return true;
 }
 
-bool NDTRegistration::SetInputTarget(const CloudData::CLOUD_PTR& input_target) {
+bool PCLNDTRegistration::SetInputTarget(const CloudData::CLOUD_PTR& input_target) {
     ndt_ptr_->setInputTarget(input_target);
 
     return true;
 }
 
-bool NDTRegistration::ScanMatch(const CloudData::CLOUD_PTR& input_source,
-                                const Eigen::Matrix4f& predict_pose,
-                                CloudData::CLOUD_PTR& result_cloud_ptr,
-                                Eigen::Matrix4f& result_pose) {
+bool PCLNDTRegistration::ScanMatch(const CloudData::CLOUD_PTR& input_source,
+                                   const Eigen::Matrix4f& predict_pose,
+                                   CloudData::CLOUD_PTR& result_cloud_ptr,
+                                   Eigen::Matrix4f& result_pose) {
     ndt_ptr_->setInputSource(input_source);
     ndt_ptr_->align(*result_cloud_ptr, predict_pose);
     result_pose = ndt_ptr_->getFinalTransformation();
@@ -69,5 +69,5 @@ bool NDTRegistration::ScanMatch(const CloudData::CLOUD_PTR& input_source,
     return true;
 }
 
-float NDTRegistration::GetFitnessScore() { return ndt_ptr_->getFitnessScore(); }
+float PCLNDTRegistration::GetFitnessScore() { return ndt_ptr_->getFitnessScore(); }
 }  // namespace lidar_localization
