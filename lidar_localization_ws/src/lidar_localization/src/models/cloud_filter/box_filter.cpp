@@ -3,7 +3,7 @@
  * @Created Date: 2019-03-12 23:38:31
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-24 00:35:48
+ * @Last Modified: 2021-11-25 18:53:23
  * @Modified By: Xiaotao Guo
  */
 
@@ -26,12 +26,13 @@ BoxFilter::BoxFilter(YAML::Node node) {
     SetSize(size_);
 }
 
-bool BoxFilter::Filter(const CloudData::CLOUD_PTR& input_cloud_ptr,
-                       CloudData::CLOUD_PTR& output_cloud_ptr) {
+bool BoxFilter::Filter(const CloudData::Cloud_Ptr& input_cloud_ptr,
+                       CloudData::Cloud_Ptr& output_cloud_ptr) {
     output_cloud_ptr->clear();
     pcl_box_filter_.setMin(
         Eigen::Vector4f(edge_.at(0), edge_.at(2), edge_.at(4), 1.0e-6));
-    pcl_box_filter_.setMax(Eigen::Vector4f(edge_.at(1), edge_.at(3), edge_.at(5), 1.0e6));
+    pcl_box_filter_.setMax(
+        Eigen::Vector4f(edge_.at(1), edge_.at(3), edge_.at(5), 1.0e6));
     pcl_box_filter_.setInputCloud(input_cloud_ptr);
     pcl_box_filter_.filter(*output_cloud_ptr);
 

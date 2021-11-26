@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-04 18:52:45
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-24 00:24:12
+ * @Last Modified: 2021-11-25 18:53:08
  * @Modified By: Xiaotao Guo
  */
 
@@ -29,9 +29,9 @@ public:
     bool Update(const CloudData& cloud_data, Eigen::Matrix4f& cloud_pose);
     bool SetGNSSPose(const Eigen::Matrix4f& init_pose);
 
-    void GetGlobalMap(CloudData::CLOUD_PTR& global_map);
-    CloudData::CLOUD_PTR& GetLocalMap();
-    CloudData::CLOUD_PTR& GetCurrentScan();
+    void GetGlobalMap(CloudData::Cloud_Ptr& global_map);
+    CloudData::Cloud_Ptr& GetLocalMap();
+    CloudData::Cloud_Ptr& GetCurrentScan();
     bool HasInited();
     bool HasNewGlobalMap();
     bool HasNewLocalMap();
@@ -39,7 +39,9 @@ public:
 private:
     bool InitWithConfig();
     bool InitDataPath(const YAML::Node& config_node);
-    bool InitRegistration(std::shared_ptr<RegistrationInterface>& registration_ptr, const YAML::Node& config_node);
+    bool InitRegistration(
+        std::shared_ptr<RegistrationInterface>& registration_ptr,
+        const YAML::Node& config_node);
     bool InitFilter(std::string filter_user,
                     std::shared_ptr<CloudFilterInterface>& filter_ptr,
                     const YAML::Node& config_node);
@@ -58,9 +60,9 @@ private:
     std::shared_ptr<CloudFilterInterface> global_map_filter_ptr_;
     std::shared_ptr<RegistrationInterface> registration_ptr_;
 
-    CloudData::CLOUD_PTR local_map_ptr_;
-    CloudData::CLOUD_PTR global_map_ptr_;
-    CloudData::CLOUD_PTR current_scan_ptr_;
+    CloudData::Cloud_Ptr local_map_ptr_;
+    CloudData::Cloud_Ptr global_map_ptr_;
+    CloudData::Cloud_Ptr current_scan_ptr_;
     Eigen::Matrix4f current_pose_ = Eigen::Matrix4f::Identity();
 
     Eigen::Matrix4f init_pose_ = Eigen::Matrix4f::Identity();

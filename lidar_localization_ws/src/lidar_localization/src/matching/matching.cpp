@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-04 18:53:06
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-24 22:57:06
+ * @Last Modified: 2021-11-25 18:53:48
  * @Modified By: Xiaotao Guo
  */
 
@@ -20,9 +20,9 @@
 
 namespace lidar_localization {
 Matching::Matching()
-    : local_map_ptr_(new CloudData::CLOUD()),
-      global_map_ptr_(new CloudData::CLOUD()),
-      current_scan_ptr_(new CloudData::CLOUD()) {
+    : local_map_ptr_(new CloudData::Cloud()),
+      global_map_ptr_(new CloudData::Cloud()),
+      current_scan_ptr_(new CloudData::Cloud()) {
     InitWithConfig();
 
     InitGlobalMap();
@@ -31,10 +31,12 @@ Matching::Matching()
 }
 
 bool Matching::InitWithConfig() {
-    std::string config_file_path = WORK_SPACE_PATH + "/config/matching/matching.yaml";
+    std::string config_file_path =
+        WORK_SPACE_PATH + "/config/matching/matching.yaml";
     YAML::Node config_node = YAML::LoadFile(config_file_path);
 
-    std::cout << "-----------------地图定位初始化-------------------" << std::endl;
+    std::cout << "-----------------地图定位初始化-------------------"
+              << std::endl;
     InitDataPath(config_node);
     InitRegistration(registration_ptr_, config_node);
     InitFilter("global_map", global_map_filter_ptr_, config_node);
@@ -50,17 +52,20 @@ bool Matching::InitDataPath(const YAML::Node& config_node) {
     return true;
 }
 
-bool Matching::InitRegistration(std::shared_ptr<RegistrationInterface>& registration_ptr,
-                                const YAML::Node& config_node) {
+bool Matching::InitRegistration(
+    std::shared_ptr<RegistrationInterface>& registration_ptr,
+    const YAML::Node& config_node) {
     std::string registration_method =
         config_node["registration_method"].as<std::string>();
-    std::cout << "地图匹配选择的点云匹配方式为：" << registration_method << std::endl;
+    std::cout << "地图匹配选择的点云匹配方式为：" << registration_method
+              << std::endl;
 
     if (registration_method == "NDT") {
-        registration_ptr =
-            std::make_shared<PCLNDTRegistration>(config_node[registration_method]);
+        registration_ptr = std::make_shared<PCLNDTRegistration>(
+            config_node[registration_method]);
     } else {
-        LOG(ERROR) << "没找到与 " << registration_method << " 相对应的点云匹配方式!";
+        LOG(ERROR) << "没找到与 " << registration_method
+                   << " 相对应的点云匹配方式!";
         return false;
     }
 
@@ -70,13 +75,14 @@ bool Matching::InitRegistration(std::shared_ptr<RegistrationInterface>& registra
 bool Matching::InitFilter(std::string filter_user,
                           std::shared_ptr<CloudFilterInterface>& filter_ptr,
                           const YAML::Node& config_node) {
-    std::string filter_mothod = config_node[filter_user + "_filter"].as<std::string>();
-    std::cout << "地图匹配" << filter_user << "选择的滤波方法为：" << filter_mothod
-              << std::endl;
+    std::string filter_mothod =
+        config_node[filter_user + "_filter"].as<std::string>();
+    std::cout << "地图匹配" << filter_user << "选择的滤波方法为："
+              << filter_mothod << std::endl;
 
     if (filter_mothod == "voxel_filter") {
-        filter_ptr =
-            std::make_shared<VoxelFilter>(config_node[filter_mothod][filter_user]);
+        filter_ptr = std::make_shared<VoxelFilter>(
+            config_node[filter_mothod][filter_user]);
     } else if (filter_mothod == "no_filter") {
         filter_ptr = std::make_shared<NoFilter>();
     } else {
@@ -115,18 +121,21 @@ bool Matching::ResetLocalMap(float x, float y, float z) {
     has_new_local_map_ = true;
 
     std::vector<float> edge = box_filter_ptr_->GetEdge();
-    LOG(INFO) << "new local map:" << edge.at(0) << "," << edge.at(1) << "," << edge.at(2)
-              << "," << edge.at(3) << "," << edge.at(4) << "," << edge.at(5) << std::endl
+    LOG(INFO) << "new local map:" << edge.at(0) << "," << edge.at(1) << ","
+              << edge.at(2) << "," << edge.at(3) << "," << edge.at(4) << ","
+              << edge.at(5) << std::endl
               << std::endl;
 
     return true;
 }
 
-bool Matching::Update(const CloudData& cloud_data, Eigen::Matrix4f& cloud_pose) {
+bool Matching::Update(const CloudData& cloud_data,
+                      Eigen::Matrix4f& cloud_pose) {
     std::vector<int> indices;
-    pcl::removeNaNFromPointCloud(*cloud_data.cloud_ptr, *cloud_data.cloud_ptr, indices);
+    pcl::removeNaNFromPointCloud(
+        *cloud_data.cloud_ptr, *cloud_data.cloud_ptr, indices);
 
-    CloudData::CLOUD_PTR filtered_cloud_ptr(new CloudData::CLOUD());
+    CloudData::Cloud_Ptr filtered_cloud_ptr(new CloudData::Cloud());
     frame_filter_ptr_->Filter(cloud_data.cloud_ptr, filtered_cloud_ptr);
 
     static Eigen::Matrix4f step_pose = Eigen::Matrix4f::Identity();
@@ -138,10 +147,11 @@ bool Matching::Update(const CloudData& cloud_data, Eigen::Matrix4f& cloud_pose) 
     }
 
     // 与地图匹配
-    CloudData::CLOUD_PTR result_cloud_ptr(new CloudData::CLOUD());
+    CloudData::Cloud_Ptr result_cloud_ptr(new CloudData::Cloud());
     registration_ptr_->ScanMatch(
         filtered_cloud_ptr, predict_pose, result_cloud_ptr, cloud_pose);
-    pcl::transformPointCloud(*cloud_data.cloud_ptr, *current_scan_ptr_, cloud_pose);
+    pcl::transformPointCloud(
+        *cloud_data.cloud_ptr, *current_scan_ptr_, cloud_pose);
 
     // 更新相邻两帧的相对运动
     step_pose = last_pose.inverse() * cloud_pose;
@@ -181,14 +191,14 @@ bool Matching::SetInitPose(const Eigen::Matrix4f& init_pose) {
     return true;
 }
 
-void Matching::GetGlobalMap(CloudData::CLOUD_PTR& global_map) {
+void Matching::GetGlobalMap(CloudData::Cloud_Ptr& global_map) {
     global_map_filter_ptr_->Filter(global_map_ptr_, global_map);
     has_new_global_map_ = false;
 }
 
-CloudData::CLOUD_PTR& Matching::GetLocalMap() { return local_map_ptr_; }
+CloudData::Cloud_Ptr& Matching::GetLocalMap() { return local_map_ptr_; }
 
-CloudData::CLOUD_PTR& Matching::GetCurrentScan() { return current_scan_ptr_; }
+CloudData::Cloud_Ptr& Matching::GetCurrentScan() { return current_scan_ptr_; }
 
 bool Matching::HasInited() { return has_inited_; }
 

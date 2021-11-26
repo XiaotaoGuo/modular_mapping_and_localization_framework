@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-29 03:19:45
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-24 00:24:06
+ * @Last Modified: 2021-11-25 18:53:14
  * @Modified By: Xiaotao Guo
  */
 
@@ -25,14 +25,17 @@ class Viewer {
 public:
     Viewer();
 
-    bool UpdateWithOptimizedKeyFrames(std::deque<KeyFrame>& optimized_key_frames);
-    bool UpdateWithNewKeyFrame(std::deque<KeyFrame>& new_key_frames, PoseData transformed_data, CloudData cloud_data);
+    bool UpdateWithOptimizedKeyFrames(
+        std::deque<KeyFrame>& optimized_key_frames);
+    bool UpdateWithNewKeyFrame(std::deque<KeyFrame>& new_key_frames,
+                               PoseData transformed_data,
+                               CloudData cloud_data);
 
     bool SaveMap();
     Eigen::Matrix4f& GetCurrentPose();
-    CloudData::CLOUD_PTR& GetCurrentScan();
-    bool GetLocalMap(CloudData::CLOUD_PTR& local_map_ptr);
-    bool GetGlobalMap(CloudData::CLOUD_PTR& local_map_ptr);
+    CloudData::Cloud_Ptr& GetCurrentScan();
+    bool GetLocalMap(CloudData::Cloud_Ptr& local_map_ptr);
+    bool GetGlobalMap(CloudData::Cloud_Ptr& local_map_ptr);
     bool HasNewLocalMap();
     bool HasNewGlobalMap();
 
@@ -45,9 +48,10 @@ private:
                     const YAML::Node& config_node);
 
     bool OptimizeKeyFrames();
-    bool JointGlobalMap(CloudData::CLOUD_PTR& global_map_ptr);
-    bool JointLocalMap(CloudData::CLOUD_PTR& local_map_ptr);
-    bool JointCloudMap(const std::deque<KeyFrame>& key_frames, CloudData::CLOUD_PTR& map_cloud_ptr);
+    bool JointGlobalMap(CloudData::Cloud_Ptr& global_map_ptr);
+    bool JointLocalMap(CloudData::Cloud_Ptr& local_map_ptr);
+    bool JointCloudMap(const std::deque<KeyFrame>& key_frames,
+                       CloudData::Cloud_Ptr& map_cloud_ptr);
 
 private:
     std::string data_path_ = "";

@@ -3,7 +3,7 @@
  * @Created Date: 2019-07-17 18:17:49
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-24 00:11:33
+ * @Last Modified: 2021-11-25 18:52:59
  * @Modified By: Xiaotao Guo
  */
 
@@ -16,16 +16,16 @@
 namespace lidar_localization {
 class CloudData {
 public:
-    using POINT = pcl::PointXYZ;
-    using CLOUD = pcl::PointCloud<POINT>;
-    using CLOUD_PTR = CLOUD::Ptr;
+    using Point = pcl::PointXYZ;
+    using Cloud = pcl::PointCloud<Point>;
+    using Cloud_Ptr = Cloud::Ptr;
 
 public:
-    CloudData() : cloud_ptr(new CLOUD()) {}
+    CloudData() : cloud_ptr(new Cloud()) {}
 
 public:
     double time = 0.0;
-    CLOUD_PTR cloud_ptr;
+    Cloud_Ptr cloud_ptr;
 };
 }  // namespace lidar_localization
 

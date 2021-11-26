@@ -32,7 +32,9 @@ public:
 private:
     bool InitWithConfig();
     bool InitParam(const YAML::Node& config_node);
-    bool InitRegistration(std::shared_ptr<RegistrationInterface>& registration_ptr, const YAML::Node& config_node);
+    bool InitRegistration(
+        std::shared_ptr<RegistrationInterface>& registration_ptr,
+        const YAML::Node& config_node);
     bool InitFilter(std::string filter_user,
                     std::shared_ptr<CloudFilterInterface>& filter_ptr,
                     const YAML::Node& config_node);
@@ -47,7 +49,7 @@ private:
 
     std::deque<Frame> local_map_frames_;
 
-    CloudData::CLOUD_PTR local_map_ptr_;
+    CloudData::Cloud_Ptr local_map_ptr_;
     Frame current_frame_;
 
     Eigen::Matrix4f init_pose_ = Eigen::Matrix4f::Identity();

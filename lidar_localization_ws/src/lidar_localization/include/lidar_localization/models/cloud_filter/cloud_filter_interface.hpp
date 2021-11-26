@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-09 19:29:50
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-24 00:19:36
+ * @Last Modified: 2021-11-25 18:53:30
  * @Modified By: Xiaotao Guo
  */
 
@@ -19,7 +19,8 @@ class CloudFilterInterface {
 public:
     virtual ~CloudFilterInterface() = default;
 
-    virtual bool Filter(const CloudData::CLOUD_PTR& input_cloud_ptr, CloudData::CLOUD_PTR& filtered_cloud_ptr) = 0;
+    virtual bool Filter(const CloudData::Cloud_Ptr& input_cloud_ptr,
+                        CloudData::Cloud_Ptr& filtered_cloud_ptr) = 0;
 };
 }  // namespace lidar_localization
 

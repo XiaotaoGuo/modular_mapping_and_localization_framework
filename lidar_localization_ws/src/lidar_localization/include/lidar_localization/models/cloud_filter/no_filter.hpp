@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-09 19:37:49
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-24 00:19:58
+ * @Last Modified: 2021-11-25 18:53:34
  * @Modified By: Xiaotao Guo
  */
 
@@ -17,7 +17,8 @@ class NoFilter : public CloudFilterInterface {
 public:
     NoFilter();
 
-    bool Filter(const CloudData::CLOUD_PTR& input_cloud_ptr, CloudData::CLOUD_PTR& filtered_cloud_ptr) override;
+    bool Filter(const CloudData::Cloud_Ptr& input_cloud_ptr,
+                CloudData::Cloud_Ptr& filtered_cloud_ptr) override;
 };
 }  // namespace lidar_localization
 #endif

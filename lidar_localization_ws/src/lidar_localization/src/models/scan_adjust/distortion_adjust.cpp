@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-25 14:39:00
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-24 00:37:33
+ * @Last Modified: 2021-11-25 18:54:01
  * @Modified By: Xiaotao Guo
  */
 
@@ -12,18 +12,20 @@
 #include "glog/logging.h"
 
 namespace lidar_localization {
-void DistortionAdjust::SetMotionInfo(float scan_period, VelocityData velocity_data) {
+void DistortionAdjust::SetMotionInfo(float scan_period,
+                                     VelocityData velocity_data) {
     scan_period_ = scan_period;
-    velocity_ << velocity_data.linear_velocity.x, velocity_data.linear_velocity.y,
-        velocity_data.linear_velocity.z;
-    angular_rate_ << velocity_data.angular_velocity.x, velocity_data.angular_velocity.y,
-        velocity_data.angular_velocity.z;
+    velocity_ << velocity_data.linear_velocity.x,
+        velocity_data.linear_velocity.y, velocity_data.linear_velocity.z;
+    angular_rate_ << velocity_data.angular_velocity.x,
+        velocity_data.angular_velocity.y, velocity_data.angular_velocity.z;
 }
 
-bool DistortionAdjust::AdjustCloud(CloudData::CLOUD_PTR& input_cloud_ptr,
-                                   CloudData::CLOUD_PTR& output_cloud_ptr) {
-    CloudData::CLOUD_PTR origin_cloud_ptr(new CloudData::CLOUD(*input_cloud_ptr));
-    output_cloud_ptr.reset(new CloudData::CLOUD());
+bool DistortionAdjust::AdjustCloud(CloudData::Cloud_Ptr& input_cloud_ptr,
+                                   CloudData::Cloud_Ptr& output_cloud_ptr) {
+    CloudData::Cloud_Ptr origin_cloud_ptr(
+        new CloudData::Cloud(*input_cloud_ptr));
+    output_cloud_ptr.reset(new CloudData::Cloud());
 
     float orientation_space = 2.0 * M_PI;
     float delete_space = 5.0 * M_PI / 180.0;
@@ -34,7 +36,8 @@ bool DistortionAdjust::AdjustCloud(CloudData::CLOUD_PTR& input_cloud_ptr,
     Eigen::Matrix3f rotate_matrix = t_V.matrix();
     Eigen::Matrix4f transform_matrix = Eigen::Matrix4f::Identity();
     transform_matrix.block<3, 3>(0, 0) = rotate_matrix.inverse();
-    pcl::transformPointCloud(*origin_cloud_ptr, *origin_cloud_ptr, transform_matrix);
+    pcl::transformPointCloud(
+        *origin_cloud_ptr, *origin_cloud_ptr, transform_matrix);
 
     velocity_ = rotate_matrix * velocity_;
     angular_rate_ = rotate_matrix * angular_rate_;
@@ -45,11 +48,12 @@ bool DistortionAdjust::AdjustCloud(CloudData::CLOUD_PTR& input_cloud_ptr,
                                   origin_cloud_ptr->points[point_index].x);
         if (orientation < 0.0) orientation += 2.0 * M_PI;
 
-        if (orientation < delete_space || 2.0 * M_PI - orientation < delete_space)
+        if (orientation < delete_space ||
+            2.0 * M_PI - orientation < delete_space)
             continue;
 
-        float real_time =
-            fabs(orientation) / orientation_space * scan_period_ - scan_period_ / 2.0;
+        float real_time = fabs(orientation) / orientation_space * scan_period_ -
+                          scan_period_ / 2.0;
 
         Eigen::Vector3f origin_point(origin_cloud_ptr->points[point_index].x,
                                      origin_cloud_ptr->points[point_index].y,
@@ -58,7 +62,7 @@ bool DistortionAdjust::AdjustCloud(CloudData::CLOUD_PTR& input_cloud_ptr,
         Eigen::Matrix3f current_matrix = UpdateMatrix(real_time);
         Eigen::Vector3f rotated_point = current_matrix * origin_point;
         Eigen::Vector3f adjusted_point = rotated_point + velocity_ * real_time;
-        CloudData::POINT point;
+        CloudData::Point point;
         point.x = adjusted_point(0);
         point.y = adjusted_point(1);
         point.z = adjusted_point(2);

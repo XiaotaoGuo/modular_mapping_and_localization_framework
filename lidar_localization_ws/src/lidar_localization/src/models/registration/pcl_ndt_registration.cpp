@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-08 21:46:45
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-24 22:55:50
+ * @Last Modified: 2021-11-25 20:50:18
  * @Modified By: Xiaotao Guo
  */
 
@@ -14,8 +14,7 @@
 namespace lidar_localization {
 
 PCLNDTRegistration::PCLNDTRegistration(const YAML::Node& node)
-    : ndt_ptr_(
-          new pcl::NormalDistributionsTransform<CloudData::POINT, CloudData::POINT>()) {
+    : ndt_ptr_(new pcl::NormalDistributionsTransform<CloudData::Point, CloudData::Point>()) {
     float res = node["res"].as<float>();
     float step_size = node["step_size"].as<float>();
     float trans_eps = node["trans_eps"].as<float>();
@@ -24,19 +23,12 @@ PCLNDTRegistration::PCLNDTRegistration(const YAML::Node& node)
     SetRegistrationParam(res, step_size, trans_eps, max_iter);
 }
 
-PCLNDTRegistration::PCLNDTRegistration(float res,
-                                       float step_size,
-                                       float trans_eps,
-                                       int max_iter)
-    : ndt_ptr_(
-          new pcl::NormalDistributionsTransform<CloudData::POINT, CloudData::POINT>()) {
+PCLNDTRegistration::PCLNDTRegistration(float res, float step_size, float trans_eps, int max_iter)
+    : ndt_ptr_(new pcl::NormalDistributionsTransform<CloudData::Point, CloudData::Point>()) {
     SetRegistrationParam(res, step_size, trans_eps, max_iter);
 }
 
-bool PCLNDTRegistration::SetRegistrationParam(float res,
-                                              float step_size,
-                                              float trans_eps,
-                                              int max_iter) {
+bool PCLNDTRegistration::SetRegistrationParam(float res, float step_size, float trans_eps, int max_iter) {
     ndt_ptr_->setResolution(res);
     ndt_ptr_->setStepSize(step_size);
     ndt_ptr_->setTransformationEpsilon(trans_eps);
@@ -52,15 +44,15 @@ bool PCLNDTRegistration::SetRegistrationParam(float res,
     return true;
 }
 
-bool PCLNDTRegistration::SetInputTarget(const CloudData::CLOUD_PTR& input_target) {
+bool PCLNDTRegistration::SetInputTarget(const CloudData::Cloud_Ptr& input_target) {
     ndt_ptr_->setInputTarget(input_target);
 
     return true;
 }
 
-bool PCLNDTRegistration::ScanMatch(const CloudData::CLOUD_PTR& input_source,
+bool PCLNDTRegistration::ScanMatch(const CloudData::Cloud_Ptr& input_source,
                                    const Eigen::Matrix4f& predict_pose,
-                                   CloudData::CLOUD_PTR& result_cloud_ptr,
+                                   CloudData::Cloud_Ptr& result_cloud_ptr,
                                    Eigen::Matrix4f& result_pose) {
     ndt_ptr_->setInputSource(input_source);
     ndt_ptr_->align(*result_cloud_ptr, predict_pose);

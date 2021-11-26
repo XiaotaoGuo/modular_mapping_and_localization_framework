@@ -3,7 +3,7 @@
  * @Created Date: 2021-11-24 23:36:42
  * @Author: Xiaotao Guo
  * -----
- * @Last Modified: 2021-11-25 00:42:19
+ * @Last Modified: 2021-11-25 20:47:27
  * @Modified By: Xiaotao Guo
  */
 
@@ -14,7 +14,7 @@
 namespace lidar_localization {
 
 PCLICPRegistration::PCLICPRegistration(const YAML::Node& node)
-    : icp_ptr_(new pcl::IterativeClosestPoint<CloudData::POINT, CloudData::POINT>()) {
+    : icp_ptr_(new pcl::IterativeClosestPoint<CloudData::Point, CloudData::Point>()) {
     float max_correspodence_dist = node["max_correspodence_dist"].as<float>();
     float trans_eps = node["trans_eps"].as<float>();
     float fitness_eps = node["fitness_eps"].as<float>();
@@ -23,11 +23,8 @@ PCLICPRegistration::PCLICPRegistration(const YAML::Node& node)
     SetRegistraionParam(max_correspodence_dist, trans_eps, fitness_eps, max_iter);
 }
 
-PCLICPRegistration::PCLICPRegistration(float max_correspodence_dist,
-                                       float trans_eps,
-                                       float fitness_eps,
-                                       int max_iter)
-    : icp_ptr_(new pcl::IterativeClosestPoint<CloudData::POINT, CloudData::POINT>()) {
+PCLICPRegistration::PCLICPRegistration(float max_correspodence_dist, float trans_eps, float fitness_eps, int max_iter)
+    : icp_ptr_(new pcl::IterativeClosestPoint<CloudData::Point, CloudData::Point>()) {
     SetRegistraionParam(max_correspodence_dist, trans_eps, fitness_eps, max_iter);
 }
 
@@ -50,14 +47,14 @@ bool PCLICPRegistration::SetRegistraionParam(float max_correspodence_dist,
     return true;
 }
 
-bool PCLICPRegistration::SetInputTarget(const CloudData::CLOUD_PTR& input_target) {
+bool PCLICPRegistration::SetInputTarget(const CloudData::Cloud_Ptr& input_target) {
     icp_ptr_->setInputTarget(input_target);
     return true;
 }
 
-bool PCLICPRegistration::ScanMatch(const CloudData::CLOUD_PTR& input_source,
+bool PCLICPRegistration::ScanMatch(const CloudData::Cloud_Ptr& input_source,
                                    const Eigen::Matrix4f& predict_pose,
-                                   CloudData::CLOUD_PTR& result_cloud_ptr,
+                                   CloudData::Cloud_Ptr& result_cloud_ptr,
                                    Eigen::Matrix4f& result_pose) {
     icp_ptr_->setInputSource(input_source);
     icp_ptr_->align(*result_cloud_ptr, predict_pose);

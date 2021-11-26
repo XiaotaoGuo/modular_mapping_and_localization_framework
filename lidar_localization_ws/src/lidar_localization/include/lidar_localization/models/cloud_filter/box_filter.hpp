@@ -3,7 +3,7 @@
  * @Created Date: 2020-03-04 20:09:37
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-24 00:19:13
+ * @Last Modified: 2021-11-25 18:53:52
  * @Modified By: Xiaotao Guo
  */
 
@@ -20,7 +20,8 @@ public:
     BoxFilter(YAML::Node node);
     BoxFilter() = default;
 
-    bool Filter(const CloudData::CLOUD_PTR& input_cloud_ptr, CloudData::CLOUD_PTR& filtered_cloud_ptr) override;
+    bool Filter(const CloudData::Cloud_Ptr& input_cloud_ptr,
+                CloudData::Cloud_Ptr& filtered_cloud_ptr) override;
 
     void SetSize(std::vector<float> size);
     void SetOrigin(std::vector<float> origin);
@@ -30,7 +31,7 @@ private:
     void CalculateEdge();
 
 private:
-    pcl::CropBox<CloudData::POINT> pcl_box_filter_;
+    pcl::CropBox<CloudData::Point> pcl_box_filter_;
 
     std::vector<float> origin_;
     std::vector<float> size_;

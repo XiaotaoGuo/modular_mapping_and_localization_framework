@@ -3,7 +3,7 @@
  * @Created Date: 2021-11-24 23:24:45
  * @Author: Xiaotao Guo
  * -----
- * @Last Modified: 2021-11-25 00:02:08
+ * @Last Modified: 2021-11-25 20:47:24
  * @Modified By: Xiaotao Guo
  */
 
@@ -19,26 +19,20 @@ namespace lidar_localization {
 class PCLICPRegistration : public RegistrationInterface {
 public:
     PCLICPRegistration(const YAML::Node& node);
-    PCLICPRegistration(float max_correspodence_dist,
-                       float trans_eps,
-                       float fitness_eps,
-                       int max_iter);
+    PCLICPRegistration(float max_correspodence_dist, float trans_eps, float fitness_eps, int max_iter);
 
-    bool SetInputTarget(const CloudData::CLOUD_PTR& input_target) override;
-    bool ScanMatch(const CloudData::CLOUD_PTR& input_source,
+    bool SetInputTarget(const CloudData::Cloud_Ptr& input_target) override;
+    bool ScanMatch(const CloudData::Cloud_Ptr& input_source,
                    const Eigen::Matrix4f& predict_pose,
-                   CloudData::CLOUD_PTR& result_cloud_ptr,
+                   CloudData::Cloud_Ptr& result_cloud_ptr,
                    Eigen::Matrix4f& result_pose) override;
     float GetFitnessScore() override;
 
 private:
-    bool SetRegistraionParam(float max_correspodence_dist,
-                             float trans_eps,
-                             float fitness_eps,
-                             int max_iter);
+    bool SetRegistraionParam(float max_correspodence_dist, float trans_eps, float fitness_eps, int max_iter);
 
 private:
-    pcl::IterativeClosestPoint<CloudData::POINT, CloudData::POINT>::Ptr icp_ptr_;
+    pcl::IterativeClosestPoint<CloudData::Point, CloudData::Point>::Ptr icp_ptr_;
 };
 
 }  // namespace lidar_localization

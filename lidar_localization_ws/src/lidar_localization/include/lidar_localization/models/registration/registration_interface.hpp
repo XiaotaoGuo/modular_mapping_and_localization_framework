@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-08 21:25:11
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-24 00:25:02
+ * @Last Modified: 2021-11-25 18:53:28
  * @Modified By: Xiaotao Guo
  */
 
@@ -21,10 +21,10 @@ class RegistrationInterface {
 public:
     virtual ~RegistrationInterface() = default;
 
-    virtual bool SetInputTarget(const CloudData::CLOUD_PTR& input_target) = 0;
-    virtual bool ScanMatch(const CloudData::CLOUD_PTR& input_source,
+    virtual bool SetInputTarget(const CloudData::Cloud_Ptr& input_target) = 0;
+    virtual bool ScanMatch(const CloudData::Cloud_Ptr& input_source,
                            const Eigen::Matrix4f& predict_pose,
-                           CloudData::CLOUD_PTR& result_cloud_ptr,
+                           CloudData::Cloud_Ptr& result_cloud_ptr,
                            Eigen::Matrix4f& result_pose) = 0;
     virtual float GetFitnessScore() = 0;
 };

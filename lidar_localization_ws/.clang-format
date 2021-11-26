@@ -13,10 +13,13 @@ UseTab: Never
 # indent for modifier (public, private, protected)
 AccessModifierOffset: -4
 
-ColumnLimit: 90
+ColumnLimit: 120
 
 BinPackArguments: false
 BinPackParameters: false
 
 ExperimentalAutoDetectBinPacking: false
 AllowAllParametersOfDeclarationOnNextLine: false
+
+# 保留 Include 块之间的关系
+IncludeBlocks: Preserve

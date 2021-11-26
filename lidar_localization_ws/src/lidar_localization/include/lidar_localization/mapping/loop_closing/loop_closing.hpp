@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-04 18:52:45
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-24 00:23:59
+ * @Last Modified: 2021-11-25 18:53:02
  * @Modified By: Xiaotao Guo
  */
 
@@ -35,17 +35,22 @@ private:
     bool InitWithConfig();
     bool InitParam(const YAML::Node& config_node);
     bool InitDataPath(const YAML::Node& config_node);
-    bool InitRegistration(std::shared_ptr<RegistrationInterface>& registration_ptr, const YAML::Node& config_node);
+    bool InitRegistration(
+        std::shared_ptr<RegistrationInterface>& registration_ptr,
+        const YAML::Node& config_node);
     bool InitFilter(std::string filter_user,
                     std::shared_ptr<CloudFilterInterface>& filter_ptr,
                     const YAML::Node& config_node);
 
     bool DetectNearestKeyFrame(int& key_frame_index);
     bool CloudRegistration(int key_frame_index);
-    bool JointMap(int key_frame_index, CloudData::CLOUD_PTR& map_cloud_ptr, Eigen::Matrix4f& map_pose);
-    bool JointScan(CloudData::CLOUD_PTR& scan_cloud_ptr, Eigen::Matrix4f& scan_pose);
-    bool Registration(CloudData::CLOUD_PTR& map_cloud_ptr,
-                      CloudData::CLOUD_PTR& scan_cloud_ptr,
+    bool JointMap(int key_frame_index,
+                  CloudData::Cloud_Ptr& map_cloud_ptr,
+                  Eigen::Matrix4f& map_pose);
+    bool JointScan(CloudData::Cloud_Ptr& scan_cloud_ptr,
+                   Eigen::Matrix4f& scan_pose);
+    bool Registration(CloudData::Cloud_Ptr& map_cloud_ptr,
+                      CloudData::Cloud_Ptr& scan_cloud_ptr,
                       Eigen::Matrix4f& scan_pose,
                       Eigen::Matrix4f& result_pose);
 

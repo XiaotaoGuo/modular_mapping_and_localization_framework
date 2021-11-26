@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-29 03:49:12
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-24 00:35:15
+ * @Last Modified: 2021-11-25 18:53:39
  * @Modified By: Xiaotao Guo
  */
 
@@ -21,10 +21,12 @@ namespace lidar_localization {
 Viewer::Viewer() { InitWithConfig(); }
 
 bool Viewer::InitWithConfig() {
-    std::string config_file_path = WORK_SPACE_PATH + "/config/mapping/viewer.yaml";
+    std::string config_file_path =
+        WORK_SPACE_PATH + "/config/mapping/viewer.yaml";
     YAML::Node config_node = YAML::LoadFile(config_file_path);
 
-    std::cout << "-----------------显示模块初始化-------------------" << std::endl;
+    std::cout << "-----------------显示模块初始化-------------------"
+              << std::endl;
     InitParam(config_node);
     InitDataPath(config_node);
     InitFilter("frame", frame_filter_ptr_, config_node);
@@ -56,13 +58,14 @@ bool Viewer::InitDataPath(const YAML::Node& config_node) {
 bool Viewer::InitFilter(std::string filter_user,
                         std::shared_ptr<CloudFilterInterface>& filter_ptr,
                         const YAML::Node& config_node) {
-    std::string filter_mothod = config_node[filter_user + "_filter"].as<std::string>();
-    std::cout << "显示模块" << filter_user << "选择的滤波方法为：" << filter_mothod
-              << std::endl;
+    std::string filter_mothod =
+        config_node[filter_user + "_filter"].as<std::string>();
+    std::cout << "显示模块" << filter_user << "选择的滤波方法为："
+              << filter_mothod << std::endl;
 
     if (filter_mothod == "voxel_filter") {
-        filter_ptr =
-            std::make_shared<VoxelFilter>(config_node[filter_mothod][filter_user]);
+        filter_ptr = std::make_shared<VoxelFilter>(
+            config_node[filter_mothod][filter_user]);
     } else {
         LOG(ERROR) << "没有为 " << filter_user << " 找到与 " << filter_mothod
                    << " 相对应的滤波方法!";
@@ -72,7 +75,8 @@ bool Viewer::InitFilter(std::string filter_user,
     return true;
 }
 
-bool Viewer::UpdateWithOptimizedKeyFrames(std::deque<KeyFrame>& optimized_key_frames) {
+bool Viewer::UpdateWithOptimizedKeyFrames(
+    std::deque<KeyFrame>& optimized_key_frames) {
     has_new_global_map_ = false;
 
     if (optimized_key_frames.size() > 0) {
@@ -105,8 +109,9 @@ bool Viewer::UpdateWithNewKeyFrame(std::deque<KeyFrame>& new_key_frames,
     optimized_odom_.pose = pose_to_optimize_ * optimized_odom_.pose;
 
     optimized_cloud_ = cloud_data;
-    pcl::transformPointCloud(
-        *cloud_data.cloud_ptr, *optimized_cloud_.cloud_ptr, optimized_odom_.pose);
+    pcl::transformPointCloud(*cloud_data.cloud_ptr,
+                             *optimized_cloud_.cloud_ptr,
+                             optimized_odom_.pose);
 
     return true;
 }
@@ -125,7 +130,8 @@ bool Viewer::OptimizeKeyFrames() {
         } else {
             pose_to_optimize_ = optimized_key_frames_.at(optimized_index).pose *
                                 all_key_frames_.at(all_index).pose.inverse();
-            all_key_frames_.at(all_index) = optimized_key_frames_.at(optimized_index);
+            all_key_frames_.at(all_index) =
+                optimized_key_frames_.at(optimized_index);
             optimized_index++;
             all_index++;
         }
@@ -140,12 +146,12 @@ bool Viewer::OptimizeKeyFrames() {
     return true;
 }
 
-bool Viewer::JointGlobalMap(CloudData::CLOUD_PTR& global_map_ptr) {
+bool Viewer::JointGlobalMap(CloudData::Cloud_Ptr& global_map_ptr) {
     JointCloudMap(optimized_key_frames_, global_map_ptr);
     return true;
 }
 
-bool Viewer::JointLocalMap(CloudData::CLOUD_PTR& local_map_ptr) {
+bool Viewer::JointLocalMap(CloudData::Cloud_Ptr& local_map_ptr) {
     size_t begin_index = 0;
     if (all_key_frames_.size() > (size_t)local_frame_num_)
         begin_index = all_key_frames_.size() - (size_t)local_frame_num_;
@@ -160,10 +166,10 @@ bool Viewer::JointLocalMap(CloudData::CLOUD_PTR& local_map_ptr) {
 }
 
 bool Viewer::JointCloudMap(const std::deque<KeyFrame>& key_frames,
-                           CloudData::CLOUD_PTR& map_cloud_ptr) {
-    map_cloud_ptr.reset(new CloudData::CLOUD());
+                           CloudData::Cloud_Ptr& map_cloud_ptr) {
+    map_cloud_ptr.reset(new CloudData::Cloud());
 
-    CloudData::CLOUD_PTR cloud_ptr(new CloudData::CLOUD());
+    CloudData::Cloud_Ptr cloud_ptr(new CloudData::Cloud());
     std::string file_path = "";
 
     for (size_t i = 0; i < key_frames.size(); ++i) {
@@ -179,7 +185,7 @@ bool Viewer::JointCloudMap(const std::deque<KeyFrame>& key_frames,
 bool Viewer::SaveMap() {
     if (optimized_key_frames_.size() == 0) return false;
     // 生成地图
-    CloudData::CLOUD_PTR global_map_ptr(new CloudData::CLOUD());
+    CloudData::Cloud_Ptr global_map_ptr(new CloudData::Cloud());
     JointCloudMap(optimized_key_frames_, global_map_ptr);
     // 保存原地图
     std::string map_file_path = map_path_ + "/map.pcd";
@@ -202,18 +208,19 @@ bool Viewer::SaveMap() {
 
 Eigen::Matrix4f& Viewer::GetCurrentPose() { return optimized_odom_.pose; }
 
-CloudData::CLOUD_PTR& Viewer::GetCurrentScan() {
-    frame_filter_ptr_->Filter(optimized_cloud_.cloud_ptr, optimized_cloud_.cloud_ptr);
+CloudData::Cloud_Ptr& Viewer::GetCurrentScan() {
+    frame_filter_ptr_->Filter(optimized_cloud_.cloud_ptr,
+                              optimized_cloud_.cloud_ptr);
     return optimized_cloud_.cloud_ptr;
 }
 
-bool Viewer::GetLocalMap(CloudData::CLOUD_PTR& local_map_ptr) {
+bool Viewer::GetLocalMap(CloudData::Cloud_Ptr& local_map_ptr) {
     JointLocalMap(local_map_ptr);
     local_map_filter_ptr_->Filter(local_map_ptr, local_map_ptr);
     return true;
 }
 
-bool Viewer::GetGlobalMap(CloudData::CLOUD_PTR& global_map_ptr) {
+bool Viewer::GetGlobalMap(CloudData::Cloud_Ptr& global_map_ptr) {
     JointGlobalMap(global_map_ptr);
     global_map_filter_ptr_->Filter(global_map_ptr, global_map_ptr);
     return true;

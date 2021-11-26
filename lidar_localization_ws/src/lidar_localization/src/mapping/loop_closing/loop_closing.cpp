@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-04 18:53:06
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-24 23:23:45
+ * @Last Modified: 2021-11-25 18:53:41
  * @Modified By: Xiaotao Guo
  */
 
@@ -26,10 +26,12 @@ namespace lidar_localization {
 LoopClosing::LoopClosing() { InitWithConfig(); }
 
 bool LoopClosing::InitWithConfig() {
-    std::string config_file_path = WORK_SPACE_PATH + "/config/mapping/loop_closing.yaml";
+    std::string config_file_path =
+        WORK_SPACE_PATH + "/config/mapping/loop_closing.yaml";
     YAML::Node config_node = YAML::LoadFile(config_file_path);
 
-    std::cout << "-----------------闭环检测初始化-------------------" << std::endl;
+    std::cout << "-----------------闭环检测初始化-------------------"
+              << std::endl;
     InitParam(config_node);
     InitDataPath(config_node);
     InitRegistration(registration_ptr_, config_node);
@@ -68,10 +70,11 @@ bool LoopClosing::InitRegistration(
     std::cout << "闭环点云匹配方式为：" << registration_method << std::endl;
 
     if (registration_method == "PCL-NDT") {
-        registration_ptr =
-            std::make_shared<PCLNDTRegistration>(config_node[registration_method]);
+        registration_ptr = std::make_shared<PCLNDTRegistration>(
+            config_node[registration_method]);
     } else {
-        LOG(ERROR) << "没找到与 " << registration_method << " 相对应的点云匹配方式!";
+        LOG(ERROR) << "没找到与 " << registration_method
+                   << " 相对应的点云匹配方式!";
         return false;
     }
 
@@ -81,13 +84,14 @@ bool LoopClosing::InitRegistration(
 bool LoopClosing::InitFilter(std::string filter_user,
                              std::shared_ptr<CloudFilterInterface>& filter_ptr,
                              const YAML::Node& config_node) {
-    std::string filter_mothod = config_node[filter_user + "_filter"].as<std::string>();
-    std::cout << "闭环的" << filter_user << "选择的滤波方法为：" << filter_mothod
-              << std::endl;
+    std::string filter_mothod =
+        config_node[filter_user + "_filter"].as<std::string>();
+    std::cout << "闭环的" << filter_user << "选择的滤波方法为："
+              << filter_mothod << std::endl;
 
     if (filter_mothod == "voxel_filter") {
-        filter_ptr =
-            std::make_shared<VoxelFilter>(config_node[filter_mothod][filter_user]);
+        filter_ptr = std::make_shared<VoxelFilter>(
+            config_node[filter_mothod][filter_user]);
     } else if (filter_mothod == "no_filter") {
         filter_ptr = std::make_shared<NoFilter>();
     } else {
@@ -133,9 +137,10 @@ bool LoopClosing::DetectNearestKeyFrame(int& key_frame_index) {
         if (key_num - i < diff_num_) break;
 
         history_key_frame = all_key_gnss_.at(i);
-        distance = fabs(current_key_frame.pose(0, 3) - history_key_frame.pose(0, 3)) +
-                   fabs(current_key_frame.pose(1, 3) - history_key_frame.pose(1, 3)) +
-                   fabs(current_key_frame.pose(2, 3) - history_key_frame.pose(2, 3));
+        distance =
+            fabs(current_key_frame.pose(0, 3) - history_key_frame.pose(0, 3)) +
+            fabs(current_key_frame.pose(1, 3) - history_key_frame.pose(1, 3)) +
+            fabs(current_key_frame.pose(2, 3) - history_key_frame.pose(2, 3));
         if (distance < min_distance) {
             min_distance = distance;
             key_frame_index = i;
@@ -156,12 +161,12 @@ bool LoopClosing::DetectNearestKeyFrame(int& key_frame_index) {
 
 bool LoopClosing::CloudRegistration(int key_frame_index) {
     // 生成地图
-    CloudData::CLOUD_PTR map_cloud_ptr(new CloudData::CLOUD());
+    CloudData::Cloud_Ptr map_cloud_ptr(new CloudData::Cloud());
     Eigen::Matrix4f map_pose = Eigen::Matrix4f::Identity();
     JointMap(key_frame_index, map_cloud_ptr, map_pose);
 
     // 生成当前scan
-    CloudData::CLOUD_PTR scan_cloud_ptr(new CloudData::CLOUD());
+    CloudData::Cloud_Ptr scan_cloud_ptr(new CloudData::Cloud());
     Eigen::Matrix4f scan_pose = Eigen::Matrix4f::Identity();
     JointScan(scan_cloud_ptr, scan_pose);
 
@@ -173,15 +178,17 @@ bool LoopClosing::CloudRegistration(int key_frame_index) {
     current_loop_pose_.pose = map_pose.inverse() * result_pose;
 
     // 判断是否有效
-    if (registration_ptr_->GetFitnessScore() > fitness_score_limit_) return false;
+    if (registration_ptr_->GetFitnessScore() > fitness_score_limit_)
+        return false;
 
     static int loop_close_cnt = 0;
     loop_close_cnt++;
 
-    std::cout << "检测到闭环 " << loop_close_cnt << ": 帧" << current_loop_pose_.index0
-              << "------>"
+    std::cout << "检测到闭环 " << loop_close_cnt << ": 帧"
+              << current_loop_pose_.index0 << "------>"
               << "帧" << current_loop_pose_.index1 << std::endl
-              << "fitness score: " << registration_ptr_->GetFitnessScore() << std::endl
+              << "fitness score: " << registration_ptr_->GetFitnessScore()
+              << std::endl
               << std::endl;
 
     // std::cout << "相对位姿 x y z roll pitch yaw:";
@@ -191,7 +198,7 @@ bool LoopClosing::CloudRegistration(int key_frame_index) {
 }
 
 bool LoopClosing::JointMap(int key_frame_index,
-                           CloudData::CLOUD_PTR& map_cloud_ptr,
+                           CloudData::Cloud_Ptr& map_cloud_ptr,
                            Eigen::Matrix4f& map_pose) {
     map_pose = all_key_gnss_.at(key_frame_index).pose;
     current_loop_pose_.index0 = all_key_frames_.at(key_frame_index).index;
@@ -204,9 +211,10 @@ bool LoopClosing::JointMap(int key_frame_index,
          i < key_frame_index + extend_frame_num_;
          ++i) {
         std::string file_path = key_frames_path_ + "/key_frame_" +
-                                std::to_string(all_key_frames_.at(i).index) + ".pcd";
+                                std::to_string(all_key_frames_.at(i).index) +
+                                ".pcd";
 
-        CloudData::CLOUD_PTR cloud_ptr(new CloudData::CLOUD());
+        CloudData::Cloud_Ptr cloud_ptr(new CloudData::Cloud());
         pcl::io::loadPCDFile(file_path, *cloud_ptr);
 
         Eigen::Matrix4f cloud_pose = pose_to_gnss * all_key_frames_.at(i).pose;
@@ -218,26 +226,27 @@ bool LoopClosing::JointMap(int key_frame_index,
     return true;
 }
 
-bool LoopClosing::JointScan(CloudData::CLOUD_PTR& scan_cloud_ptr,
+bool LoopClosing::JointScan(CloudData::Cloud_Ptr& scan_cloud_ptr,
                             Eigen::Matrix4f& scan_pose) {
     scan_pose = all_key_gnss_.back().pose;
     current_loop_pose_.index1 = all_key_frames_.back().index;
     current_loop_pose_.time = all_key_frames_.back().time;
 
     std::string file_path = key_frames_path_ + "/key_frame_" +
-                            std::to_string(all_key_frames_.back().index) + ".pcd";
+                            std::to_string(all_key_frames_.back().index) +
+                            ".pcd";
     pcl::io::loadPCDFile(file_path, *scan_cloud_ptr);
     scan_filter_ptr_->Filter(scan_cloud_ptr, scan_cloud_ptr);
 
     return true;
 }
 
-bool LoopClosing::Registration(CloudData::CLOUD_PTR& map_cloud_ptr,
-                               CloudData::CLOUD_PTR& scan_cloud_ptr,
+bool LoopClosing::Registration(CloudData::Cloud_Ptr& map_cloud_ptr,
+                               CloudData::Cloud_Ptr& scan_cloud_ptr,
                                Eigen::Matrix4f& scan_pose,
                                Eigen::Matrix4f& result_pose) {
     // 点云匹配
-    CloudData::CLOUD_PTR result_cloud_ptr(new CloudData::CLOUD());
+    CloudData::Cloud_Ptr result_cloud_ptr(new CloudData::Cloud());
     registration_ptr_->SetInputTarget(map_cloud_ptr);
     registration_ptr_->ScanMatch(
         scan_cloud_ptr, scan_pose, result_cloud_ptr, result_pose);
