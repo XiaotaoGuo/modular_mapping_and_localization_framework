@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-04 18:53:06
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-25 23:32:02
+ * @Last Modified: 2021-11-26 22:17:04
  * @Modified By: Xiaotao Guo
  */
 
@@ -34,7 +34,7 @@ bool FrontEnd::InitWithConfig() {
     std::string config_file_path = WORK_SPACE_PATH + "/config/mapping/front_end.yaml";
     YAML::Node config_node = YAML::LoadFile(config_file_path);
 
-    std::cout << "-----------------前端初始化-------------------" << std::endl;
+    LOG(INFO) << "-----------------前端初始化-------------------" << std::endl;
     InitParam(config_node);
     InitRegistration(registration_ptr_, config_node);
     InitFilter("local_map", local_map_filter_ptr_, config_node);
@@ -53,7 +53,7 @@ bool FrontEnd::InitParam(const YAML::Node& config_node) {
 bool FrontEnd::InitRegistration(std::shared_ptr<RegistrationInterface>& registration_ptr,
                                 const YAML::Node& config_node) {
     std::string registration_method = config_node["registration_method"].as<std::string>();
-    std::cout << "前端选择的点云匹配方式为：" << registration_method << std::endl;
+    LOG(INFO) << "前端选择的点云匹配方式为：" << registration_method;
 
     if (registration_method == "PCL-NDT") {
         registration_ptr = std::make_shared<PCLNDTRegistration>(config_node[registration_method]);
@@ -73,7 +73,7 @@ bool FrontEnd::InitFilter(std::string filter_user,
                           std::shared_ptr<CloudFilterInterface>& filter_ptr,
                           const YAML::Node& config_node) {
     std::string filter_mothod = config_node[filter_user + "_filter"].as<std::string>();
-    std::cout << "前端" << filter_user << "选择的滤波方法为：" << filter_mothod << std::endl;
+    LOG(INFO) << "前端" << filter_user << "选择的滤波方法为：" << filter_mothod;
 
     if (filter_mothod == "voxel_filter") {
         filter_ptr = std::make_shared<VoxelFilter>(config_node[filter_mothod][filter_user]);

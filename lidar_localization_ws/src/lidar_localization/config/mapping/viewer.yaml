@@ -1,4 +1,6 @@
-data_path: ./   # 数据存放路径
+data_path: /home/xt/localization_in_auto_driving/lidar_localization_ws/results/pcl-icp   # 数据存放路径
+
+debug_info: false
 
 # 全局地图
 global_map_filter: voxel_filter # 选择全局地图点云滤波方法，目前支持：voxel_filter

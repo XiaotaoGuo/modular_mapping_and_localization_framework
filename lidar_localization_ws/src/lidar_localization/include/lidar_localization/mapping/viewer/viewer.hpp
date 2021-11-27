@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-29 03:19:45
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-25 18:53:14
+ * @Last Modified: 2021-11-26 17:38:00
  * @Modified By: Xiaotao Guo
  */
 
@@ -25,11 +25,8 @@ class Viewer {
 public:
     Viewer();
 
-    bool UpdateWithOptimizedKeyFrames(
-        std::deque<KeyFrame>& optimized_key_frames);
-    bool UpdateWithNewKeyFrame(std::deque<KeyFrame>& new_key_frames,
-                               PoseData transformed_data,
-                               CloudData cloud_data);
+    bool UpdateWithOptimizedKeyFrames(std::deque<KeyFrame>& optimized_key_frames);
+    bool UpdateWithNewKeyFrame(std::deque<KeyFrame>& new_key_frames, PoseData transformed_data, CloudData cloud_data);
 
     bool SaveMap();
     Eigen::Matrix4f& GetCurrentPose();
@@ -50,8 +47,7 @@ private:
     bool OptimizeKeyFrames();
     bool JointGlobalMap(CloudData::Cloud_Ptr& global_map_ptr);
     bool JointLocalMap(CloudData::Cloud_Ptr& local_map_ptr);
-    bool JointCloudMap(const std::deque<KeyFrame>& key_frames,
-                       CloudData::Cloud_Ptr& map_cloud_ptr);
+    bool JointCloudMap(const std::deque<KeyFrame>& key_frames, CloudData::Cloud_Ptr& map_cloud_ptr);
 
 private:
     std::string data_path_ = "";
@@ -72,6 +68,8 @@ private:
 
     bool has_new_global_map_ = false;
     bool has_new_local_map_ = false;
+
+    bool debug_info_ = false;
 };
 }  // namespace lidar_localization
 

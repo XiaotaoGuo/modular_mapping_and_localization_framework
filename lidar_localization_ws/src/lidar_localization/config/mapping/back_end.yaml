@@ -1,4 +1,4 @@
-data_path: ./   # 数据存放路径
+data_path: /home/xt/localization_in_auto_driving/lidar_localization_ws/results/pcl-icp   # 数据存放路径
 
 # 关键帧
 key_frame_distance: 2.0 # 关键帧距离
