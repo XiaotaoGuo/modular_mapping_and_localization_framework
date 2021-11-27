@@ -4,3 +4,6 @@
 [submodule "lidar_localization_ws/geographiclib-code"]
 	path = third_party_libs/geographiclib-code
 	url = https://github.com/geographiclib/geographiclib
+[submodule "third_party_libs/ceres-solver"]
+	path = third_party_libs/ceres-solver
+	url = https://github.com/ceres-solver/ceres-solver.git
