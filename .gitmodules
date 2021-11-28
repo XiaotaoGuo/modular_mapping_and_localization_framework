@@ -7,3 +7,6 @@
 [submodule "third_party_libs/ceres-solver"]
 	path = third_party_libs/ceres-solver
 	url = https://github.com/ceres-solver/ceres-solver.git
+[submodule "third_party_libs/Sophus"]
+	path = third_party_libs/Sophus
+	url = https://github.com/strasdat/Sophus.git
