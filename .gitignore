@@ -1,5 +1,7 @@
 # lidar_localization/slam_data
 
+src/CMakeLists.txt
+
 **.vscode
 
 **build**

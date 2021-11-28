@@ -1,0 +1,25 @@
+BasedOnStyle: Google
+
+# 语言: None Cpp Java Objc Protp
+Language: Cpp 
+
+#缩进宽度
+IndentWidth: 4
+
+#tab键盘的宽度
+TabWidth: 4
+UseTab: Never
+
+# indent for modifier (public, private, protected)
+AccessModifierOffset: -4
+
+ColumnLimit: 120
+
+BinPackArguments: false
+BinPackParameters: false
+
+ExperimentalAutoDetectBinPacking: false
+AllowAllParametersOfDeclarationOnNextLine: false
+
+# 保留 Include 块之间的关系
+IncludeBlocks: Preserve
