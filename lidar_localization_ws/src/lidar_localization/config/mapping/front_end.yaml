@@ -1,5 +1,5 @@
 # 匹配
-registration_method: PCL-ICP  # 选择点云匹配方法，目前支持：PCL-NDT, PCL-ICP, ICP
+registration_method: ICP  # 选择点云匹配方法，目前支持：NDT, ICP
 
 
 # 当前帧
@@ -14,23 +14,18 @@ local_map_filter: voxel_filter # 选择滑窗地图点云滤波方法，目前�
 
 # 各配置选项对应参数
 ## 匹配相关参数
-PCL-NDT:
+NDT:
     res : 1.0
     step_size : 0.1
     trans_eps : 0.01
     max_iter : 30
 
-PCL-ICP:
-    max_correspodence_dist: 1.0
-    trans_eps: 0.01
-    fitness_eps: 0.01
-    max_iter: 30
-
 ICP:
-    max_correspodence_dist: 5.0
-    trans_eps: 1e-10
-    fitness_eps: 0.01
-    max_iter: 100
+    matching_method: GN # PCL, SVD, GN
+    max_correspodence_dist: 1.0
+    trans_eps: 1e-6
+    fitness_eps: 1e-6
+    max_iter: 30
 
 ## 滤波相关参数
 voxel_filter:
