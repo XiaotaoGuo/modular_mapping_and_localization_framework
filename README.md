@@ -18,3 +18,7 @@
 ## 测试数据
 
 目前只在 KITTI 数据集上进行测试。
+
+## 算法实现与分析
+
+- [ICP, NDT 实现和性能对比](https://xiaotaoguo.com/p/pointcloud-registration/)
