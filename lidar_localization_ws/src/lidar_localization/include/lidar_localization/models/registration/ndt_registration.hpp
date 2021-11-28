@@ -3,18 +3,18 @@
  * @Author: Ren Qian
  * @Date: 2020-02-08 21:46:57
  */
-#ifndef LIDAR_LOCALIZATION_MODELS_REGISTRATION_PCL_NDT_REGISTRATION_HPP_
-#define LIDAR_LOCALIZATION_MODELS_REGISTRATION_PCL_NDT_REGISTRATION_HPP_
+#ifndef LIDAR_LOCALIZATION_MODELS_REGISTRATION_NDT_REGISTRATION_HPP_
+#define LIDAR_LOCALIZATION_MODELS_REGISTRATION_NDT_REGISTRATION_HPP_
 
 #include <pcl/registration/ndt.h>
 
 #include "lidar_localization/models/registration/registration_interface.hpp"
 
 namespace lidar_localization {
-class PCLNDTRegistration : public RegistrationInterface {
+class NDTRegistration : public RegistrationInterface {
 public:
-    PCLNDTRegistration(const YAML::Node& node);
-    PCLNDTRegistration(float res, float step_size, float trans_eps, int max_iter);
+    NDTRegistration(const YAML::Node& node);
+    NDTRegistration(float res, float step_size, float trans_eps, int max_iter);
 
     bool SetInputTarget(const CloudData::Cloud_Ptr& input_target) override;
     bool ScanMatch(const CloudData::Cloud_Ptr& input_source,

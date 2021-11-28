@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-04 18:53:06
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-26 22:17:04
+ * @Last Modified: 2021-11-27 22:01:55
  * @Modified By: Xiaotao Guo
  */
 
@@ -22,10 +22,10 @@
 #include "lidar_localization/models/cloud_filter/voxel_filter.hpp"
 
 #include "lidar_localization/models/registration/icp_registration.hpp"
-#include "lidar_localization/models/registration/pcl_icp_registration.hpp"
-#include "lidar_localization/models/registration/pcl_ndt_registration.hpp"
+#include "lidar_localization/models/registration/ndt_registration.hpp"
 
 #include "lidar_localization/tools/print_info.hpp"
+#include "lidar_localization/tools/tic_toc.hpp"
 
 namespace lidar_localization {
 FrontEnd::FrontEnd() : local_map_ptr_(new CloudData::Cloud()) { InitWithConfig(); }
@@ -55,10 +55,8 @@ bool FrontEnd::InitRegistration(std::shared_ptr<RegistrationInterface>& registra
     std::string registration_method = config_node["registration_method"].as<std::string>();
     LOG(INFO) << "前端选择的点云匹配方式为：" << registration_method;
 
-    if (registration_method == "PCL-NDT") {
-        registration_ptr = std::make_shared<PCLNDTRegistration>(config_node[registration_method]);
-    } else if (registration_method == "PCL-ICP") {
-        registration_ptr = std::make_shared<PCLICPRegistration>(config_node[registration_method]);
+    if (registration_method == "NDT") {
+        registration_ptr = std::make_shared<NDTRegistration>(config_node[registration_method]);
     } else if (registration_method == "ICP") {
         registration_ptr = std::make_shared<ICPRegistration>(config_node[registration_method]);
     } else {
@@ -110,9 +108,13 @@ bool FrontEnd::Update(const CloudData& cloud_data, Eigen::Matrix4f& cloud_pose) 
     }
 
     // 不是第一帧，就正常匹配
+    matching_timer_.tic();
     CloudData::Cloud_Ptr result_cloud_ptr(new CloudData::Cloud());
     registration_ptr_->ScanMatch(filtered_cloud_ptr, predict_pose, result_cloud_ptr, current_frame_.pose);
     cloud_pose = current_frame_.pose;
+    matching_timer_.toc();
+
+    std::cout << matching_timer_ << std::endl;
 
     // 更新相邻两帧的相对运动
     step_pose = last_pose.inverse() * current_frame_.pose;
@@ -126,6 +128,10 @@ bool FrontEnd::Update(const CloudData& cloud_data, Eigen::Matrix4f& cloud_pose) 
         key_frame_distance_) {
         UpdateWithNewFrame(current_frame_);
         last_key_frame_pose = current_frame_.pose;
+    }
+
+    if (matching_timer_.getCount() % 200 == 0) {
+        LOG(INFO) << matching_timer_;
     }
 
     return true;

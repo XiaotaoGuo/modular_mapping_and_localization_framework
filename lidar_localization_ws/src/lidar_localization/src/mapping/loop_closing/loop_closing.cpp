@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-04 18:53:06
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-26 22:19:24
+ * @Last Modified: 2021-11-27 20:05:51
  * @Modified By: Xiaotao Guo
  */
 
@@ -22,8 +22,7 @@
 #include "lidar_localization/models/cloud_filter/voxel_filter.hpp"
 
 #include "lidar_localization/models/registration/icp_registration.hpp"
-#include "lidar_localization/models/registration/pcl_icp_registration.hpp"
-#include "lidar_localization/models/registration/pcl_ndt_registration.hpp"
+#include "lidar_localization/models/registration/ndt_registration.hpp"
 
 #include "lidar_localization/tools/print_info.hpp"
 
@@ -70,10 +69,8 @@ bool LoopClosing::InitRegistration(std::shared_ptr<RegistrationInterface>& regis
     std::string registration_method = config_node["registration_method"].as<std::string>();
     LOG(INFO) << "闭环点云匹配方式为：" << registration_method;
 
-    if (registration_method == "PCL-NDT") {
-        registration_ptr = std::make_shared<PCLNDTRegistration>(config_node[registration_method]);
-    } else if (registration_method == "PCL-ICP") {
-        registration_ptr = std::make_shared<PCLICPRegistration>(config_node[registration_method]);
+    if (registration_method == "NDT") {
+        registration_ptr = std::make_shared<NDTRegistration>(config_node[registration_method]);
     } else if (registration_method == "ICP") {
         registration_ptr = std::make_shared<ICPRegistration>(config_node[registration_method]);
     } else {

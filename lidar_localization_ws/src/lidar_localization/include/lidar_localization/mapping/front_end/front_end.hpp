@@ -14,6 +14,7 @@
 #include "lidar_localization/models/cloud_filter/cloud_filter_interface.hpp"
 #include "lidar_localization/models/registration/registration_interface.hpp"
 #include "lidar_localization/sensor_data/cloud_data.hpp"
+#include "lidar_localization/tools/tic_toc.hpp"
 
 namespace lidar_localization {
 class FrontEnd {
@@ -32,9 +33,7 @@ public:
 private:
     bool InitWithConfig();
     bool InitParam(const YAML::Node& config_node);
-    bool InitRegistration(
-        std::shared_ptr<RegistrationInterface>& registration_ptr,
-        const YAML::Node& config_node);
+    bool InitRegistration(std::shared_ptr<RegistrationInterface>& registration_ptr, const YAML::Node& config_node);
     bool InitFilter(std::string filter_user,
                     std::shared_ptr<CloudFilterInterface>& filter_ptr,
                     const YAML::Node& config_node);
@@ -56,6 +55,8 @@ private:
 
     float key_frame_distance_ = 2.0;
     int local_frame_num_ = 20;
+
+    Timer matching_timer_ = Timer("Scan Matching");
 };
 }  // namespace lidar_localization
 

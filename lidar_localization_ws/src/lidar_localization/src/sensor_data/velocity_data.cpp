@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-23 22:20:41
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-24 00:40:47
+ * @Last Modified: 2021-11-27 17:08:14
  * @Modified By: Xiaotao Guo
  */
 
@@ -40,23 +40,21 @@ bool VelocityData::SyncData(std::deque<VelocityData>& UnsyncedData,
     VelocityData back_data = UnsyncedData.at(1);
     VelocityData synced_data;
 
-    double front_scale =
-        (back_data.time - sync_time) / (back_data.time - front_data.time);
-    double back_scale =
-        (sync_time - front_data.time) / (back_data.time - front_data.time);
+    double front_scale = (back_data.time - sync_time) / (back_data.time - front_data.time);
+    double back_scale = (sync_time - front_data.time) / (back_data.time - front_data.time);
     synced_data.time = sync_time;
-    synced_data.linear_velocity.x = front_data.linear_velocity.x * front_scale +
-                                    back_data.linear_velocity.x * back_scale;
-    synced_data.linear_velocity.y = front_data.linear_velocity.y * front_scale +
-                                    back_data.linear_velocity.y * back_scale;
-    synced_data.linear_velocity.z = front_data.linear_velocity.z * front_scale +
-                                    back_data.linear_velocity.z * back_scale;
-    synced_data.angular_velocity.x = front_data.angular_velocity.x * front_scale +
-                                     back_data.angular_velocity.x * back_scale;
-    synced_data.angular_velocity.y = front_data.angular_velocity.y * front_scale +
-                                     back_data.angular_velocity.y * back_scale;
-    synced_data.angular_velocity.z = front_data.angular_velocity.z * front_scale +
-                                     back_data.angular_velocity.z * back_scale;
+    synced_data.linear_velocity.x =
+        front_data.linear_velocity.x * front_scale + back_data.linear_velocity.x * back_scale;
+    synced_data.linear_velocity.y =
+        front_data.linear_velocity.y * front_scale + back_data.linear_velocity.y * back_scale;
+    synced_data.linear_velocity.z =
+        front_data.linear_velocity.z * front_scale + back_data.linear_velocity.z * back_scale;
+    synced_data.angular_velocity.x =
+        front_data.angular_velocity.x * front_scale + back_data.angular_velocity.x * back_scale;
+    synced_data.angular_velocity.y =
+        front_data.angular_velocity.y * front_scale + back_data.angular_velocity.y * back_scale;
+    synced_data.angular_velocity.z =
+        front_data.angular_velocity.z * front_scale + back_data.angular_velocity.z * back_scale;
 
     SyncedData.push_back(synced_data);
 
@@ -75,7 +73,8 @@ void VelocityData::TransformCoordinate(Eigen::Matrix4f transform_matrix) {
     Eigen::Vector3d delta_v;
     delta_v(0) = w(1) * r(2) - w(2) * r(1);
     delta_v(1) = w(2) * r(0) - w(0) * r(2);
-    delta_v(2) = w(1) * r(1) - w(1) * r(0);
+    // delta_v(2) = w(1) * r(1) - w(1) * r(0);
+    delta_v(2) = w(0) * r(1) - w(1) * r(0);
     v = v + delta_v;
 
     angular_velocity.x = w(0);

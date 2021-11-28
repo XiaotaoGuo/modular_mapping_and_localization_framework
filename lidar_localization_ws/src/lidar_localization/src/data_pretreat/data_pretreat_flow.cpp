@@ -3,29 +3,28 @@
  * @Created Date: 2020-02-10 08:38:42
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-24 00:34:01
+ * @Last Modified: 2021-11-27 21:48:59
  * @Modified By: Xiaotao Guo
  */
 
 #include "lidar_localization/data_pretreat/data_pretreat_flow.hpp"
 
-#include "glog/logging.h"
+#include <glog/logging.h>
+
 #include "lidar_localization/global_defination/global_defination.h"
+#include "lidar_localization/tools/tic_toc.hpp"
 
 namespace lidar_localization {
 DataPretreatFlow::DataPretreatFlow(ros::NodeHandle& nh, std::string cloud_topic) {
     // subscriber
-    cloud_sub_ptr_ =
-        std::make_shared<CloudSubscriber>(nh, "/kitti/velo/pointcloud", 100000);
+    cloud_sub_ptr_ = std::make_shared<CloudSubscriber>(nh, "/kitti/velo/pointcloud", 100000);
     imu_sub_ptr_ = std::make_shared<IMUSubscriber>(nh, "/kitti/oxts/imu", 1000000);
-    velocity_sub_ptr_ =
-        std::make_shared<VelocitySubscriber>(nh, "/kitti/oxts/gps/vel", 1000000);
+    velocity_sub_ptr_ = std::make_shared<VelocitySubscriber>(nh, "/kitti/oxts/gps/vel", 1000000);
     gnss_sub_ptr_ = std::make_shared<GNSSSubscriber>(nh, "/kitti/oxts/gps/fix", 1000000);
     lidar_to_imu_ptr_ = std::make_shared<TFListener>(nh, "imu_link", "velo_link");
     // publisher
-    cloud_pub_ptr_ = std::make_shared<CloudPublisher>(nh, cloud_topic, "velo_link", 100);
-    gnss_pub_ptr_ =
-        std::make_shared<OdometryPublisher>(nh, "/synced_gnss", "map", "velo_link", 100);
+    cloud_pub_ptr_ = std::make_shared<CloudPublisher>(nh, cloud_topic, "velo_link", 10);
+    gnss_pub_ptr_ = std::make_shared<OdometryPublisher>(nh, "/synced_gnss", "map", "velo_link", 10);
 
     distortion_adjust_ptr_ = std::make_shared<DistortionAdjust>();
 }
@@ -62,8 +61,7 @@ bool DataPretreatFlow::ReadData() {
 
     double cloud_time = cloud_data_buff_.front().time;
     bool valid_imu = IMUData::SyncData(unsynced_imu_, imu_data_buff_, cloud_time);
-    bool valid_velocity =
-        VelocityData::SyncData(unsynced_velocity_, velocity_data_buff_, cloud_time);
+    bool valid_velocity = VelocityData::SyncData(unsynced_velocity_, velocity_data_buff_, cloud_time);
     bool valid_gnss = GNSSData::SyncData(unsynced_gnss_, gnss_data_buff_, cloud_time);
 
     static bool sensor_inited = false;
@@ -156,10 +154,11 @@ bool DataPretreatFlow::TransformData() {
     gnss_pose_.block<3, 3>(0, 0) = current_imu_data_.GetOrientationMatrix();
     gnss_pose_ *= lidar_to_imu_;
 
-    current_velocity_data_.TransformCoordinate(lidar_to_imu_);
+    // current_velocity_data_.TransformCoordinate(lidar_to_imu_);
+    current_velocity_data_.TransformCoordinate(lidar_to_imu_.reverse());
+    // current_velocity_data_.TransformCoordinate(lidar_to_imu_.inverse());
     distortion_adjust_ptr_->SetMotionInfo(0.1, current_velocity_data_);
-    distortion_adjust_ptr_->AdjustCloud(current_cloud_data_.cloud_ptr,
-                                        current_cloud_data_.cloud_ptr);
+    distortion_adjust_ptr_->AdjustCloud(current_cloud_data_.cloud_ptr, current_cloud_data_.cloud_ptr);
 
     return true;
 }

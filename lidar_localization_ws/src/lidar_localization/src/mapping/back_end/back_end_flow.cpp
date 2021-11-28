@@ -3,32 +3,29 @@
  * @Created Date: 2020-02-10 08:38:42
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-24 00:34:06
+ * @Last Modified: 2021-11-27 21:56:25
  * @Modified By: Xiaotao Guo
  */
 
 #include "lidar_localization/mapping/back_end/back_end_flow.hpp"
 
-#include "glog/logging.h"
+#include <glog/logging.h>
+
 #include "lidar_localization/global_defination/global_defination.h"
 #include "lidar_localization/tools/file_manager.hpp"
+#include "lidar_localization/tools/tic_toc.hpp"
 
 namespace lidar_localization {
-BackEndFlow::BackEndFlow(ros::NodeHandle& nh,
-                         std::string cloud_topic,
-                         std::string odom_topic) {
+BackEndFlow::BackEndFlow(ros::NodeHandle& nh, std::string cloud_topic, std::string odom_topic) {
     cloud_sub_ptr_ = std::make_shared<CloudSubscriber>(nh, cloud_topic, 100000);
     gnss_pose_sub_ptr_ = std::make_shared<OdometrySubscriber>(nh, "/synced_gnss", 100000);
     laser_odom_sub_ptr_ = std::make_shared<OdometrySubscriber>(nh, odom_topic, 100000);
     loop_pose_sub_ptr_ = std::make_shared<LoopPoseSubscriber>(nh, "/loop_pose", 100000);
 
-    transformed_odom_pub_ptr_ =
-        std::make_shared<OdometryPublisher>(nh, "/transformed_odom", "map", "lidar", 100);
-    key_frame_pub_ptr_ =
-        std::make_shared<KeyFramePublisher>(nh, "/key_frame", "map", 100);
-    key_gnss_pub_ptr_ = std::make_shared<KeyFramePublisher>(nh, "/key_gnss", "map", 100);
-    key_frames_pub_ptr_ =
-        std::make_shared<KeyFramesPublisher>(nh, "/optimized_key_frames", "map", 100);
+    transformed_odom_pub_ptr_ = std::make_shared<OdometryPublisher>(nh, "/transformed_odom", "map", "lidar", 10);
+    key_frame_pub_ptr_ = std::make_shared<KeyFramePublisher>(nh, "/key_frame", "map", 100);
+    key_gnss_pub_ptr_ = std::make_shared<KeyFramePublisher>(nh, "/key_gnss", "map", 10);
+    key_frames_pub_ptr_ = std::make_shared<KeyFramesPublisher>(nh, "/optimized_key_frames", "map", 10);
 
     back_end_ptr_ = std::make_shared<BackEnd>();
 }
@@ -120,18 +117,15 @@ bool BackEndFlow::UpdateBackEnd() {
 
     if (!odometry_inited) {
         odometry_inited = true;
-        odom_init_pose =
-            current_gnss_pose_data_.pose * current_laser_odom_data_.pose.inverse();
+        odom_init_pose = current_gnss_pose_data_.pose * current_laser_odom_data_.pose.inverse();
     }
     current_laser_odom_data_.pose = odom_init_pose * current_laser_odom_data_.pose;
 
-    return back_end_ptr_->Update(
-        current_cloud_data_, current_laser_odom_data_, current_gnss_pose_data_);
+    return back_end_ptr_->Update(current_cloud_data_, current_laser_odom_data_, current_gnss_pose_data_);
 }
 
 bool BackEndFlow::PublishData() {
-    transformed_odom_pub_ptr_->Publish(current_laser_odom_data_.pose,
-                                       current_laser_odom_data_.time);
+    transformed_odom_pub_ptr_->Publish(current_laser_odom_data_.pose, current_laser_odom_data_.time);
 
     if (back_end_ptr_->HasNewKeyFrame()) {
         KeyFrame key_frame;

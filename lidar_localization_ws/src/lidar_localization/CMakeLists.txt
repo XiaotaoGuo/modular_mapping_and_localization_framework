@@ -3,6 +3,7 @@ project(lidar_localization)
 
 SET(CMAKE_BUILD_TYPE "Release")
 SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall")
+set(CMAKE_CXX_STANDARD 14)
 add_compile_options(-std=c++14)
 add_definitions(-std=c++14)
 
@@ -39,6 +40,7 @@ include(cmake/PCL.cmake)
 include(cmake/eigen.cmake)
 include(cmake/geographic.cmake)
 include(cmake/g2o.cmake)
+include(cmake/sophus.cmake)
 
 include_directories(include ${catkin_INCLUDE_DIRS})
 include(cmake/global_defination.cmake)

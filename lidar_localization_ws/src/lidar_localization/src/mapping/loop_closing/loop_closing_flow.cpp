@@ -19,7 +19,7 @@ LoopClosingFlow::LoopClosingFlow(ros::NodeHandle& nh) {
     key_gnss_sub_ptr_ = std::make_shared<KeyFrameSubscriber>(nh, "/key_gnss", 100000);
     // publisher
     loop_pose_pub_ptr_ =
-        std::make_shared<LoopPosePublisher>(nh, "/loop_pose", "map", 100);
+        std::make_shared<LoopPosePublisher>(nh, "/loop_pose", "map", 10);
     // loop closing
     loop_closing_ptr_ = std::make_shared<LoopClosing>();
 }
