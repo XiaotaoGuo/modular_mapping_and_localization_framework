@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-04 18:53:06
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-27 22:01:55
+ * @Last Modified: 2021-11-29 00:18:35
  * @Modified By: Xiaotao Guo
  */
 
@@ -114,7 +114,7 @@ bool FrontEnd::Update(const CloudData& cloud_data, Eigen::Matrix4f& cloud_pose) 
     cloud_pose = current_frame_.pose;
     matching_timer_.toc();
 
-    std::cout << matching_timer_ << std::endl;
+    // std::cout << matching_timer_ << std::endl;
 
     // 更新相邻两帧的相对运动
     step_pose = last_pose.inverse() * current_frame_.pose;

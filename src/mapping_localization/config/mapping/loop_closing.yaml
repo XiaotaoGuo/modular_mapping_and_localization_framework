@@ -1,6 +1,9 @@
-data_path: /home/xt/localization_in_auto_driving/lidar_localization_ws/results/pcl-icp  # 数据存放路径
+data_path: /home/guo/personal/general_mapping_and_localization_framework/results/temp  # 数据存放路径
 
-registration_method: PCL-ICP   # 选择点云匹配方法，目前支持：NDT 
+registration_method: ICP   # 选择点云匹配方法，目前支持：NDT
+
+search_criteria: scan_context # 支持 distance, scan_context
+
 # 匹配时为了精度更高，应该选用scan-to-map的方式
 # map是以历史帧为中心，往前后时刻各选取extend_frame_num个关键帧，放在一起拼接成的
 extend_frame_num: 5 
@@ -15,23 +18,18 @@ scan_filter: voxel_filter # 选择当前帧点云滤波方法，目前支持：v
 
 # 各配置选项对应参数
 ## 匹配相关参数
-PCL-NDT:
+NDT:
     res : 1.0
     step_size : 0.1
     trans_eps : 0.01
     max_iter : 30
 
-PCL-ICP:
-    max_correspodence_dist: 5.0
-    trans_eps: 1e-10
-    fitness_eps: 0.01
-    max_iter: 100
-
 ICP:
-    max_correspodence_dist: 5.0
-    trans_eps: 1e-10
-    fitness_eps: 0.01
-    max_iter: 100
+    matching_method: SVD # PCL, SVD, GN
+    max_correspodence_dist: 1.0
+    trans_eps: 1e-6
+    fitness_eps: 1e-6
+    max_iter: 30
 
 ## 滤波相关参数
 voxel_filter:

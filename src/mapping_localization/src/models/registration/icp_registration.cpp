@@ -3,7 +3,7 @@
  * @Created Date: 2021-11-25 19:10:58
  * @Author: Xiaotao Guo
  * -----
- * @Last Modified: 2021-11-28 00:43:50
+ * @Last Modified: 2021-11-29 01:06:23
  * @Modified By: Xiaotao Guo
  */
 
@@ -17,8 +17,7 @@
 
 namespace mapping_localization {
 
-ICPRegistration::ICPRegistration(const YAML::Node& node)
-    : target_kd_tree_ptr_(new pcl::KdTreeFLANN<CloudData::Point>()) {
+ICPRegistration::ICPRegistration(const YAML::Node& node) {
     // initialize match method
     std::string match_method = node["matching_method"].as<std::string>();
     InitializeMatchMethod(match_method);
@@ -111,9 +110,8 @@ bool ICPRegistration::ScanMatch(const CloudData::Cloud_Ptr& input_source,
     }
 
     score_ = 0.0;
-    CloudData::Cloud final_transformed_cloud;
     pcl::transformPointCloud(*input_source, *result_cloud_ptr, result_pose);
-    for (const auto& pt : final_transformed_cloud.points) {
+    for (const auto& pt : result_cloud_ptr->points) {
         std::vector<int> indices(1);
         std::vector<float> distances(1);
 
@@ -121,7 +119,7 @@ bool ICPRegistration::ScanMatch(const CloudData::Cloud_Ptr& input_source,
 
         score_ += distances[0];
     }
-    score_ /= final_transformed_cloud.points.size();
+    score_ /= result_cloud_ptr->points.size();
     return true;
 }
 

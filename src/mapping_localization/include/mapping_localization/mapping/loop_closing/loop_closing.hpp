@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-04 18:52:45
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-28 12:43:22
+ * @Last Modified: 2021-11-29 00:08:43
  * @Modified By: Xiaotao Guo
  */
 
@@ -21,8 +21,13 @@
 #include "mapping_localization/sensor_data/key_frame.hpp"
 #include "mapping_localization/sensor_data/loop_pose.hpp"
 
+#include "mapping_localization/mapping/loop_closing/ScanContext/Scancontext.h"
+
 namespace mapping_localization {
 class LoopClosing {
+public:
+    enum class SearchCriteria { Distance = 0, ScanContext };
+
 public:
     LoopClosing();
 
@@ -56,6 +61,10 @@ private:
     int diff_num_ = 100;
     float detect_area_ = 10.0;
     float fitness_score_limit_ = 2.0;
+
+    SearchCriteria search_criteria_ = SearchCriteria::Distance;
+
+    SCManager sc_manager_;
 
     std::shared_ptr<CloudFilterInterface> scan_filter_ptr_;
     std::shared_ptr<CloudFilterInterface> map_filter_ptr_;

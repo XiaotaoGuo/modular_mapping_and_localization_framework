@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-04 18:53:06
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-27 20:05:51
+ * @Last Modified: 2021-11-29 00:08:40
  * @Modified By: Xiaotao Guo
  */
 
@@ -49,6 +49,16 @@ bool LoopClosing::InitParam(const YAML::Node& config_node) {
     diff_num_ = config_node["diff_num"].as<int>();
     detect_area_ = config_node["detect_area"].as<float>();
     fitness_score_limit_ = config_node["fitness_score_limit"].as<float>();
+
+    std::string search_criteria = config_node["search_criteria"].as<std::string>();
+    if (search_criteria == "scan_context") {
+        search_criteria_ = SearchCriteria::ScanContext;
+    } else if (search_criteria == "distance") {
+        search_criteria_ = SearchCriteria::Distance;
+    } else {
+        std::cout << "没有和 " << search_criteria << " 对应的回环检测检测。 默认使用距离作为回环检测方式,\n";
+        search_criteria_ = SearchCriteria::Distance;
+    }
 
     return true;
 }
@@ -106,7 +116,23 @@ bool LoopClosing::Update(const KeyFrame key_frame, const KeyFrame key_gnss) {
     all_key_gnss_.push_back(key_gnss);
 
     int key_frame_index = 0;
-    if (!DetectNearestKeyFrame(key_frame_index)) return false;
+    if (search_criteria_ == SearchCriteria::Distance) {
+        // 基于距离搜索距离较近的点云
+        if (!DetectNearestKeyFrame(key_frame_index)) return false;
+    } else if (search_criteria_ == SearchCriteria::ScanContext) {
+        // 从硬盘中读取关键帧点云
+        CloudData::Cloud_Ptr scan_cloud_ptr(new CloudData::Cloud());
+        std::string file_path =
+            key_frames_path_ + "/key_frame_" + std::to_string(all_key_frames_.back().index) + ".pcd";
+        pcl::io::loadPCDFile(file_path, *scan_cloud_ptr);
+        scan_filter_ptr_->Filter(scan_cloud_ptr, scan_cloud_ptr);
+
+        // 将下采样后的点云传入 sc manager 构建并存储 scan context
+        sc_manager_.makeAndSaveScancontextAndKeys(*scan_cloud_ptr);
+        auto detect_result = sc_manager_.detectLoopClosureID();  // first: nn index, second: yaw diff
+        if (detect_result.first == -1) return false;
+        key_frame_index = detect_result.first;
+    }
 
     if (!CloudRegistration(key_frame_index)) return false;
 

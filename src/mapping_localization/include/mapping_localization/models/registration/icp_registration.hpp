@@ -1,5 +1,5 @@
 /*
- * @Description:
+ * @Description: ICP 算法接口，包含 PCL, SVD 以及高斯牛顿法实现
  * @Created Date: 2021-11-25 19:07:59
  * @Author: Xiaotao Guo
  * -----
@@ -56,6 +56,10 @@ public:
                    const Eigen::Matrix4f& predict_pose,
                    CloudData::Cloud_Ptr& result_cloud_ptr,
                    Eigen::Matrix4f& result_pose) override;
+    
+    ///
+    ///@brief get final fitness residual 
+    ///
     float GetFitnessScore() override;
 
 private:
