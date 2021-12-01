@@ -10,7 +10,7 @@
 #ifndef MAPPING_LOCALIZATION_MODELS_LOOP_CLOSURE_SCAN_CONTEXT_DETECTOR_HPP_
 #define MAPPING_LOCALIZATION_MODELS_LOOP_CLOSURE_SCAN_CONTEXT_DETECTOR_HPP_
 
-#include "mapping_localization/mapping/loop_closing/ScanContext/Scancontext.h"
+#include "mapping_localization/models/loop_closure/ScanContext/Scancontext.h"
 
 #include "mapping_localization/models/loop_closure/loop_closure_detector_interface.hpp"
 

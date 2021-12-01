@@ -1,4 +1,4 @@
-#include "mapping_localization/mapping/loop_closing/ScanContext/Scancontext.h"
+#include "mapping_localization/models/loop_closure/ScanContext/Scancontext.h"
 
 // namespace SC2
 // {

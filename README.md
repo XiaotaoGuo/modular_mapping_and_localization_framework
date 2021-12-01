@@ -22,3 +22,14 @@
 ## 算法实现与分析
 
 - [ICP, NDT 实现和性能对比](https://xiaotaoguo.com/p/pointcloud-registration/)
+<p align='float: right'>
+    <img src="./results/registration_analysis/SVD-ICP/traj.png" alt="drawing" width="400"/>
+    <img src="./results/registration_analysis/SVD-ICP/ape.png" alt="drawing" width="400"/>
+</p>
+
+- [基于 SC 和距离进行回环检测对比](https://xiaotaoguo.com/p/lidar_loop_closure/)
+
+<p align='float: right'>
+    <img src="./results/loop_closing_analysis/scan_context/rviz_traj.png" alt="drawing" width="300"/>
+    <img src="./results/loop_closing_analysis/map_imgs/map_case_1.png" alt="drawing" width="350"/>
+</p>

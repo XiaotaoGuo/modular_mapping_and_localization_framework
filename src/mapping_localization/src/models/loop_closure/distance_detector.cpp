@@ -50,6 +50,7 @@ bool DistanceDetector::DetectNearestKeyFrame(int& key_frame_index) {
     skip_cnt = 0;
     skip_num = (int)min_distance;
     if (min_distance > detect_area_) {
+        // 在接下来当前最小距离的范围内可以预估不会出现回环帧，节省搜索空间
         skip_num = std::max((int)(min_distance / 2.0), loop_step_);
         return false;
     } else {
