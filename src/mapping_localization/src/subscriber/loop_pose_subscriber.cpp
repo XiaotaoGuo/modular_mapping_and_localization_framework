@@ -3,7 +3,7 @@
  * @Created Date: 2019-06-14 16:44:18
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-24 00:42:46
+ * @Last Modified: 2021-11-30 20:26:48
  * @Modified By: Xiaotao Guo
  */
 
@@ -12,21 +12,17 @@
 #include "glog/logging.h"
 
 namespace mapping_localization {
-LoopPoseSubscriber::LoopPoseSubscriber(ros::NodeHandle& nh,
-                                       std::string topic_name,
-                                       size_t buff_size)
-    : nh_(nh) {
-    subscriber_ =
-        nh_.subscribe(topic_name, buff_size, &LoopPoseSubscriber::msg_callback, this);
+LoopPoseSubscriber::LoopPoseSubscriber(ros::NodeHandle& nh, std::string topic_name, size_t buff_size) : nh_(nh) {
+    subscriber_ = nh_.subscribe(topic_name, buff_size, &LoopPoseSubscriber::msg_callback, this);
 }
 
-void LoopPoseSubscriber::msg_callback(
-    const geometry_msgs::PoseWithCovarianceStampedConstPtr& loop_pose_msg_ptr) {
+void LoopPoseSubscriber::msg_callback(const geometry_msgs::PoseWithCovarianceStampedConstPtr& loop_pose_msg_ptr) {
     buff_mutex_.lock();
     LoopPose loop_pose;
     loop_pose.time = loop_pose_msg_ptr->header.stamp.toSec();
     loop_pose.index0 = (unsigned int)loop_pose_msg_ptr->pose.covariance[0];
     loop_pose.index1 = (unsigned int)loop_pose_msg_ptr->pose.covariance[1];
+    loop_pose.confidence = (bool)loop_pose_msg_ptr->pose.covariance[2];
 
     loop_pose.pose(0, 3) = loop_pose_msg_ptr->pose.pose.position.x;
     loop_pose.pose(1, 3) = loop_pose_msg_ptr->pose.pose.position.y;
@@ -46,8 +42,7 @@ void LoopPoseSubscriber::msg_callback(
 void LoopPoseSubscriber::ParseData(std::deque<LoopPose>& loop_pose_buff) {
     buff_mutex_.lock();
     if (new_loop_pose_.size() > 0) {
-        loop_pose_buff.insert(
-            loop_pose_buff.end(), new_loop_pose_.begin(), new_loop_pose_.end());
+        loop_pose_buff.insert(loop_pose_buff.end(), new_loop_pose_.begin(), new_loop_pose_.end());
         new_loop_pose_.clear();
     }
     buff_mutex_.unlock();

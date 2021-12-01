@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-29 03:19:45
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-28 12:43:22
+ * @Last Modified: 2021-11-30 13:14:17
  * @Modified By: Xiaotao Guo
  */
 
@@ -23,16 +23,22 @@
 namespace mapping_localization {
 class Viewer {
 public:
-    Viewer();
+    Viewer(const YAML::Node& global_node, const YAML::Node& config_node);
 
     bool UpdateWithOptimizedKeyFrames(std::deque<KeyFrame>& optimized_key_frames);
     bool UpdateWithNewKeyFrame(std::deque<KeyFrame>& new_key_frames, PoseData transformed_data, CloudData cloud_data);
 
+    const KeyFrame& getCurrentOriginalKeyFrame() const;
+    const KeyFrame& getCurrentCorrectedKeyFrame() const;
+
     bool SaveMap();
-    Eigen::Matrix4f& GetCurrentPose();
+    const Eigen::Matrix4f& GetCurrentOriginalPose() const;
+    const Eigen::Matrix4f& GetCurrentPose() const;
+
     CloudData::Cloud_Ptr& GetCurrentScan();
     bool GetLocalMap(CloudData::Cloud_Ptr& local_map_ptr);
     bool GetGlobalMap(CloudData::Cloud_Ptr& local_map_ptr);
+
     bool HasNewLocalMap();
     bool HasNewGlobalMap();
 
@@ -61,8 +67,12 @@ private:
     std::shared_ptr<CloudFilterInterface> global_map_filter_ptr_;
 
     Eigen::Matrix4f pose_to_optimize_ = Eigen::Matrix4f::Identity();
+    PoseData original_odom_;
     PoseData optimized_odom_;
     CloudData optimized_cloud_;
+
+    KeyFrame latest_original_key_frame_;
+    KeyFrame latest_corrected_key_frame_;
     std::deque<KeyFrame> optimized_key_frames_;
     std::deque<KeyFrame> all_key_frames_;
 

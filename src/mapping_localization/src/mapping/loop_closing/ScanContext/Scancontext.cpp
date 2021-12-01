@@ -10,13 +10,13 @@ float rad2deg(float radians) { return radians * 180.0 / M_PI; }
 float deg2rad(float degrees) { return degrees * M_PI / 180.0; }
 
 float xy2theta(const float &_x, const float &_y) {
-    if (_x >= 0 & _y >= 0) return (180 / M_PI) * atan(_y / _x);
+    if ((_x >= 0) & (_y >= 0)) return (180 / M_PI) * atan(_y / _x);
 
-    if (_x < 0 & _y >= 0) return 180 - ((180 / M_PI) * atan(_y / (-_x)));
+    if ((_x < 0) & (_y >= 0)) return 180 - ((180 / M_PI) * atan(_y / (-_x)));
 
-    if (_x < 0 & _y < 0) return 180 + ((180 / M_PI) * atan(_y / _x));
+    if ((_x < 0) & (_y < 0)) return 180 + ((180 / M_PI) * atan(_y / _x));
 
-    if (_x >= 0 & _y < 0) return 360 - ((180 / M_PI) * atan((-_y) / _x));
+    if ((_x >= 0) & (_y < 0)) return 360 - ((180 / M_PI) * atan((-_y) / _x));
 }  // xy2theta
 
 MatrixXd circshift(MatrixXd &_mat, int _num_shift) {
@@ -50,7 +50,7 @@ double SCManager::distDirectSC(MatrixXd &_sc1, MatrixXd &_sc2) {
         VectorXd col_sc1 = _sc1.col(col_idx);
         VectorXd col_sc2 = _sc2.col(col_idx);
 
-        if (col_sc1.norm() == 0 | col_sc2.norm() == 0) continue;  // don't count this sector pair.
+        if ((col_sc1.norm() == 0) | (col_sc2.norm() == 0)) continue;  // don't count this sector pair.
 
         double sector_similarity = col_sc1.dot(col_sc2) / (col_sc1.norm() * col_sc2.norm());
 
@@ -268,14 +268,15 @@ std::pair<int, float> SCManager::detectLoopClosureID(void) {
         loop_id = nn_idx;
 
         // std::cout.precision(3);
-        cout << "[Loop found] Nearest distance: " << min_dist << " btn " << polarcontexts_.size() - 1 << " and "
-             << nn_idx << "." << endl;
-        cout << "[Loop found] yaw diff: " << nn_align * PC_UNIT_SECTORANGLE << " deg." << endl;
+        // cout << "[Loop found] Nearest distance: " << min_dist << " btn " << polarcontexts_.size() - 1 << " and "
+        //      << nn_idx << "." << endl;
+        // cout << "[Loop found] yaw diff: " << nn_align * PC_UNIT_SECTORANGLE << " deg." << endl;
     } else {
-        std::cout.precision(3);
-        cout << "[Not loop] Nearest distance: " << min_dist << " btn " << polarcontexts_.size() - 1 << " and " << nn_idx
-             << "." << endl;
-        cout << "[Not loop] yaw diff: " << nn_align * PC_UNIT_SECTORANGLE << " deg." << endl;
+        // std::cout.precision(3);
+        // cout << "[Not loop] Nearest distance: " << min_dist << " btn " << polarcontexts_.size() - 1 << " and " <<
+        // nn_idx
+        //      << "." << endl;
+        // cout << "[Not loop] yaw diff: " << nn_align * PC_UNIT_SECTORANGLE << " deg." << endl;
     }
 
     // To do: return also nn_align (i.e., yaw diff)
@@ -285,5 +286,11 @@ std::pair<int, float> SCManager::detectLoopClosureID(void) {
     return result;
 
 }  // SCManager::detectLoopClosureID
+
+void SCManager::setParameters(unsigned int num_exclude_recent, double search_ratio, double sc_dist_thres) {
+    NUM_EXCLUDE_RECENT = num_exclude_recent;
+    SEARCH_RATIO = search_ratio;
+    SC_DIST_THRES = sc_dist_thres;
+}
 
 // } // namespace SC2

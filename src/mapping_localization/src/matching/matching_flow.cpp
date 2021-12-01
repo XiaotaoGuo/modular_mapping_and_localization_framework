@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-10 08:38:42
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-25 18:53:46
+ * @Last Modified: 2021-11-29 18:35:08
  * @Modified By: Xiaotao Guo
  */
 
@@ -14,27 +14,20 @@
 
 namespace mapping_localization {
 MatchingFlow::MatchingFlow(ros::NodeHandle& nh) {
-    cloud_sub_ptr_ =
-        std::make_shared<CloudSubscriber>(nh, "/synced_cloud", 100000);
-    gnss_sub_ptr_ =
-        std::make_shared<OdometrySubscriber>(nh, "/synced_gnss", 100000);
+    cloud_sub_ptr_ = std::make_shared<CloudSubscriber>(nh, "/synced_cloud", 100000);
+    gnss_sub_ptr_ = std::make_shared<OdometrySubscriber>(nh, "/synced_gnss", 100000);
 
-    global_map_pub_ptr_ =
-        std::make_shared<CloudPublisher>(nh, "/global_map", "map", 100);
-    local_map_pub_ptr_ =
-        std::make_shared<CloudPublisher>(nh, "/local_map", "map", 100);
-    current_scan_pub_ptr_ =
-        std::make_shared<CloudPublisher>(nh, "/current_scan", "map", 100);
-    laser_odom_pub_ptr_ = std::make_shared<OdometryPublisher>(
-        nh, "/laser_localization", "map", "lidar", 100);
-    laser_tf_pub_ptr_ = std::make_shared<TFBroadCaster>("map", "/vehicle_link");
+    global_map_pub_ptr_ = std::make_shared<CloudPublisher>(nh, "/global_map", "map", 100);
+    local_map_pub_ptr_ = std::make_shared<CloudPublisher>(nh, "/local_map", "map", 100);
+    current_scan_pub_ptr_ = std::make_shared<CloudPublisher>(nh, "/current_scan", "map", 100);
+    laser_odom_pub_ptr_ = std::make_shared<OdometryPublisher>(nh, "/laser_localization", "map", "lidar", 100);
+    laser_tf_pub_ptr_ = std::make_shared<TFBroadCaster>("map", "vehicle_link");
 
     matching_ptr_ = std::make_shared<Matching>();
 }
 
 bool MatchingFlow::Run() {
-    if (matching_ptr_->HasNewGlobalMap() &&
-        global_map_pub_ptr_->HasSubscribers()) {
+    if (matching_ptr_->HasNewGlobalMap() && global_map_pub_ptr_->HasSubscribers()) {
         CloudData::Cloud_Ptr global_map_ptr(new CloudData::Cloud());
         matching_ptr_->GetGlobalMap(global_map_ptr);
         global_map_pub_ptr_->Publish(global_map_ptr);

@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-04 18:52:45
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-29 00:08:43
+ * @Last Modified: 2021-12-01 00:18:14
  * @Modified By: Xiaotao Guo
  */
 
@@ -17,19 +17,21 @@
 #include <deque>
 
 #include "mapping_localization/models/cloud_filter/cloud_filter_interface.hpp"
+#include "mapping_localization/models/loop_closure/loop_closure_detector_interface.hpp"
 #include "mapping_localization/models/registration/registration_interface.hpp"
+
 #include "mapping_localization/sensor_data/key_frame.hpp"
 #include "mapping_localization/sensor_data/loop_pose.hpp"
 
-#include "mapping_localization/mapping/loop_closing/ScanContext/Scancontext.h"
+#include "mapping_localization/tools/tic_toc.hpp"
 
 namespace mapping_localization {
 class LoopClosing {
 public:
-    enum class SearchCriteria { Distance = 0, ScanContext };
+    enum class SearchCriteria { Distance_GNSS = 0, Distance_Odom, ScanContext };
 
 public:
-    LoopClosing();
+    LoopClosing(const YAML::Node& global_node, const YAML::Node& config_node);
 
     bool Update(const KeyFrame key_frame, const KeyFrame key_gnss);
 
@@ -45,7 +47,6 @@ private:
                     std::shared_ptr<CloudFilterInterface>& filter_ptr,
                     const YAML::Node& config_node);
 
-    bool DetectNearestKeyFrame(int& key_frame_index);
     bool CloudRegistration(int key_frame_index);
     bool JointMap(int key_frame_index, CloudData::Cloud_Ptr& map_cloud_ptr, Eigen::Matrix4f& map_pose);
     bool JointScan(CloudData::Cloud_Ptr& scan_cloud_ptr, Eigen::Matrix4f& scan_pose);
@@ -57,14 +58,11 @@ private:
 private:
     std::string key_frames_path_ = "";
     int extend_frame_num_ = 3;
-    int loop_step_ = 10;
-    int diff_num_ = 100;
-    float detect_area_ = 10.0;
     float fitness_score_limit_ = 2.0;
 
-    SearchCriteria search_criteria_ = SearchCriteria::Distance;
+    SearchCriteria search_criteria_ = SearchCriteria::Distance_GNSS;
 
-    SCManager sc_manager_;
+    std::shared_ptr<LoopClousreDetectorInterface> loop_clousre_detector_ptr_;
 
     std::shared_ptr<CloudFilterInterface> scan_filter_ptr_;
     std::shared_ptr<CloudFilterInterface> map_filter_ptr_;

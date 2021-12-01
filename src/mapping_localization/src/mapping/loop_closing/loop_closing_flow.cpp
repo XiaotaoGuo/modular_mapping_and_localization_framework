@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-10 08:38:42
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-24 00:34:36
+ * @Last Modified: 2021-11-30 17:38:12
  * @Modified By: Xiaotao Guo
  */
 
@@ -11,17 +11,25 @@
 
 #include "glog/logging.h"
 #include "mapping_localization/global_defination/global_defination.h"
+#include "mapping_localization/mapping/global_param/global_param.hpp"
 
 namespace mapping_localization {
 LoopClosingFlow::LoopClosingFlow(ros::NodeHandle& nh) {
+    std::string global_config_file_path = WORK_SPACE_PATH + "/config/mapping/global.yaml";
+    std::string loop_closing_config_file_path = WORK_SPACE_PATH + "/config/mapping/loop_closing.yaml";
+
+    YAML::Node global_config_node = YAML::LoadFile(global_config_file_path);
+    YAML::Node loop_closing_config_node = YAML::LoadFile(loop_closing_config_file_path);
+
+    GlobalParam gp(global_config_node);
+
     // subscriber
-    key_frame_sub_ptr_ = std::make_shared<KeyFrameSubscriber>(nh, "/key_frame", 100000);
-    key_gnss_sub_ptr_ = std::make_shared<KeyFrameSubscriber>(nh, "/key_gnss", 100000);
+    key_frame_sub_ptr_ = std::make_shared<KeyFrameSubscriber>(nh, gp.key_frame_topic, 100000);
+    key_gnss_sub_ptr_ = std::make_shared<KeyFrameSubscriber>(nh, gp.key_frame_gnss_topic, 100000);
     // publisher
-    loop_pose_pub_ptr_ =
-        std::make_shared<LoopPosePublisher>(nh, "/loop_pose", "map", 10);
+    loop_pose_pub_ptr_ = std::make_shared<LoopPosePublisher>(nh, gp.loop_pose_topic, gp.global_frame_id, 10);
     // loop closing
-    loop_closing_ptr_ = std::make_shared<LoopClosing>();
+    loop_closing_ptr_ = std::make_shared<LoopClosing>(global_config_node, loop_closing_config_node);
 }
 
 bool LoopClosingFlow::Run() {
@@ -75,8 +83,7 @@ bool LoopClosingFlow::ValidData() {
 }
 
 bool LoopClosingFlow::PublishData() {
-    if (loop_closing_ptr_->HasNewLoopPose())
-        loop_pose_pub_ptr_->Publish(loop_closing_ptr_->GetCurrentLoopPose());
+    if (loop_closing_ptr_->HasNewLoopPose()) loop_pose_pub_ptr_->Publish(loop_closing_ptr_->GetCurrentLoopPose());
 
     return true;
 }

@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-10 08:38:42
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-27 21:48:59
+ * @Last Modified: 2021-11-30 17:45:34
  * @Modified By: Xiaotao Guo
  */
 
@@ -12,19 +12,26 @@
 #include <glog/logging.h>
 
 #include "mapping_localization/global_defination/global_defination.h"
+#include "mapping_localization/mapping/global_param/global_param.hpp"
 #include "mapping_localization/tools/tic_toc.hpp"
 
 namespace mapping_localization {
 DataPretreatFlow::DataPretreatFlow(ros::NodeHandle& nh, std::string cloud_topic) {
+    std::string global_config_file_path = WORK_SPACE_PATH + "/config/mapping/global.yaml";
+    YAML::Node global_config_node = YAML::LoadFile(global_config_file_path);
+
+    GlobalParam gp(global_config_node);
+
     // subscriber
-    cloud_sub_ptr_ = std::make_shared<CloudSubscriber>(nh, "/kitti/velo/pointcloud", 100000);
-    imu_sub_ptr_ = std::make_shared<IMUSubscriber>(nh, "/kitti/oxts/imu", 1000000);
-    velocity_sub_ptr_ = std::make_shared<VelocitySubscriber>(nh, "/kitti/oxts/gps/vel", 1000000);
-    gnss_sub_ptr_ = std::make_shared<GNSSSubscriber>(nh, "/kitti/oxts/gps/fix", 1000000);
-    lidar_to_imu_ptr_ = std::make_shared<TFListener>(nh, "imu_link", "velo_link");
+    cloud_sub_ptr_ = std::make_shared<CloudSubscriber>(nh, gp.pointcloud_topic, 100000);
+    imu_sub_ptr_ = std::make_shared<IMUSubscriber>(nh, gp.imu_topic, 1000000);
+    velocity_sub_ptr_ = std::make_shared<VelocitySubscriber>(nh, gp.velocity_topic, 1000000);
+    gnss_sub_ptr_ = std::make_shared<GNSSSubscriber>(nh, gp.gnss_topic, 1000000);
+    lidar_to_imu_ptr_ = std::make_shared<TFListener>(nh, gp.imu_frame_id, gp.lidar_frame_id);
     // publisher
-    cloud_pub_ptr_ = std::make_shared<CloudPublisher>(nh, cloud_topic, "velo_link", 10);
-    gnss_pub_ptr_ = std::make_shared<OdometryPublisher>(nh, "/synced_gnss", "map", "velo_link", 10);
+    cloud_pub_ptr_ = std::make_shared<CloudPublisher>(nh, gp.synced_pointcloud_topic, gp.lidar_frame_id, 10);
+    gnss_pub_ptr_ =
+        std::make_shared<OdometryPublisher>(nh, gp.synced_gnss_topic, gp.global_frame_id, gp.vehicle_ref_frame_id, 10);
 
     distortion_adjust_ptr_ = std::make_shared<DistortionAdjust>();
 }
@@ -53,6 +60,7 @@ bool DataPretreatFlow::ReadData() {
     static std::deque<VelocityData> unsynced_velocity_;
     static std::deque<GNSSData> unsynced_gnss_;
 
+    // 从 subscribers 的缓存中读取数据
     imu_sub_ptr_->ParseData(unsynced_imu_);
     velocity_sub_ptr_->ParseData(unsynced_velocity_);
     gnss_sub_ptr_->ParseData(unsynced_gnss_);

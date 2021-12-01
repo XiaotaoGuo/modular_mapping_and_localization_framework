@@ -21,7 +21,7 @@
 namespace mapping_localization {
 class BackEnd {
 public:
-    BackEnd();
+    BackEnd(const YAML::Node& global_node, const YAML::Node& config_node);
 
     bool Update(const CloudData& cloud_data, const PoseData& laser_odom, const PoseData& gnss_pose);
     bool InsertLoopPose(const LoopPose& loop_pose);
@@ -32,9 +32,9 @@ public:
     bool HasNewOptimized();
     void GetLatestKeyFrame(KeyFrame& key_frame);
     void GetLatestKeyGNSS(KeyFrame& key_frame);
+    void GetLatestCorrectedKeyFrame(KeyFrame& key_frame);
 
 private:
-    bool InitWithConfig();
     bool InitParam(const YAML::Node& config_node);
     bool InitGraphOptimizer(const YAML::Node& config_node);
     bool InitDataPath(const YAML::Node& config_node);
@@ -62,7 +62,9 @@ private:
     KeyFrame current_key_frame_;
     KeyFrame current_key_gnss_;
     std::deque<KeyFrame> key_frames_deque_;
+
     std::deque<Eigen::Matrix4f> optimized_pose_;
+    Eigen::Matrix4f pose_to_optimize_ = Eigen::Matrix4f::Identity();
 
     // 优化器
     std::shared_ptr<InterfaceGraphOptimizer> graph_optimizer_ptr_;

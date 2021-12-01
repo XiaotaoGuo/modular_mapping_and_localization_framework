@@ -1,4 +1,4 @@
-data_path: /home/xt/localization_in_auto_driving/lidar_localization_ws/results/pcl-icp   # 数据存放路径
+data_path: /home/guo/personal/general_mapping_and_localization_framework/results/temp   # 数据存放路径
 
 debug_info: false
 

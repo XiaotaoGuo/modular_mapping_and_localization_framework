@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-28 01:02:51
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-26 22:15:40
+ * @Last Modified: 2021-11-30 19:34:28
  * @Modified By: Xiaotao Guo
  */
 
@@ -18,18 +18,11 @@
 #include "mapping_localization/tools/file_manager.hpp"
 
 namespace mapping_localization {
-BackEnd::BackEnd() { InitWithConfig(); }
-
-bool BackEnd::InitWithConfig() {
-    std::string config_file_path = WORK_SPACE_PATH + "/config/mapping/back_end.yaml";
-    YAML::Node config_node = YAML::LoadFile(config_file_path);
-
+BackEnd::BackEnd(const YAML::Node& global_node, const YAML::Node& config_node) {
     LOG(INFO) << "-----------------后端初始化-------------------";
     InitParam(config_node);
     InitGraphOptimizer(config_node);
-    InitDataPath(config_node);
-
-    return true;
+    InitDataPath(global_node);
 }
 
 bool BackEnd::InitParam(const YAML::Node& config_node) {
@@ -237,6 +230,8 @@ bool BackEnd::SaveOptimizedPose() {
         SavePose(optimized_pose_ofs_, optimized_pose_.at(i));
     }
 
+    pose_to_optimize_ = optimized_pose_.back() * key_frames_deque_.back().pose.inverse();
+
     return true;
 }
 
@@ -264,4 +259,9 @@ bool BackEnd::HasNewOptimized() { return has_new_optimized_; }
 void BackEnd::GetLatestKeyFrame(KeyFrame& key_frame) { key_frame = current_key_frame_; }
 
 void BackEnd::GetLatestKeyGNSS(KeyFrame& key_frame) { key_frame = current_key_gnss_; }
+
+void BackEnd::GetLatestCorrectedKeyFrame(KeyFrame& key_frame) {
+    key_frame = current_key_frame_;
+    key_frame.pose = pose_to_optimize_ * current_key_frame_.pose;
+}
 }  // namespace mapping_localization

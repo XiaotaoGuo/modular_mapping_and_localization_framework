@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-04 18:53:06
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-29 00:18:35
+ * @Last Modified: 2021-11-30 00:42:55
  * @Modified By: Xiaotao Guo
  */
 
@@ -28,19 +28,12 @@
 #include "mapping_localization/tools/tic_toc.hpp"
 
 namespace mapping_localization {
-FrontEnd::FrontEnd() : local_map_ptr_(new CloudData::Cloud()) { InitWithConfig(); }
-
-bool FrontEnd::InitWithConfig() {
-    std::string config_file_path = WORK_SPACE_PATH + "/config/mapping/front_end.yaml";
-    YAML::Node config_node = YAML::LoadFile(config_file_path);
-
-    LOG(INFO) << "-----------------前端初始化-------------------" << std::endl;
+FrontEnd::FrontEnd(const YAML::Node& global_node, const YAML::Node& config_node)
+    : local_map_ptr_(new CloudData::Cloud()) {
     InitParam(config_node);
     InitRegistration(registration_ptr_, config_node);
     InitFilter("local_map", local_map_filter_ptr_, config_node);
     InitFilter("frame", frame_filter_ptr_, config_node);
-
-    return true;
 }
 
 bool FrontEnd::InitParam(const YAML::Node& config_node) {

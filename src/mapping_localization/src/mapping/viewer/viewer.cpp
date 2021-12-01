@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-29 03:49:12
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-26 22:18:04
+ * @Last Modified: 2021-11-30 14:18:17
  * @Modified By: Xiaotao Guo
  */
 
@@ -18,20 +18,13 @@
 #include "mapping_localization/tools/file_manager.hpp"
 
 namespace mapping_localization {
-Viewer::Viewer() { InitWithConfig(); }
-
-bool Viewer::InitWithConfig() {
-    std::string config_file_path = WORK_SPACE_PATH + "/config/mapping/viewer.yaml";
-    YAML::Node config_node = YAML::LoadFile(config_file_path);
-
+Viewer::Viewer(const YAML::Node& global_node, const YAML::Node& config_node) {
     LOG(INFO) << "-----------------显示模块初始化-------------------";
     InitParam(config_node);
-    InitDataPath(config_node);
+    InitDataPath(global_node);
     InitFilter("frame", frame_filter_ptr_, config_node);
     InitFilter("local_map", local_map_filter_ptr_, config_node);
     InitFilter("global_map", global_map_filter_ptr_, config_node);
-
-    return true;
 }
 
 bool Viewer::InitParam(const YAML::Node& config_node) {
@@ -99,8 +92,10 @@ bool Viewer::UpdateWithNewKeyFrame(std::deque<KeyFrame>& new_key_frames,
         has_new_local_map_ = true;
     }
 
-    optimized_odom_ = transformed_data;
-    optimized_odom_.pose = pose_to_optimize_ * optimized_odom_.pose;
+    latest_original_key_frame_ = all_key_frames_.back();
+    latest_original_key_frame_.pose = pose_to_optimize_.inverse() * latest_original_key_frame_.pose;
+    original_odom_ = transformed_data;
+    optimized_odom_.pose = pose_to_optimize_ * original_odom_.pose;
 
     optimized_cloud_ = cloud_data;
     pcl::transformPointCloud(*cloud_data.cloud_ptr, *optimized_cloud_.cloud_ptr, optimized_odom_.pose);
@@ -187,7 +182,13 @@ bool Viewer::SaveMap() {
     return true;
 }
 
-Eigen::Matrix4f& Viewer::GetCurrentPose() { return optimized_odom_.pose; }
+const Eigen::Matrix4f& Viewer::GetCurrentOriginalPose() const { return original_odom_.pose; }
+
+const Eigen::Matrix4f& Viewer::GetCurrentPose() const { return optimized_odom_.pose; }
+
+const KeyFrame& Viewer::getCurrentOriginalKeyFrame() const { return latest_original_key_frame_; }
+
+const KeyFrame& Viewer::getCurrentCorrectedKeyFrame() const { return all_key_frames_.back(); }
 
 CloudData::Cloud_Ptr& Viewer::GetCurrentScan() {
     frame_filter_ptr_->Filter(optimized_cloud_.cloud_ptr, optimized_cloud_.cloud_ptr);

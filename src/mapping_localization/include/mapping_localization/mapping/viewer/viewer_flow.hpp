@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-29 03:32:14
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-28 12:43:22
+ * @Last Modified: 2021-11-30 18:44:18
  * @Modified By: Xiaotao Guo
  */
 
@@ -18,9 +18,13 @@
 #include "mapping_localization/subscriber/key_frame_subscriber.hpp"
 #include "mapping_localization/subscriber/key_frames_subscriber.hpp"
 #include "mapping_localization/subscriber/odometry_subscriber.hpp"
+#include "mapping_localization/subscriber/trajectory_subscriber.hpp"
+
 // publisher
 #include "mapping_localization/publisher/cloud_publisher.hpp"
 #include "mapping_localization/publisher/odometry_publisher.hpp"
+#include "mapping_localization/publisher/trajectory_publisher.hpp"
+
 // viewer
 #include "mapping_localization/mapping/viewer/viewer.hpp"
 
@@ -44,23 +48,32 @@ private:
     std::shared_ptr<CloudSubscriber> cloud_sub_ptr_;
     std::shared_ptr<OdometrySubscriber> transformed_odom_sub_ptr_;
     std::shared_ptr<KeyFrameSubscriber> key_frame_sub_ptr_;
-    std::shared_ptr<KeyFramesSubscriber> optimized_key_frames_sub_ptr_;
+    std::shared_ptr<KeyFrameSubscriber> key_gnss_sub_ptr_;
+
+    std::shared_ptr<TrajectorySubscriber> optimized_key_frames_sub_ptr_;
+
     // publisher
+    // std::shared_ptr<TrajectoryPublisher> gnss_trjectory_pub_ptr;          // gnss trajectory (as reference)
+    // std::shared_ptr<TrajectoryPublisher> vehicle_tracjectory_pub_ptr_;    // uncorrected vehicle odometry trajectory
+    // std::shared_ptr<TrajectoryPublisher> corrected_tracjectory_pub_ptr_;  // uncorrected vehicle odometry trajectory
     std::shared_ptr<OdometryPublisher> optimized_odom_pub_ptr_;
     std::shared_ptr<CloudPublisher> current_scan_pub_ptr_;
     std::shared_ptr<CloudPublisher> global_map_pub_ptr_;
     std::shared_ptr<CloudPublisher> local_map_pub_ptr_;
+
     // viewer
     std::shared_ptr<Viewer> viewer_ptr_;
 
     std::deque<CloudData> cloud_data_buff_;
     std::deque<PoseData> transformed_odom_buff_;
     std::deque<KeyFrame> key_frame_buff_;
+    std::deque<KeyFrame> key_gnss_buff_;
     std::deque<KeyFrame> optimized_key_frames_;
     std::deque<KeyFrame> all_key_frames_;
 
     CloudData current_cloud_data_;
     PoseData current_transformed_odom_;
+    KeyFrame current_key_gnss_;
 };
 }  // namespace mapping_localization
 

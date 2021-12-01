@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-05 02:56:27
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-24 00:32:52
+ * @Last Modified: 2021-11-29 23:04:51
  * @Modified By: Xiaotao Guo
  */
 
@@ -27,8 +27,7 @@ int main(int argc, char *argv[]) {
     nh.param<std::string>("cloud_topic", cloud_topic, "/synced_cloud");
     nh.param<std::string>("odom_topic", odom_topic, "/laser_odom");
 
-    std::shared_ptr<FrontEndFlow> front_end_flow_ptr =
-        std::make_shared<FrontEndFlow>(nh, cloud_topic, odom_topic);
+    std::shared_ptr<FrontEndFlow> front_end_flow_ptr = std::make_shared<FrontEndFlow>(nh);
 
     ros::Rate rate(100);
     while (ros::ok()) {

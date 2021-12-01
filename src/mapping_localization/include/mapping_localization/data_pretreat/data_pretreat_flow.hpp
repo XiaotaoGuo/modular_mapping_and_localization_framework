@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-10 08:31:22
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-28 12:43:42
+ * @Last Modified: 2021-11-30 17:43:09
  * @Modified By: Xiaotao Guo
  */
 
@@ -11,6 +11,7 @@
 #define MAPPING_LOCALIZATION_DATA_PRETREAT_DATA_PRETREAT_FLOW_HPP_
 
 #include <ros/ros.h>
+#include <yaml-cpp/yaml.h>
 // subscriber
 #include "mapping_localization/subscriber/cloud_subscriber.hpp"
 #include "mapping_localization/subscriber/gnss_subscriber.hpp"
@@ -20,6 +21,7 @@
 // publisher
 #include "mapping_localization/publisher/cloud_publisher.hpp"
 #include "mapping_localization/publisher/odometry_publisher.hpp"
+#include "mapping_localization/publisher/trajectory_publisher.hpp"
 // models
 #include "mapping_localization/models/scan_adjust/distortion_adjust.hpp"
 

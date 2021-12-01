@@ -12,6 +12,8 @@
 #include "mapping_localization/publisher/key_frame_publisher.hpp"
 #include "mapping_localization/publisher/key_frames_publisher.hpp"
 #include "mapping_localization/publisher/odometry_publisher.hpp"
+#include "mapping_localization/publisher/trajectory_publisher.hpp"
+
 #include "mapping_localization/subscriber/cloud_subscriber.hpp"
 #include "mapping_localization/subscriber/loop_pose_subscriber.hpp"
 #include "mapping_localization/subscriber/odometry_subscriber.hpp"
@@ -42,7 +44,12 @@ private:
     std::shared_ptr<OdometryPublisher> transformed_odom_pub_ptr_;
     std::shared_ptr<KeyFramePublisher> key_frame_pub_ptr_;
     std::shared_ptr<KeyFramePublisher> key_gnss_pub_ptr_;
-    std::shared_ptr<KeyFramesPublisher> key_frames_pub_ptr_;  // optimized key frames publishers
+
+    std::shared_ptr<TrajectoryPublisher> key_gnss_trajectory_pub_ptr_;
+    std::shared_ptr<TrajectoryPublisher> vehicle_tracjectory_pub_ptr_;
+    std::shared_ptr<TrajectoryPublisher> optimized_tracjectory_pub_ptr_;
+    std::shared_ptr<TrajectoryPublisher> corrected_trajectory_pub_ptr_;
+
     std::shared_ptr<BackEnd> back_end_ptr_;
 
     std::deque<CloudData> cloud_data_buff_;

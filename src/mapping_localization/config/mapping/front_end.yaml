@@ -21,7 +21,7 @@ NDT:
     max_iter : 30
 
 ICP:
-    matching_method: GN # PCL, SVD, GN
+    matching_method: SVD # PCL, SVD, GN
     max_correspodence_dist: 1.0
     trans_eps: 1e-6
     fitness_eps: 1e-6

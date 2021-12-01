@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-28 19:13:26
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-28 12:43:22
+ * @Last Modified: 2021-11-30 11:15:38
  * @Modified By: Xiaotao Guo
  */
 
@@ -20,7 +20,7 @@ public:
     Eigen::Matrix4f pose = Eigen::Matrix4f::Identity();
 
 public:
-    Eigen::Quaternionf GetQuaternion();
+    Eigen::Quaternionf GetQuaternion() const;
 };
 }  // namespace mapping_localization
 

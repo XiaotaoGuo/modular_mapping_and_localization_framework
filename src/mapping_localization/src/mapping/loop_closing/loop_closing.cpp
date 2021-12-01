@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-04 18:53:06
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-29 00:08:40
+ * @Last Modified: 2021-12-01 13:10:02
  * @Modified By: Xiaotao Guo
  */
 
@@ -24,40 +24,39 @@
 #include "mapping_localization/models/registration/icp_registration.hpp"
 #include "mapping_localization/models/registration/ndt_registration.hpp"
 
+#include "mapping_localization/models/loop_closure/distance_detector.hpp"
+#include "mapping_localization/models/loop_closure/scan_context_detector.hpp"
+
 #include "mapping_localization/tools/print_info.hpp"
 
 namespace mapping_localization {
-LoopClosing::LoopClosing() { InitWithConfig(); }
-
-bool LoopClosing::InitWithConfig() {
-    std::string config_file_path = WORK_SPACE_PATH + "/config/mapping/loop_closing.yaml";
-    YAML::Node config_node = YAML::LoadFile(config_file_path);
-
+LoopClosing::LoopClosing(const YAML::Node& global_node, const YAML::Node& config_node) {
     std::cout << "-----------------闭环检测初始化-------------------" << std::endl;
     InitParam(config_node);
-    InitDataPath(config_node);
+    InitDataPath(global_node);
     InitRegistration(registration_ptr_, config_node);
     InitFilter("map", map_filter_ptr_, config_node);
     InitFilter("scan", scan_filter_ptr_, config_node);
-
-    return true;
 }
 
 bool LoopClosing::InitParam(const YAML::Node& config_node) {
     extend_frame_num_ = config_node["extend_frame_num"].as<int>();
-    loop_step_ = config_node["loop_step"].as<int>();
-    diff_num_ = config_node["diff_num"].as<int>();
-    detect_area_ = config_node["detect_area"].as<float>();
     fitness_score_limit_ = config_node["fitness_score_limit"].as<float>();
 
     std::string search_criteria = config_node["search_criteria"].as<std::string>();
     if (search_criteria == "scan_context") {
         search_criteria_ = SearchCriteria::ScanContext;
-    } else if (search_criteria == "distance") {
-        search_criteria_ = SearchCriteria::Distance;
+        loop_clousre_detector_ptr_ = std::make_shared<ScanContextDetector>(config_node[search_criteria]);
+    } else if (search_criteria == "distance_gnss") {
+        search_criteria_ = SearchCriteria::Distance_GNSS;
+        loop_clousre_detector_ptr_ = std::make_shared<DistanceDetector>(config_node[search_criteria]);
+    } else if (search_criteria == "distance_odom") {
+        search_criteria_ = SearchCriteria::Distance_Odom;
+        loop_clousre_detector_ptr_ = std::make_shared<DistanceDetector>(config_node[search_criteria]);
     } else {
-        std::cout << "没有和 " << search_criteria << " 对应的回环检测检测。 默认使用距离作为回环检测方式,\n";
-        search_criteria_ = SearchCriteria::Distance;
+        std::cout << "没有和 " << search_criteria << " 对应的回环检测检测。 默认使用 GNSS 位置作为回环检测方式,\n";
+        search_criteria_ = SearchCriteria::Distance_GNSS;
+        loop_clousre_detector_ptr_ = std::make_shared<ScanContextDetector>(config_node["scan_context"]);
     }
 
     return true;
@@ -115,69 +114,53 @@ bool LoopClosing::Update(const KeyFrame key_frame, const KeyFrame key_gnss) {
     all_key_frames_.push_back(key_frame);
     all_key_gnss_.push_back(key_gnss);
 
+    // 从硬盘中读取关键帧点云
+    CloudData::Cloud_Ptr scan_cloud_ptr(new CloudData::Cloud());
+    std::string file_path = key_frames_path_ + "/key_frame_" + std::to_string(all_key_frames_.back().index) + ".pcd";
+    pcl::io::loadPCDFile(file_path, *scan_cloud_ptr);
+    scan_filter_ptr_->Filter(scan_cloud_ptr, scan_cloud_ptr);
+
+    static Timer loop_closure_timer("Loop Closure");
+    loop_closure_timer.tic();
     int key_frame_index = 0;
-    if (search_criteria_ == SearchCriteria::Distance) {
-        // 基于距离搜索距离较近的点云
-        if (!DetectNearestKeyFrame(key_frame_index)) return false;
+    if (search_criteria_ == SearchCriteria::Distance_GNSS) {
+        // 基于距离搜索距离较近的关键帧
+        loop_clousre_detector_ptr_->addLatestKeyFrame(key_gnss, scan_cloud_ptr);
+    } else if (search_criteria_ == SearchCriteria::Distance_Odom) {
+        // 基于里程计位置估计搜索较近的关键帧
+        loop_clousre_detector_ptr_->addLatestKeyFrame(key_frame, scan_cloud_ptr);
     } else if (search_criteria_ == SearchCriteria::ScanContext) {
-        // 从硬盘中读取关键帧点云
-        CloudData::Cloud_Ptr scan_cloud_ptr(new CloudData::Cloud());
-        std::string file_path =
-            key_frames_path_ + "/key_frame_" + std::to_string(all_key_frames_.back().index) + ".pcd";
-        pcl::io::loadPCDFile(file_path, *scan_cloud_ptr);
-        scan_filter_ptr_->Filter(scan_cloud_ptr, scan_cloud_ptr);
-
         // 将下采样后的点云传入 sc manager 构建并存储 scan context
-        sc_manager_.makeAndSaveScancontextAndKeys(*scan_cloud_ptr);
-        auto detect_result = sc_manager_.detectLoopClosureID();  // first: nn index, second: yaw diff
-        if (detect_result.first == -1) return false;
-        key_frame_index = detect_result.first;
+        loop_clousre_detector_ptr_->addLatestKeyFrame(key_frame, scan_cloud_ptr);
     }
 
-    if (!CloudRegistration(key_frame_index)) return false;
+    has_new_loop_pose_ = loop_clousre_detector_ptr_->DetectNearestKeyFrame(key_frame_index);
+    loop_closure_timer.toc();
 
-    has_new_loop_pose_ = true;
-    return true;
-}
+    if (!has_new_loop_pose_) return false;
 
-bool LoopClosing::DetectNearestKeyFrame(int& key_frame_index) {
-    static int skip_cnt = 0;
-    static int skip_num = loop_step_;
-    if (++skip_cnt < skip_num) return false;
+    // 初始化回环信息（此时置信度设为 false）
+    current_loop_pose_.index0 = all_key_frames_.at(key_frame_index).index;
+    current_loop_pose_.index1 = all_key_frames_.back().index;
+    current_loop_pose_.time = all_key_frames_.back().time;
+    current_loop_pose_.confidence = false;
 
-    if ((int)all_key_gnss_.size() < diff_num_ + 1) return false;
+    std::cout << "检测到闭环 "
+              << ": 帧" << current_loop_pose_.index0 << "------>"
+              << "帧" << current_loop_pose_.index1 << std::endl;
 
-    int key_num = (int)all_key_gnss_.size();
-    float min_distance = 1000000.0;
-    float distance = 0.0;
-
-    KeyFrame history_key_frame;
-    KeyFrame current_key_frame = all_key_gnss_.back();
-
-    key_frame_index = -1;
-    for (int i = 0; i < key_num - 1; ++i) {
-        if (key_num - i < diff_num_) break;
-
-        history_key_frame = all_key_gnss_.at(i);
-        distance = fabs(current_key_frame.pose(0, 3) - history_key_frame.pose(0, 3)) +
-                   fabs(current_key_frame.pose(1, 3) - history_key_frame.pose(1, 3)) +
-                   fabs(current_key_frame.pose(2, 3) - history_key_frame.pose(2, 3));
-        if (distance < min_distance) {
-            min_distance = distance;
-            key_frame_index = i;
-        }
-    }
-    if (key_frame_index < extend_frame_num_) return false;
-
-    skip_cnt = 0;
-    skip_num = (int)min_distance;
-    if (min_distance > detect_area_) {
-        skip_num = std::max((int)(min_distance / 2.0), loop_step_);
+    if (key_frame_index < extend_frame_num_) {
+        std::cout << "匹配失败！\n";
         return false;
-    } else {
-        skip_num = loop_step_;
-        return true;
     }
+
+    if (CloudRegistration(key_frame_index)) {
+        current_loop_pose_.confidence = true;
+    }
+
+    LOG(INFO) << loop_closure_timer;
+
+    return true;
 }
 
 bool LoopClosing::CloudRegistration(int key_frame_index) {
@@ -199,14 +182,16 @@ bool LoopClosing::CloudRegistration(int key_frame_index) {
     current_loop_pose_.pose = map_pose.inverse() * result_pose;
 
     // 判断是否有效
-    if (registration_ptr_->GetFitnessScore() > fitness_score_limit_) return false;
+    if (registration_ptr_->GetFitnessScore() > fitness_score_limit_) {
+        std::cout << "匹配失败！\n";
+        return false;
+    }
 
     static int loop_close_cnt = 0;
     loop_close_cnt++;
 
-    std::cout << "检测到闭环 " << loop_close_cnt << ": 帧" << current_loop_pose_.index0 << "------>"
-              << "帧" << current_loop_pose_.index1 << std::endl
-              << "fitness score: " << registration_ptr_->GetFitnessScore() << std::endl
+    std::cout << "匹配成功，fitness score: " << registration_ptr_->GetFitnessScore() << " 回环数量" << loop_close_cnt
+              << std::endl
               << std::endl;
 
     // std::cout << "相对位姿 x y z roll pitch yaw:";
@@ -217,7 +202,6 @@ bool LoopClosing::CloudRegistration(int key_frame_index) {
 
 bool LoopClosing::JointMap(int key_frame_index, CloudData::Cloud_Ptr& map_cloud_ptr, Eigen::Matrix4f& map_pose) {
     map_pose = all_key_gnss_.at(key_frame_index).pose;
-    current_loop_pose_.index0 = all_key_frames_.at(key_frame_index).index;
 
     // 合成地图
     Eigen::Matrix4f pose_to_gnss = map_pose * all_key_frames_.at(key_frame_index).pose.inverse();
@@ -239,8 +223,6 @@ bool LoopClosing::JointMap(int key_frame_index, CloudData::Cloud_Ptr& map_cloud_
 
 bool LoopClosing::JointScan(CloudData::Cloud_Ptr& scan_cloud_ptr, Eigen::Matrix4f& scan_pose) {
     scan_pose = all_key_gnss_.back().pose;
-    current_loop_pose_.index1 = all_key_frames_.back().index;
-    current_loop_pose_.time = all_key_frames_.back().time;
 
     std::string file_path = key_frames_path_ + "/key_frame_" + std::to_string(all_key_frames_.back().index) + ".pcd";
     pcl::io::loadPCDFile(file_path, *scan_cloud_ptr);

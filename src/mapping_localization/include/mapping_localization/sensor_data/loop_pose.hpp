@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-28 19:13:26
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-28 12:43:22
+ * @Last Modified: 2021-11-30 20:20:35
  * @Modified By: Xiaotao Guo
  */
 
@@ -18,6 +18,7 @@ public:
     double time = 0.0;
     unsigned int index0 = 0;
     unsigned int index1 = 0;
+    bool confidence = false;  // false -- 回环检测到，但是地图效果不好， true -- 回环检测到，且匹配效果较好
     Eigen::Matrix4f pose = Eigen::Matrix4f::Identity();
 
 public:

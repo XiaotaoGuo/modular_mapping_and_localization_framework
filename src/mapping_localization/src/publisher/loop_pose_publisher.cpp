@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-06 21:11:44
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-24 00:38:43
+ * @Last Modified: 2021-11-30 20:26:16
  * @Modified By: Xiaotao Guo
  */
 
@@ -14,13 +14,9 @@
 #include "glog/logging.h"
 
 namespace mapping_localization {
-LoopPosePublisher::LoopPosePublisher(ros::NodeHandle& nh,
-                                     std::string topic_name,
-                                     std::string frame_id,
-                                     int buff_size)
+LoopPosePublisher::LoopPosePublisher(ros::NodeHandle& nh, std::string topic_name, std::string frame_id, int buff_size)
     : nh_(nh), frame_id_(frame_id) {
-    publisher_ =
-        nh_.advertise<geometry_msgs::PoseWithCovarianceStamped>(topic_name, buff_size);
+    publisher_ = nh_.advertise<geometry_msgs::PoseWithCovarianceStamped>(topic_name, buff_size);
 }
 
 void LoopPosePublisher::Publish(LoopPose& loop_pose) {
@@ -42,6 +38,7 @@ void LoopPosePublisher::Publish(LoopPose& loop_pose) {
 
     pose_stamped.pose.covariance[0] = (double)loop_pose.index0;
     pose_stamped.pose.covariance[1] = (double)loop_pose.index1;
+    pose_stamped.pose.covariance[2] = (double)loop_pose.confidence;
 
     publisher_.publish(pose_stamped);
 }

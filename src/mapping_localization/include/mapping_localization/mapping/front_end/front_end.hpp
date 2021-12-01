@@ -25,7 +25,7 @@ public:
     };
 
 public:
-    FrontEnd();
+    FrontEnd(const YAML::Node& global_node, const YAML::Node& config_node);
 
     bool Update(const CloudData& cloud_data, Eigen::Matrix4f& cloud_pose);
     bool SetInitPose(const Eigen::Matrix4f& init_pose);
