@@ -1,12 +1,8 @@
-data_path: /home/guo/personal/general_mapping_and_localization_framework/results/temp   # 数据存放路径
+data_path: /home/guo/personal/general_mapping_and_localization_framework/results/A-LOAM-test   # 数据存放路径
 
 # 世界坐标系 (world frame)
 global_frame_id: world             # 参考东北天坐标系 （原点和初始时刻激光雷达中心重合）
 lidar_global_frame_id: world_lidar           # 以激光雷达初始位姿为原点的全局坐标系（和参考东北天坐标系相差一个旋转角度）
-
-# 传感器坐标系（sensor frame），主要用于计算不同传感器之间的外参
-imu_frame_id: imu_link
-lidar_frame_id: velo_link
 
 # 载体坐标系 (body frame)
 vehicle_ref_frame_id: vehicle_referenced                # 参考载体坐标系---------载体在 reference_global_frame 下的的参考位姿
@@ -14,12 +10,6 @@ lidar_odom_frame_id: lidar_odom                       # Lidar 坐标系---------
 vehicle_odom_frame_id: vehicle_odom                        # 估计载体坐标系---------载体在 reference_global_frame 下的估计位姿 (和东北天对齐)
 vehicle_optimized_frame_id: vehicle_optimized         # 优化后的估计载体坐标系--载体在 reference_global_frame 下经过优化后的位姿
 vehicle_corrected_frame_id: vehicle_corrected
-
-# 原始消息 topic
-pointcloud_topic: /kitti/velo/pointcloud
-imu_topic: /kitti/oxts/imu
-velocity_topic: /kitti/oxts/gps/vel
-gnss_topic: /kitti/oxts/gps/fix
 
 # 同步后的消息 topic
 synced_pointcloud_topic: /synced_cloud

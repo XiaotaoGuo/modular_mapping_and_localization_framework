@@ -17,6 +17,9 @@ float xy2theta(const float &_x, const float &_y) {
     if ((_x < 0) & (_y < 0)) return 180 + ((180 / M_PI) * atan(_y / _x));
 
     if ((_x >= 0) & (_y < 0)) return 360 - ((180 / M_PI) * atan((-_y) / _x));
+
+    // won't reach here!
+    return 0.0;
 }  // xy2theta
 
 MatrixXd circshift(MatrixXd &_mat, int _num_shift) {

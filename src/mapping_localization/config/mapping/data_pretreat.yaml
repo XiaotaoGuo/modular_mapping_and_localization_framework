@@ -1,0 +1,17 @@
+use_external_front_end: true
+
+# 传感器坐标系（sensor frame），主要用于计算不同传感器之间的外参
+imu_frame_id: imu_link
+lidar_frame_id: velo_link
+
+# 原始消息 topic
+pointcloud_topic: /kitti/velo/pointcloud
+imu_topic: /kitti/oxts/imu
+velocity_topic: /kitti/oxts/gps/vel
+gnss_topic: /kitti/oxts/gps/fix
+
+# 预处理设置
+lidar_buffer_size: 5 # 保持一定数量点云数据在缓存里，等待其他传感器数据
+
+# 外部前端 topic
+external_laser_odom_topic: /aft_mapped_to_init

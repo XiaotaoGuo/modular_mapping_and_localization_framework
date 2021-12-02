@@ -5,10 +5,14 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
+        - /trajectory1/gnss_pose1
         - /trajectory1/gnss_pose1/Shape1
         - /trajectory1/laser_odom1/Shape1
         - /trajectory1/vehicle_corrected_trajectory1
         - /trajectory1/optimized_pose1
+        - /PointCloud1
+        - /PointCloud1/global_map1
+        - /PointCloud1/CurrentScan1
         - /LoopClosure1
       Splitter Ratio: 0.5
     Tree Height: 873
@@ -93,7 +97,7 @@ Visualization Manager:
           Position Tolerance: 1
           Shape:
             Alpha: 1
-            Axes Length: 10
+            Axes Length: 5
             Axes Radius: 1
             Color: 255; 170; 0
             Head Length: 1
@@ -271,8 +275,8 @@ Visualization Manager:
         - Alpha: 0.30000001192092896
           Autocompute Intensity Bounds: true
           Autocompute Value Bounds:
-            Max Value: 6.113910675048828
-            Min Value: -21.272790908813477
+            Max Value: 5.9108123779296875
+            Min Value: -22.635576248168945
             Value: true
           Axis: Z
           Channel Name: intensity
@@ -289,8 +293,8 @@ Visualization Manager:
           Queue Size: 10
           Selectable: true
           Size (Pixels): 3
-          Size (m): 0.009999999776482582
-          Style: Points
+          Size (m): 0.30000001192092896
+          Style: Flat Squares
           Topic: /local_map
           Unreliable: false
           Use Fixed Frame: true
@@ -317,8 +321,8 @@ Visualization Manager:
           Queue Size: 10
           Selectable: true
           Size (Pixels): 3
-          Size (m): 0.009999999776482582
-          Style: Points
+          Size (m): 0.15000000596046448
+          Style: Squares
           Topic: /global_map
           Unreliable: false
           Use Fixed Frame: true
@@ -344,15 +348,15 @@ Visualization Manager:
           Position Transformer: XYZ
           Queue Size: 10
           Selectable: true
-          Size (Pixels): 4
+          Size (Pixels): 2
           Size (m): 0.4000000059604645
-          Style: Flat Squares
+          Style: Points
           Topic: /current_scan
           Unreliable: false
           Use Fixed Frame: true
           Use rainbow: true
           Value: true
-      Enabled: false
+      Enabled: true
       Name: PointCloud
     - Class: rviz/Group
       Displays:
@@ -401,7 +405,7 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Angle: 1.0399988889694214
+      Angle: -2.4999992847442627
       Class: rviz/TopDownOrtho
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
@@ -411,11 +415,11 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Scale: 1.979536771774292
+      Scale: 17.57574462890625
       Target Frame: world
       Value: TopDownOrtho (rviz)
-      X: 131.54750061035156
-      Y: 187.00205993652344
+      X: 215.70733642578125
+      Y: 203.54324340820312
     Saved: ~
 Window Geometry:
   Displays:

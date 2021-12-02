@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-10 08:38:42
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-30 17:45:34
+ * @Last Modified: 2021-12-02 11:56:02
  * @Modified By: Xiaotao Guo
  */
 
@@ -17,23 +17,51 @@
 
 namespace mapping_localization {
 DataPretreatFlow::DataPretreatFlow(ros::NodeHandle& nh, std::string cloud_topic) {
+    std::string data_pretreat_config_file_path = WORK_SPACE_PATH + "/config/mapping/data_pretreat.yaml";
+    YAML::Node data_pretreat_config_node = YAML::LoadFile(data_pretreat_config_file_path);
+
+    std::string pointcloud_topic = data_pretreat_config_node["pointcloud_topic"].as<std::string>();
+    std::string imu_topic = data_pretreat_config_node["imu_topic"].as<std::string>();
+    std::string velocity_topic = data_pretreat_config_node["velocity_topic"].as<std::string>();
+    std::string gnss_topic = data_pretreat_config_node["gnss_topic"].as<std::string>();
+
+    std::string imu_frame_id = data_pretreat_config_node["imu_frame_id"].as<std::string>();
+    std::string lidar_frame_id = data_pretreat_config_node["lidar_frame_id"].as<std::string>();
+
+    use_external_laser_odom_ = data_pretreat_config_node["use_external_front_end"].as<bool>();
+    cloud_data_buff_min_size_ = data_pretreat_config_node["lidar_buffer_size"].as<unsigned int>();
+
     std::string global_config_file_path = WORK_SPACE_PATH + "/config/mapping/global.yaml";
     YAML::Node global_config_node = YAML::LoadFile(global_config_file_path);
 
     GlobalParam gp(global_config_node);
 
     // subscriber
-    cloud_sub_ptr_ = std::make_shared<CloudSubscriber>(nh, gp.pointcloud_topic, 100000);
-    imu_sub_ptr_ = std::make_shared<IMUSubscriber>(nh, gp.imu_topic, 1000000);
-    velocity_sub_ptr_ = std::make_shared<VelocitySubscriber>(nh, gp.velocity_topic, 1000000);
-    gnss_sub_ptr_ = std::make_shared<GNSSSubscriber>(nh, gp.gnss_topic, 1000000);
-    lidar_to_imu_ptr_ = std::make_shared<TFListener>(nh, gp.imu_frame_id, gp.lidar_frame_id);
+    cloud_sub_ptr_ = std::make_shared<CloudSubscriber>(nh, pointcloud_topic, 100000);
+    imu_sub_ptr_ = std::make_shared<IMUSubscriber>(nh, imu_topic, 1000000);
+    velocity_sub_ptr_ = std::make_shared<VelocitySubscriber>(nh, velocity_topic, 1000000);
+    gnss_sub_ptr_ = std::make_shared<GNSSSubscriber>(nh, gnss_topic, 1000000);
+    lidar_to_imu_ptr_ = std::make_shared<TFListener>(nh, imu_frame_id, lidar_frame_id);
+
     // publisher
     cloud_pub_ptr_ = std::make_shared<CloudPublisher>(nh, gp.synced_pointcloud_topic, gp.lidar_frame_id, 10);
     gnss_pub_ptr_ =
         std::make_shared<OdometryPublisher>(nh, gp.synced_gnss_topic, gp.global_frame_id, gp.vehicle_ref_frame_id, 10);
 
     distortion_adjust_ptr_ = std::make_shared<DistortionAdjust>();
+
+    if (use_external_laser_odom_) {
+        std::string external_laser_odom_topic =
+            data_pretreat_config_node["external_laser_odom_topic"].as<std::string>();
+        std::string laser_odom_topic = gp.lidar_odometry_topic;
+        std::shared_ptr<OdometryPublisher> synced_laser_odom_pub_ptr =
+            std::make_shared<OdometryPublisher>(nh, laser_odom_topic, gp.global_frame_id, gp.lidar_odom_frame_id, 10);
+        std::shared_ptr<OdometrySubscriber> external_laser_odom_sub_ptr =
+            std::make_shared<OdometrySubscriber>(nh, external_laser_odom_topic, 100000000);
+
+        external_front_end_ptr_ =
+            std::make_shared<ExternalFrontEndAdapter>(external_laser_odom_sub_ptr, synced_laser_odom_pub_ptr);
+    }
 }
 
 bool DataPretreatFlow::Run() {
@@ -107,6 +135,7 @@ bool DataPretreatFlow::InitGNSS() {
 }
 
 bool DataPretreatFlow::HasData() {
+    if (cloud_data_buff_.size() < cloud_data_buff_min_size_) return false;
     if (cloud_data_buff_.size() == 0) return false;
     if (imu_data_buff_.size() == 0) return false;
     if (velocity_data_buff_.size() == 0) return false;
@@ -124,11 +153,21 @@ bool DataPretreatFlow::ValidData() {
     double diff_imu_time = current_cloud_data_.time - current_imu_data_.time;
     double diff_velocity_time = current_cloud_data_.time - current_velocity_data_.time;
     double diff_gnss_time = current_cloud_data_.time - current_gnss_data_.time;
+
+    // 点云过旧
     if (diff_imu_time < -0.05 || diff_velocity_time < -0.05 || diff_gnss_time < -0.05) {
         cloud_data_buff_.pop_front();
         return false;
     }
 
+    if (use_external_laser_odom_) {
+        if (!external_front_end_ptr_->SyncData(current_cloud_data_.time)) {
+            cloud_data_buff_.pop_front();
+            return false;
+        }
+    }
+
+    // 其他传感器数据过旧
     if (diff_imu_time > 0.05) {
         imu_data_buff_.pop_front();
         return false;
@@ -174,6 +213,10 @@ bool DataPretreatFlow::TransformData() {
 bool DataPretreatFlow::PublishData() {
     cloud_pub_ptr_->Publish(current_cloud_data_.cloud_ptr, current_cloud_data_.time);
     gnss_pub_ptr_->Publish(gnss_pose_, current_gnss_data_.time);
+
+    if (use_external_laser_odom_) {
+        external_front_end_ptr_->PublishData();
+    }
 
     return true;
 }
