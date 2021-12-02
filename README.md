@@ -1,4 +1,4 @@
-# General Mapping and Localization Framework
+# Modular Mapping and Localization Framework
 
 ## 介绍
 
