@@ -3,7 +3,7 @@
  * @Created Date: 2021-11-30 14:55:23
  * @Author: Xiaotao Guo
  * -----
- * @Last Modified: 2021-11-30 17:29:51
+ * @Last Modified: 2021-12-03 17:45:17
  * @Modified By: Xiaotao Guo
  */
 
@@ -32,11 +32,12 @@ public:
     // 参考东北天坐标系 （原点和初始时刻激光雷达中心重合）
     std::string global_frame_id;
     // 以激光雷达初始位姿为原点的全局坐标系（和参考东北天坐标系相差一个旋转角度）
-    std::string lidar_global_frame_id;
+    std::string lidar_init_frame_id;
 
     // 传感器坐标系（sensor frame），主要用于计算不同传感器之间的外参
     std::string imu_frame_id;
     std::string lidar_frame_id;
+    std::string camera_frame_id;
 
     // 载体坐标系 (body frame)
     // 参考载体坐标系---------载体在 reference_global_frame 下的的参考位姿
@@ -50,7 +51,7 @@ public:
     std::string vehicle_corrected_frame_id;
 
     // 原始消息 topic
-    std::string pointcloud_topic = "";
+    std::string pointcloud_topic;
     std::string imu_topic;
     std::string velocity_topic;
     std::string gnss_topic;

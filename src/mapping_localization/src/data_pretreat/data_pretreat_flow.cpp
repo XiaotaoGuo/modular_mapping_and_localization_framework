@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-10 08:38:42
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-12-02 20:00:25
+ * @Last Modified: 2021-12-03 17:12:57
  * @Modified By: Xiaotao Guo
  */
 
@@ -25,11 +25,10 @@ DataPretreatFlow::DataPretreatFlow(ros::NodeHandle& nh, std::string cloud_topic)
     std::string velocity_topic = data_pretreat_config_node["velocity_topic"].as<std::string>();
     std::string gnss_topic = data_pretreat_config_node["gnss_topic"].as<std::string>();
 
-    std::string imu_frame_id = data_pretreat_config_node["imu_frame_id"].as<std::string>();
-    std::string lidar_frame_id = data_pretreat_config_node["lidar_frame_id"].as<std::string>();
-
     use_external_laser_odom_ = data_pretreat_config_node["use_external_front_end"].as<bool>();
     cloud_data_buff_min_size_ = data_pretreat_config_node["lidar_buffer_size"].as<unsigned int>();
+
+    undistort_pointcloud_ = data_pretreat_config_node["undistort_pointcloud"].as<bool>();
 
     std::string global_config_file_path = WORK_SPACE_PATH + "/config/mapping/global.yaml";
     YAML::Node global_config_node = YAML::LoadFile(global_config_file_path);
@@ -41,7 +40,7 @@ DataPretreatFlow::DataPretreatFlow(ros::NodeHandle& nh, std::string cloud_topic)
     imu_sub_ptr_ = std::make_shared<IMUSubscriber>(nh, imu_topic, 1000000);
     velocity_sub_ptr_ = std::make_shared<VelocitySubscriber>(nh, velocity_topic, 1000000);
     gnss_sub_ptr_ = std::make_shared<GNSSSubscriber>(nh, gnss_topic, 1000000);
-    lidar_to_imu_ptr_ = std::make_shared<TFListener>(nh, imu_frame_id, lidar_frame_id);
+    lidar_to_imu_ptr_ = std::make_shared<TFListener>(nh, gp.imu_frame_id, gp.lidar_frame_id);
 
     // publisher
     cloud_pub_ptr_ = std::make_shared<CloudPublisher>(nh, gp.synced_pointcloud_topic, gp.lidar_frame_id, 10);
@@ -201,13 +200,14 @@ bool DataPretreatFlow::TransformData() {
     gnss_pose_(1, 3) = current_gnss_data_.local_N;
     gnss_pose_(2, 3) = current_gnss_data_.local_U;
     gnss_pose_.block<3, 3>(0, 0) = current_imu_data_.GetOrientationMatrix();
-    gnss_pose_ *= lidar_to_imu_;
 
-    // current_velocity_data_.TransformCoordinate(lidar_to_imu_);
-    current_velocity_data_.TransformCoordinate(lidar_to_imu_.reverse());
-    // current_velocity_data_.TransformCoordinate(lidar_to_imu_.inverse());
-    distortion_adjust_ptr_->SetMotionInfo(0.1, current_velocity_data_);
-    distortion_adjust_ptr_->AdjustCloud(current_cloud_data_.cloud_ptr, current_cloud_data_.cloud_ptr);
+    if (undistort_pointcloud_)
+    {
+        // current_velocity_data_.TransformCoordinate(lidar_to_imu_);
+        current_velocity_data_.TransformCoordinate(lidar_to_imu_.inverse());
+        distortion_adjust_ptr_->SetMotionInfo(0.1, current_velocity_data_);
+        distortion_adjust_ptr_->AdjustCloud(current_cloud_data_.cloud_ptr, current_cloud_data_.cloud_ptr);
+    }
 
     return true;
 }

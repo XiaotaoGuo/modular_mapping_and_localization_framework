@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-10 08:38:42
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-30 23:50:06
+ * @Last Modified: 2021-12-03 17:08:57
  * @Modified By: Xiaotao Guo
  */
 
@@ -36,6 +36,8 @@ BackEndFlow::BackEndFlow(ros::NodeHandle& nh, std::string cloud_topic, std::stri
         nh, gp.vehicle_odometry_topic, gp.global_frame_id, gp.vehicle_odom_frame_id, 10);
     key_frame_pub_ptr_ = std::make_shared<KeyFramePublisher>(nh, gp.key_frame_topic, gp.global_frame_id, 100);
     key_gnss_pub_ptr_ = std::make_shared<KeyFramePublisher>(nh, gp.key_frame_gnss_topic, gp.global_frame_id, 10);
+
+    lidar_to_imu_ptr_ = std::make_shared<TFListener>(nh, gp.imu_frame_id, gp.lidar_frame_id);
 
     optimized_tracjectory_pub_ptr_ =
         std::make_shared<TrajectoryPublisher>(nh, gp.vehicle_optimized_trajectory_topic, gp.global_frame_id, 10);
@@ -83,6 +85,17 @@ bool BackEndFlow::ReadData() {
     loop_pose_sub_ptr_->ParseData(loop_pose_data_buff_);
 
     return true;
+}
+
+bool BackEndFlow::InitCalibration() {
+    static bool calibration_received = false;
+    if (!calibration_received) {
+        if (lidar_to_imu_ptr_->LookupData(lidar_to_imu_)) {
+            calibration_received = true;
+        }
+    }
+
+    return calibration_received;
 }
 
 bool BackEndFlow::MaybeInsertLoopPose() {
@@ -139,11 +152,16 @@ bool BackEndFlow::UpdateBackEnd() {
     static bool odometry_inited = false;
     static Eigen::Matrix4f odom_init_pose = Eigen::Matrix4f::Identity();
 
-    // 初始化：获取 lidar 里程计的世界原点在 gnss 里程计下的坐标，用于后续对 lidar 里程计进行修正
+    // 将激光雷达相对于起始点的位姿转为 IMU 相对于起始点的位姿
+    // Convert T_lidar_to_lidar_init -> T_IMU_to_IMU_init
+    if (!InitCalibration()) return false;
+    current_laser_odom_data_.pose = lidar_to_imu_ * current_laser_odom_data_.pose * lidar_to_imu_.inverse();
+
+    // 初始化：获取 IMU 坐标系相对于世界（东北天）坐标系的姿态，用于与重力对齐
+    // Get attitude between imu_init and world frame
     if (!odometry_inited) {
         odometry_inited = true;
-        //               T_w_curr * T_wodom_curr
-        odom_init_pose = current_gnss_pose_data_.pose * current_laser_odom_data_.pose.inverse();
+        odom_init_pose = current_gnss_pose_data_.pose;
     }
     current_laser_odom_data_.pose = odom_init_pose * current_laser_odom_data_.pose;
 

@@ -3,7 +3,7 @@
  * @Created Date: 2021-12-02 00:46:57
  * @Author: Xiaotao Guo
  * -----
- * @Last Modified: 2021-12-02 20:00:42
+ * @Last Modified: 2021-12-03 17:36:23
  * @Modified By: Xiaotao Guo
  */
 
@@ -55,7 +55,8 @@ bool ExternalFrontEndAdapter::HasData() const { return external_odom_buff_.size(
 void ExternalFrontEndAdapter::PublishData() {
     PoseData pose = external_odom_buff_.front();
     external_odom_buff_.pop_front();
-    pose.pose = pose.pose * pose_to_pointcloud_;
+    // transform external odometry pose estitimation to lidar pose under lidar_init frame
+    pose.pose = pose_to_pointcloud_.inverse() * pose.pose * pose_to_pointcloud_;
     synced_external_lasesr_odom_pub_ptr_->Publish(pose.pose, pose.time);
 }
 

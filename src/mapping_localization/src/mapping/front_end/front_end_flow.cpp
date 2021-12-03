@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-10 08:38:42
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-30 17:38:06
+ * @Last Modified: 2021-12-03 15:10:23
  * @Modified By: Xiaotao Guo
  */
 
@@ -28,7 +28,7 @@ FrontEndFlow::FrontEndFlow(ros::NodeHandle& nh) {
 
     cloud_sub_ptr_ = std::make_shared<CloudSubscriber>(nh, gp.synced_pointcloud_topic, 100000);
     laser_odom_pub_ptr_ = std::make_shared<OdometryPublisher>(
-        nh, gp.lidar_odometry_topic, gp.lidar_global_frame_id, gp.lidar_odom_frame_id, 10);
+        nh, gp.lidar_odometry_topic, gp.lidar_init_frame_id, gp.lidar_odom_frame_id, 10);
 
     front_end_ptr_ = std::make_shared<FrontEnd>(global_config_node, front_end_config_node);
 }

@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-10 08:31:22
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-12-02 11:52:22
+ * @Last Modified: 2021-12-03 17:11:01
  * @Modified By: Xiaotao Guo
  */
 
@@ -48,6 +48,10 @@ private:
     // external laser odom
     bool use_external_laser_odom_ = false;
     std::shared_ptr<ExternalFrontEndAdapter> external_front_end_ptr_;
+
+    // config
+    bool undistort_pointcloud_ = true;
+
     // subscriber
     std::shared_ptr<CloudSubscriber> cloud_sub_ptr_;
     std::shared_ptr<IMUSubscriber> imu_sub_ptr_;

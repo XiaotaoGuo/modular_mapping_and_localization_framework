@@ -1,8 +1,8 @@
-use_external_front_end: true
+# 是否进行点云去畸变
+undistort_pointcloud: false
 
-# 传感器坐标系（sensor frame），主要用于计算不同传感器之间的外参
-imu_frame_id: imu_link
-lidar_frame_id: velo_link
+# 是否接收外部前端里程计
+use_external_front_end: false
 
 # 原始消息 topic
 pointcloud_topic: /kitti/velo/pointcloud
@@ -14,5 +14,10 @@ gnss_topic: /kitti/oxts/gps/fix
 lidar_buffer_size: 5 # 保持一定数量点云数据在缓存里，等待其他传感器数据
 
 # 外部前端 topic
+# LeGO-LOAM 
 external_laser_odom_topic: /aft_mapped_to_init
-pose_to_pointcloud: [0, 0, 0, -1.570795, -1.570795, 0]
+pose_to_pointcloud: [0, 0, 0, -1.570795, -1.570795, 0] # lidar 到里程计基准坐标系（camera_init, lidar_init, imu_init, etc）的转换
+
+# A-LOAM
+# external_laser_odom_topic: /aft_mapped_to_init
+# pose_to_pointcloud: [0, 0, 0, 0, 0, 0] # lidar 到里程计基准坐标系（camera_init, lidar_init, imu_init, etc）的转换

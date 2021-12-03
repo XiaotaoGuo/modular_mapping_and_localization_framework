@@ -1,8 +1,13 @@
-data_path: /home/guo/personal/general_mapping_and_localization_framework/results/Lego-LOAM-test   # 数据存放路径
+data_path: /home/guo/personal/general_mapping_and_localization_framework/results/temp   # 数据存放路径
 
 # 世界坐标系 (world frame)
 global_frame_id: world             # 参考东北天坐标系 （原点和初始时刻激光雷达中心重合）
-lidar_global_frame_id: world_lidar           # 以激光雷达初始位姿为原点的全局坐标系（和参考东北天坐标系相差一个旋转角度）
+lidar_init_frame_id: world_lidar           # 以激光雷达初始位姿为原点的全局坐标系（和参考东北天坐标系相差一个旋转角度）
+
+# 传感器坐标系（用于获取外参）
+imu_frame_id: imu_link
+lidar_frame_id: velo_link
+camera_frame_id: camera_gray_left
 
 # 载体坐标系 (body frame)
 vehicle_ref_frame_id: vehicle_referenced                # 参考载体坐标系---------载体在 reference_global_frame 下的的参考位姿

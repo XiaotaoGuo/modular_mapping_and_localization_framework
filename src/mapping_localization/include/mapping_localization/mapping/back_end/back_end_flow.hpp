@@ -17,6 +17,7 @@
 #include "mapping_localization/subscriber/cloud_subscriber.hpp"
 #include "mapping_localization/subscriber/loop_pose_subscriber.hpp"
 #include "mapping_localization/subscriber/odometry_subscriber.hpp"
+#include "mapping_localization/tf_listener/tf_listener.hpp"
 
 namespace mapping_localization {
 class BackEndFlow {
@@ -34,6 +35,7 @@ private:
     bool ValidData();
     bool UpdateBackEnd();
     bool PublishData();
+    bool InitCalibration();
 
 private:
     std::shared_ptr<CloudSubscriber> cloud_sub_ptr_;
@@ -49,6 +51,9 @@ private:
     std::shared_ptr<TrajectoryPublisher> vehicle_tracjectory_pub_ptr_;
     std::shared_ptr<TrajectoryPublisher> optimized_tracjectory_pub_ptr_;
     std::shared_ptr<TrajectoryPublisher> corrected_trajectory_pub_ptr_;
+
+    std::shared_ptr<TFListener> lidar_to_imu_ptr_;
+    Eigen::Matrix4f lidar_to_imu_ = Eigen::Matrix4f::Identity();
 
     std::shared_ptr<BackEnd> back_end_ptr_;
 
