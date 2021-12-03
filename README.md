@@ -8,7 +8,7 @@
 
 节点间整体的工作流程见（只包含建图部分）：
 
-![工作流程](./imgs/general-workflow.png)
+![工作流程](./imgs/mapping_framework.drawio.png)
 
 ## 测试环境
 
