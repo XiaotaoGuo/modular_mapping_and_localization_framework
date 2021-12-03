@@ -16,3 +16,6 @@
 [submodule "third_party_libs/external/kitti-lego-loam"]
 	path = third_party_libs/external/kitti-lego-loam
 	url = https://github.com/Mitchell-Lee-93/kitti-lego-loam.git
+[submodule "third_party_libs/gtsam"]
+	path = third_party_libs/gtsam
+	url = https://github.com/borglab/gtsam.git
