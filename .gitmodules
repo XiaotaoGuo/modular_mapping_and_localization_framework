@@ -13,3 +13,6 @@
 [submodule "third_party_libs/external/a-loam-w-comment"]
 	path = third_party_libs/external/a-loam-w-comment
 	url = https://github.com/XiaotaoGuo/a-loam-w-comment
+[submodule "third_party_libs/external/kitti-lego-loam"]
+	path = third_party_libs/external/kitti-lego-loam
+	url = https://github.com/Mitchell-Lee-93/kitti-lego-loam.git
