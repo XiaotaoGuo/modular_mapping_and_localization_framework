@@ -3,7 +3,7 @@
  * @Created Date: 2021-12-02 00:04:47
  * @Author: Xiaotao Guo
  * -----
- * @Last Modified: 2021-12-02 11:34:51
+ * @Last Modified: 2021-12-02 17:51:08
  * @Modified By: Xiaotao Guo
  */
 
@@ -26,7 +26,8 @@ class ExternalFrontEndAdapter {
 private:
 public:
     ExternalFrontEndAdapter(std::shared_ptr<OdometrySubscriber>& external_laser_odom_sub_ptr,
-                            std::shared_ptr<OdometryPublisher>& synced_external_lasesr_odom_pub_ptr);
+                            std::shared_ptr<OdometryPublisher>& synced_external_lasesr_odom_pub_ptr,
+                            const std::vector<float>& pose_to_pointcloud);
     ~ExternalFrontEndAdapter();
 
     bool HasData() const;
@@ -44,6 +45,7 @@ public:
     void PublishData();
 
 private:
+    Eigen::Matrix4f pose_to_pointcloud_ = Eigen::Matrix4f::Identity();
     std::deque<PoseData> external_odom_buff_;
     std::shared_ptr<OdometrySubscriber> external_laser_odom_sub_ptr_;
     std::shared_ptr<OdometryPublisher> synced_external_lasesr_odom_pub_ptr_;

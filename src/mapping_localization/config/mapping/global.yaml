@@ -1,4 +1,4 @@
-data_path: /home/guo/personal/general_mapping_and_localization_framework/results/A-LOAM-test   # 数据存放路径
+data_path: /home/guo/personal/general_mapping_and_localization_framework/results/Lego-LOAM-test   # 数据存放路径
 
 # 世界坐标系 (world frame)
 global_frame_id: world             # 参考东北天坐标系 （原点和初始时刻激光雷达中心重合）
@@ -16,7 +16,7 @@ synced_pointcloud_topic: /synced_cloud
 synced_gnss_topic: /synced_gnss
 
 # 里程计消息：
-lidar_odometry_topic: /laser_odom
+lidar_odometry_topic: /lidar_odom
 vehicle_odometry_topic: /vehicle_odom
 vehicle_optimized_odometry_topic: /optimized_odom
 

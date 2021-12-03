@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-10 08:38:42
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-12-02 11:56:02
+ * @Last Modified: 2021-12-02 20:00:25
  * @Modified By: Xiaotao Guo
  */
 
@@ -59,8 +59,10 @@ DataPretreatFlow::DataPretreatFlow(ros::NodeHandle& nh, std::string cloud_topic)
         std::shared_ptr<OdometrySubscriber> external_laser_odom_sub_ptr =
             std::make_shared<OdometrySubscriber>(nh, external_laser_odom_topic, 100000000);
 
-        external_front_end_ptr_ =
-            std::make_shared<ExternalFrontEndAdapter>(external_laser_odom_sub_ptr, synced_laser_odom_pub_ptr);
+        std::vector<float> pose_to_pointcloud =
+            data_pretreat_config_node["pose_to_pointcloud"].as<std::vector<float>>();
+        external_front_end_ptr_ = std::make_shared<ExternalFrontEndAdapter>(
+            external_laser_odom_sub_ptr, synced_laser_odom_pub_ptr, pose_to_pointcloud);
     }
 }
 

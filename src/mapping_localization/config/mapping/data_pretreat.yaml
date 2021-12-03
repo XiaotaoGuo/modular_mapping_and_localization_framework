@@ -15,3 +15,4 @@ lidar_buffer_size: 5 # 保持一定数量点云数据在缓存里，等待其他
 
 # 外部前端 topic
 external_laser_odom_topic: /aft_mapped_to_init
+pose_to_pointcloud: [0, 0, 0, -1.570795, -1.570795, 0]

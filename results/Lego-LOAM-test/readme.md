@@ -1,0 +1,1 @@
+TODO：Lego-LOAM 的效果略低于 LOAM，原因大概是出在点云投影的环节，作者建议对非线性分布的激光雷达线束最好自己实现投影函数，见：https://github.com/RobustFieldAutonomyLab/LeGO-LOAM/issues/12
