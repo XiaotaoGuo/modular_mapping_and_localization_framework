@@ -33,4 +33,3 @@
     - 基于距离检测
     - 基于 Scan Context 检测：[基于 SC 和距离进行回环检测对比](https://xiaotaoguo.com/p/lidar_loop_closure/)
 
-## Credits
