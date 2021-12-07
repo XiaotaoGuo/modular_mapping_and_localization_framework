@@ -26,7 +26,7 @@ ViewerFlow::ViewerFlow(ros::NodeHandle& nh, std::string cloud_topic) {
     GlobalParam gp(global_config_node);
 
     // subscriber
-    cloud_sub_ptr_ = std::make_shared<CloudSubscriber>(nh, gp.synced_pointcloud_topic, 100000);
+    cloud_sub_ptr_ = std::make_shared<CloudSubscriber>(nh, "/test", 100000);
     key_frame_sub_ptr_ = std::make_shared<KeyFrameSubscriber>(nh, gp.key_frame_topic, 100000);
     key_gnss_sub_ptr_ = std::make_shared<KeyFrameSubscriber>(nh, gp.key_frame_gnss_topic, 100000);
     transformed_odom_sub_ptr_ = std::make_shared<OdometrySubscriber>(nh, gp.vehicle_odometry_topic, 100000);

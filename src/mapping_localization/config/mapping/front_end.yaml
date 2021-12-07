@@ -1,5 +1,5 @@
 # 匹配
-registration_method: ICP  # 选择点云匹配方法，目前支持：NDT, ICP
+registration_method: NDT  # 选择点云匹配方法，目前支持：NDT, ICP
 
 
 # 当前帧
@@ -21,7 +21,7 @@ NDT:
     max_iter : 30
 
 ICP:
-    matching_method: SVD # PCL, SVD, GN
+    matching_method: GN # PCL, SVD, GN
     max_correspodence_dist: 1.0
     trans_eps: 1e-6
     fitness_eps: 1e-6
@@ -30,6 +30,6 @@ ICP:
 ## 滤波相关参数
 voxel_filter:
     local_map:
-        leaf_size: [0.6, 0.6, 0.6]
+        leaf_size: [0.2, 0.2, 0.2]
     frame:
-        leaf_size: [1.3, 1.3, 1.3]
+        leaf_size: [0.8, 0.8, 0.8]

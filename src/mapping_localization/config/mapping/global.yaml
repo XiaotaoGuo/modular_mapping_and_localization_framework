@@ -17,8 +17,8 @@ vehicle_optimized_frame_id: vehicle_optimized         # 优化后的估计载体
 vehicle_corrected_frame_id: vehicle_corrected
 
 # 同步后的消息 topic
-synced_pointcloud_topic: /synced_cloud
-synced_gnss_topic: /synced_gnss
+synced_pointcloud_topic: /ns2/velodyne_points
+synced_gnss_topic: /baseline/odom
 
 # 里程计消息：
 lidar_odometry_topic: /lidar_odom

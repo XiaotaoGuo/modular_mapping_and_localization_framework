@@ -27,7 +27,7 @@ BackEndFlow::BackEndFlow(ros::NodeHandle& nh, std::string cloud_topic, std::stri
 
     GlobalParam gp(global_config_node);
 
-    cloud_sub_ptr_ = std::make_shared<CloudSubscriber>(nh, gp.synced_pointcloud_topic, 100000);
+    cloud_sub_ptr_ = std::make_shared<CloudSubscriber>(nh, "/test", 100000);
     gnss_pose_sub_ptr_ = std::make_shared<OdometrySubscriber>(nh, gp.synced_gnss_topic, 100000);
     laser_odom_sub_ptr_ = std::make_shared<OdometrySubscriber>(nh, gp.lidar_odometry_topic, 100000);
     loop_pose_sub_ptr_ = std::make_shared<LoopPoseSubscriber>(nh, gp.loop_pose_topic, 100000);
@@ -154,8 +154,13 @@ bool BackEndFlow::UpdateBackEnd() {
 
     // 将激光雷达相对于起始点的位姿转为 IMU 相对于起始点的位姿
     // Convert T_lidar_to_lidar_init -> T_IMU_to_IMU_init
-    if (!InitCalibration()) return false;
-    current_laser_odom_data_.pose = lidar_to_imu_ * current_laser_odom_data_.pose * lidar_to_imu_.inverse();
+    // if (!InitCalibration()) return false;
+    // Eigen::Matrix3f rot;
+    // rot << -0.515105, -0.702383, -0.491249, 0.487008, -0.711468, 0.506593, -0.70533, 0.0217062, 0.708547;
+    // Eigen::Vector3f translation{-0.438343, 0.395882, 1.94095};
+    // lidar_to_imu_.block<3,3>(0,0) = rot;
+    // lidar_to_imu_.block<3,1>(0,3) = translation;
+    // current_laser_odom_data_.pose = lidar_to_imu_ * current_laser_odom_data_.pose;
 
     // 初始化：获取 IMU 坐标系相对于世界（东北天）坐标系的姿态，用于与重力对齐
     // Get attitude between imu_init and world frame
@@ -163,7 +168,7 @@ bool BackEndFlow::UpdateBackEnd() {
         odometry_inited = true;
         odom_init_pose = current_gnss_pose_data_.pose;
     }
-    current_laser_odom_data_.pose = odom_init_pose * current_laser_odom_data_.pose;
+    // current_laser_odom_data_.pose = odom_init_pose * current_laser_odom_data_.pose;
 
     return back_end_ptr_->Update(current_cloud_data_, current_laser_odom_data_, current_gnss_pose_data_);
 }

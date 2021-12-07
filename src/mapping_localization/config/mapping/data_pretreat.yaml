@@ -5,8 +5,8 @@ undistort_pointcloud: false
 use_external_front_end: false
 
 # 原始消息 topic
-pointcloud_topic: /kitti/velo/pointcloud
-imu_topic: /kitti/oxts/imu
+pointcloud_topic: /ns1/velodyne_points #/ns1/velodyne_points. /kitti/velo/pointcloud 
+imu_topic: /imu/data_raw #/kitti/oxts/imu
 velocity_topic: /kitti/oxts/gps/vel
 gnss_topic: /kitti/oxts/gps/fix
 

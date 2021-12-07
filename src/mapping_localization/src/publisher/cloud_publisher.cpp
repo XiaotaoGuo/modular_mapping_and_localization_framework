@@ -22,7 +22,7 @@ CloudPublisher::CloudPublisher(ros::NodeHandle& nh,
 
 void CloudPublisher::Publish(CloudData::Cloud_Ptr& cloud_ptr_input,
                              double time) {
-    ros::Time ros_time((float)time);
+    ros::Time ros_time(time);
     PublishData(cloud_ptr_input, ros_time);
 }
 

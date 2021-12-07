@@ -1,6 +1,6 @@
-registration_method: ICP   # 选择点云匹配方法，目前支持：NDT
+registration_method: NDT   # 选择点云匹配方法，目前支持：NDT
 
-search_criteria: scan_context # 选择回环检测方法，目前支持 distance_gnss, distance_odom, scan_context
+search_criteria: distance_odom # 选择回环检测方法，目前支持 distance_gnss, distance_odom, scan_context
 
 # 匹配时为了精度更高，应该选用scan-to-map的方式
 # map是以历史帧为中心，往前后时刻各选取extend_frame_num个关键帧，放在一起拼接成的
@@ -21,7 +21,7 @@ distance_gnss:
 
 distance_odom:
     loop_step: 5
-    detect_area: 30.0
+    detect_area: 60.0
     diff_num: 100
 
 scan_context:

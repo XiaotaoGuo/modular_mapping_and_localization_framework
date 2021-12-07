@@ -9,8 +9,11 @@
 #include <ros/ros.h>
 
 #include "mapping_localization/mapping/front_end/front_end.hpp"
+
+#include "mapping_localization/publisher/cloud_publisher.hpp"
 #include "mapping_localization/publisher/odometry_publisher.hpp"
 #include "mapping_localization/publisher/tf_broadcaster.hpp"
+
 #include "mapping_localization/subscriber/cloud_subscriber.hpp"
 
 namespace mapping_localization {
@@ -30,6 +33,9 @@ private:
 private:
     std::shared_ptr<CloudSubscriber> cloud_sub_ptr_;
     std::shared_ptr<OdometryPublisher> laser_odom_pub_ptr_;
+
+    std::shared_ptr<CloudPublisher> prcessed_cloud_pub_ptr_;
+
     std::shared_ptr<TFBroadCaster> laser_odom_tf_pub_ptr_;
     std::shared_ptr<FrontEnd> front_end_ptr_;
 
