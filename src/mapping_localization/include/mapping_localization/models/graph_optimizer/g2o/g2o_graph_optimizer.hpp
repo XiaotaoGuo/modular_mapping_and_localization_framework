@@ -3,7 +3,7 @@
  * @Created Date: 2020-03-01 18:07:42
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-28 12:43:22
+ * @Last Modified: 2021-12-12 17:19:35
  * @Modified By: Xiaotao Guo
  */
 
@@ -26,6 +26,8 @@
 #include "mapping_localization/models/graph_optimizer/g2o/edge/edge_se3_priorxyz.hpp"
 #include "mapping_localization/models/graph_optimizer/interface_graph_optimizer.hpp"
 
+#include "mapping_localization/tools/utils.hpp"
+
 namespace g2o {
 class VertexSE3;
 class VertexPlane;
@@ -42,9 +44,9 @@ class RobustKernelFactory;
 
 G2O_USE_TYPE_GROUP(slam3d);
 
-G2O_USE_OPTIMIZATION_LIBRARY(pcg)
-G2O_USE_OPTIMIZATION_LIBRARY(cholmod)
-G2O_USE_OPTIMIZATION_LIBRARY(csparse)
+G2O_USE_OPTIMIZATION_LIBRARY(pcg)      // Preconditioned conjugate gradient Libarary
+G2O_USE_OPTIMIZATION_LIBRARY(cholmod)  // sparse Cholesky factorization library
+G2O_USE_OPTIMIZATION_LIBRARY(csparse)  // Sparse matrix package by c
 
 // namespace g2o {
 // G2O_REGISTER_TYPE(EDGE_SE3_PRIORXYZ, EdgeSE3PriorXYZ)
@@ -54,7 +56,7 @@ G2O_USE_OPTIMIZATION_LIBRARY(csparse)
 namespace mapping_localization {
 class G2oGraphOptimizer : public InterfaceGraphOptimizer {
 public:
-    G2oGraphOptimizer(const std::string &solver_type = "lm_var_cholmod");
+    G2oGraphOptimizer(const YAML::Node &config_node);
     // 优化
     bool Optimize() override;
     // 输出数据
@@ -68,14 +70,8 @@ public:
                     const Eigen::Isometry3d &relative_pose,
                     const Eigen::VectorXd noise) override;
     void AddSe3PriorXYZEdge(int se3_vertex_index, const Eigen::Vector3d &xyz, Eigen::VectorXd noise) override;
-    void AddSe3PriorQuaternionEdge(int se3_vertex_index,
-                                   const Eigen::Quaterniond &quat,
-                                   Eigen::VectorXd noise) override;
 
 private:
-    Eigen::MatrixXd CalculateSe3EdgeInformationMatrix(Eigen::VectorXd noise);
-    Eigen::MatrixXd CalculateSe3PriorQuaternionEdgeInformationMatrix(Eigen::VectorXd noise);
-    Eigen::MatrixXd CalculateDiagMatrix(Eigen::VectorXd noise);
     void AddRobustKernel(g2o::OptimizableGraph::Edge *edge, const std::string &kernel_type, double kernel_size);
 
 private:
@@ -85,6 +81,7 @@ private:
     std::string robust_kernel_name_;
     double robust_kernel_size_;
     bool need_robust_kernel_ = false;
+    bool verbose_ = false;
 };
 }  // namespace mapping_localization
 #endif

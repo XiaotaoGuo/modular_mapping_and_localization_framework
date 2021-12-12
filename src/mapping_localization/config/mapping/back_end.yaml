@@ -4,8 +4,8 @@ key_frame_distance: 2.0 # 关键帧距离
 # 优化
 graph_optimizer_type: g2o # 图优化库，目前支持g2o
 
-use_gnss: false
-use_loop_close: true
+use_gnss: true
+use_loop_close: false
 
 optimize_step_with_key_frame: 10000 # 没有其他信息时，每隔 step 发送一次优化的位姿
 optimize_step_with_gnss: 950 # 每累计 step 个 gnss 观测时，优化一次
@@ -15,3 +15,12 @@ g2o_param:
     odom_edge_noise: [0.5, 0.5, 0.5, 0.001, 0.001, 0.001] # 噪声：x y z yaw roll pitch
     close_loop_noise: [0.3, 0.3, 0.3, 0.001, 0.001, 0.001] # 噪声：x y z yaw roll pitch
     gnss_noise: [2.0, 2.0, 2.0] # 噪声：x y z
+
+g2o:
+    solver_type: lm_var_cholmod
+    verbose: true
+
+ceres:
+    optimization_strategy: L-M # 优化方法，支持 L-M 和  Dog-Leg
+    linear_solver_type: DENSE_QR # 线性求解器类型，ceres 默认使用普通的 QR，如果有第三方库，可以使用 SPARSE_NORMAL_CHOLESKY
+    verbose: true

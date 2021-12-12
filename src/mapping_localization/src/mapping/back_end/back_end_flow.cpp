@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-10 08:38:42
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-12-03 17:08:57
+ * @Last Modified: 2021-12-10 13:42:22
  * @Modified By: Xiaotao Guo
  */
 
@@ -18,7 +18,7 @@
 #include "mapping_localization/tools/tic_toc.hpp"
 
 namespace mapping_localization {
-BackEndFlow::BackEndFlow(ros::NodeHandle& nh, std::string cloud_topic, std::string odom_topic) {
+BackEndFlow::BackEndFlow(ros::NodeHandle& nh) {
     std::string global_config_file_path = WORK_SPACE_PATH + "/config/mapping/global.yaml";
     std::string back_end_config_file_path = WORK_SPACE_PATH + "/config/mapping/back_end.yaml";
 

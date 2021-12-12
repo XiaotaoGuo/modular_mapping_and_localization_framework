@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-28 01:02:51
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-30 19:34:28
+ * @Last Modified: 2021-12-12 16:32:07
  * @Modified By: Xiaotao Guo
  */
 
@@ -34,7 +34,7 @@ bool BackEnd::InitParam(const YAML::Node& config_node) {
 bool BackEnd::InitGraphOptimizer(const YAML::Node& config_node) {
     std::string graph_optimizer_type = config_node["graph_optimizer_type"].as<std::string>();
     if (graph_optimizer_type == "g2o") {
-        graph_optimizer_ptr_ = std::make_shared<G2oGraphOptimizer>("lm_var_cholmod");
+        graph_optimizer_ptr_ = std::make_shared<G2oGraphOptimizer>(config_node[graph_optimizer_type]);
     } else {
         LOG(ERROR) << "没有找到与 " << graph_optimizer_type << " 对应的图优化模式,请检查配置文件";
         return false;
@@ -182,7 +182,7 @@ bool BackEnd::AddNodeAndEdge(const PoseData& gnss_data) {
     // 添加激光里程计对应的边
     static KeyFrame last_key_frame = current_key_frame_;
     int node_num = graph_optimizer_ptr_->GetNodeNum();
-    if (node_num > 1) {
+    if (0 && node_num > 1) {
         Eigen::Matrix4f relative_pose = last_key_frame.pose.inverse() * current_key_frame_.pose;
         isometry.matrix() = relative_pose.cast<double>();
         graph_optimizer_ptr_->AddSe3Edge(node_num - 2, node_num - 1, isometry, graph_optimizer_config_.odom_edge_noise);

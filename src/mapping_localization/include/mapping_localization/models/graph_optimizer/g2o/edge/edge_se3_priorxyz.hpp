@@ -1,9 +1,9 @@
 /*
- * @Description: GNSS 坐标做观测时使用的先验边
+ * @Description: 3D pose 中位置的先验边
  * @Created Date: 2020-03-01 18:05:35
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-28 12:43:22
+ * @Last Modified: 2021-12-12 17:19:16
  * @Modified By: Xiaotao Guo
  */
 
@@ -22,32 +22,50 @@ public:
     void computeError() override {
         const g2o::VertexSE3* v1 = static_cast<const g2o::VertexSE3*>(_vertices[0]);
 
+        // 直接相减求误差
         Eigen::Vector3d estimate = v1->estimate().translation();
         _error = estimate - _measurement;
     }
 
+    // TODO：Buggy
+    // void linearizeOplus() override {
+    //     // only update position
+    //     _jacobianOplusXi.block<3, 3>(0, 0) = Eigen::Matrix3d::Identity();
+    // }
+
     void setMeasurement(const Eigen::Vector3d& m) override { _measurement = m; }
 
     virtual bool read(std::istream& is) override {
+        // 读入观测
         Eigen::Vector3d v;
         is >> v(0) >> v(1) >> v(2);
 
         setMeasurement(Eigen::Vector3d(v));
 
+        // 读入信息矩阵(只读上三角部分)
         for (int i = 0; i < information().rows(); ++i) {
             for (int j = i; j < information().cols(); ++j) {
                 is >> information()(i, j);
-                if (i != j) information()(j, i) = information()(i, j);
+                if (i != j) {
+                    information()(j, i) = information()(i, j);
+                }
             }
         }
         return true;
     }
 
     virtual bool write(std::ostream& os) const override {
+        // 写入观测
         Eigen::Vector3d v = _measurement;
         os << v(0) << " " << v(1) << " " << v(2) << " ";
-        for (int i = 0; i < information().rows(); ++i)
-            for (int j = i; j < information().cols(); ++j) os << " " << information()(i, j);
+
+        // 写入信息矩阵
+        for (int i = 0; i < information().rows(); ++i) {
+            for (int j = i; j < information().cols(); ++j) {
+                os << " " << information()(i, j);
+            }
+        }
+
         return os.good();
     }
 };

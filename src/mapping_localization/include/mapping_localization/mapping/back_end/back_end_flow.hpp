@@ -22,7 +22,7 @@
 namespace mapping_localization {
 class BackEndFlow {
 public:
-    BackEndFlow(ros::NodeHandle& nh, std::string cloud_topic, std::string odom_topic);
+    BackEndFlow(ros::NodeHandle& nh);
 
     bool Run();
 

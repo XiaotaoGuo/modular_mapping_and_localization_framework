@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-05 02:56:27
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-24 00:32:19
+ * @Last Modified: 2021-12-11 15:51:22
  * @Modified By: Xiaotao Guo
  */
 
@@ -19,8 +19,7 @@ using namespace mapping_localization;
 std::shared_ptr<BackEndFlow> _back_end_flow_ptr;
 bool _need_optimize_map = false;
 
-bool optimize_map_callback(optimizeMap::Request &request,
-                           optimizeMap::Response &response) {
+bool optimize_map_callback(optimizeMap::Request &request, optimizeMap::Response &response) {
     _need_optimize_map = true;
     response.succeed = true;
     return response.succeed;
@@ -34,13 +33,8 @@ int main(int argc, char *argv[]) {
     ros::init(argc, argv, "back_end_node");
     ros::NodeHandle nh;
 
-    std::string cloud_topic, odom_topic;
-    nh.param<std::string>("cloud_topic", cloud_topic, "/synced_cloud");
-    nh.param<std::string>("odom_topic", odom_topic, "/laser_odom");
-
-    ros::ServiceServer service =
-        nh.advertiseService("optimize_map", optimize_map_callback);
-    _back_end_flow_ptr = std::make_shared<BackEndFlow>(nh, cloud_topic, odom_topic);
+    ros::ServiceServer service = nh.advertiseService("optimize_map", optimize_map_callback);
+    _back_end_flow_ptr = std::make_shared<BackEndFlow>(nh);
 
     ros::Rate rate(100);
     while (ros::ok()) {

@@ -1,9 +1,9 @@
 /*
- * @Description:
+ * @Description: 基于 g2o 的图优化器实现
  * @Created Date: 2020-03-01 18:07:42
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-24 00:36:37
+ * @Last Modified: 2021-12-12 17:21:29
  * @Modified By: Xiaotao Guo
  */
 
@@ -12,15 +12,35 @@
 #include "glog/logging.h"
 #include "mapping_localization/tools/tic_toc.hpp"
 
+#include <g2o/types/slam3d/edge_se3_xyzprior.h>
+
 namespace mapping_localization {
-G2oGraphOptimizer::G2oGraphOptimizer(const std::string &solver_type) {
+G2oGraphOptimizer::G2oGraphOptimizer(const YAML::Node &config_node) {
+    try_load_param(config_node, "verbose", verbose_, false);
+
     graph_ptr_.reset(new g2o::SparseOptimizer());
 
-    g2o::OptimizationAlgorithmFactory *solver_factory =
-        g2o::OptimizationAlgorithmFactory::instance();
+    // TODO 这里使用一个工厂函数同时初始化迭代方式和线性求解方式，后续可以将迭代策略和求解方式分开
+    g2o::OptimizationAlgorithmFactory *solver_factory = g2o::OptimizationAlgorithmFactory::instance();
     g2o::OptimizationAlgorithmProperty solver_property;
-    g2o::OptimizationAlgorithm *solver =
-        solver_factory->construct(solver_type, solver_property);
+
+    if (verbose_) {
+        LOG(INFO) << "G2O 可用求解器类型：\n";
+        solver_factory->listSolvers(LOG(INFO));
+    }
+
+    // 根据给定的求解器类型初始化求解器，包含迭代方式和线性方程组求解方式
+    std::string solver_type;
+    g2o::OptimizationAlgorithm *solver = nullptr;
+
+    if (!try_load_param(config_node, "solver_type", solver_type, std::string("lm_var_cholmod"))) {
+        LOG(INFO) << "Specified solver type not found, using default: lm_var_cholmod";
+        solver = solver_factory->construct(solver_type, solver_property);
+    } else {
+        LOG(INFO) << "using solver type: " << solver_type;
+        solver = solver_factory->construct(solver_type, solver_property);
+    }
+
     graph_ptr_->setAlgorithm(solver);
 
     if (!graph_ptr_->solver()) {
@@ -39,15 +59,14 @@ bool G2oGraphOptimizer::Optimize() {
     graph_ptr_->initializeOptimization();
     graph_ptr_->computeInitialGuess();
     graph_ptr_->computeActiveErrors();
-    graph_ptr_->setVerbose(false);
+    graph_ptr_->setVerbose(verbose_);
 
     double chi2 = graph_ptr_->chi2();
     int iterations = graph_ptr_->optimize(max_iterations_num_);
 
     LOG(INFO) << std::endl
               << "------ 完成第 " << ++optimize_cnt << " 次后端优化 -------" << std::endl
-              << "顶点数：" << graph_ptr_->vertices().size() << ", 边数： "
-              << graph_ptr_->edges().size() << std::endl
+              << "顶点数：" << graph_ptr_->vertices().size() << ", 边数： " << graph_ptr_->edges().size() << std::endl
               << "迭代次数： " << iterations << "/" << max_iterations_num_ << std::endl
               << "用时：" << optimize_time.toc() << std::endl
               << "优化前后误差变化：" << chi2 << "--->" << graph_ptr_->chi2() << std::endl
@@ -65,6 +84,7 @@ bool G2oGraphOptimizer::GetOptimizedPose(std::deque<Eigen::Matrix4f> &optimized_
         Eigen::Isometry3d pose = v->estimate();
         optimized_pose.push_back(pose.matrix().cast<float>());
     }
+
     return true;
 }
 
@@ -80,8 +100,7 @@ void G2oGraphOptimizer::AddSe3Node(const Eigen::Isometry3d &pose, bool need_fix)
     graph_ptr_->addVertex(vertex);
 }
 
-void G2oGraphOptimizer::SetEdgeRobustKernel(std::string robust_kernel_name,
-                                            double robust_kernel_size) {
+void G2oGraphOptimizer::SetEdgeRobustKernel(std::string robust_kernel_name, double robust_kernel_size) {
     robust_kernel_name_ = robust_kernel_name;
     robust_kernel_size_ = robust_kernel_size;
     need_robust_kernel_ = true;
@@ -92,10 +111,9 @@ void G2oGraphOptimizer::AddSe3Edge(int vertex_index1,
                                    const Eigen::Isometry3d &relative_pose,
                                    const Eigen::VectorXd noise) {
     Eigen::MatrixXd information_matrix = CalculateSe3EdgeInformationMatrix(noise);
-    g2o::VertexSE3 *v1 =
-        dynamic_cast<g2o::VertexSE3 *>(graph_ptr_->vertex(vertex_index1));
-    g2o::VertexSE3 *v2 =
-        dynamic_cast<g2o::VertexSE3 *>(graph_ptr_->vertex(vertex_index2));
+    g2o::VertexSE3 *v1 = dynamic_cast<g2o::VertexSE3 *>(graph_ptr_->vertex(vertex_index1));
+    g2o::VertexSE3 *v2 = dynamic_cast<g2o::VertexSE3 *>(graph_ptr_->vertex(vertex_index2));
+
     g2o::EdgeSE3 *edge(new g2o::EdgeSE3());
     edge->setMeasurement(relative_pose);
     edge->setInformation(information_matrix);
@@ -105,13 +123,6 @@ void G2oGraphOptimizer::AddSe3Edge(int vertex_index1,
     if (need_robust_kernel_) {
         AddRobustKernel(edge, robust_kernel_name_, robust_kernel_size_);
     }
-}
-
-Eigen::MatrixXd G2oGraphOptimizer::CalculateSe3EdgeInformationMatrix(
-    Eigen::VectorXd noise) {
-    Eigen::MatrixXd information_matrix = Eigen::MatrixXd::Identity(6, 6);
-    information_matrix = CalculateDiagMatrix(noise);
-    return information_matrix;
 }
 
 void G2oGraphOptimizer::AddRobustKernel(g2o::OptimizableGraph::Edge *edge,
@@ -131,21 +142,9 @@ void G2oGraphOptimizer::AddRobustKernel(g2o::OptimizableGraph::Edge *edge,
     edge->setRobustKernel(kernel);
 }
 
-Eigen::MatrixXd G2oGraphOptimizer::CalculateDiagMatrix(Eigen::VectorXd noise) {
-    Eigen::MatrixXd information_matrix =
-        Eigen::MatrixXd::Identity(noise.rows(), noise.rows());
-    for (int i = 0; i < noise.rows(); i++) {
-        information_matrix(i, i) /= noise(i);
-    }
-    return information_matrix;
-}
-
-void G2oGraphOptimizer::AddSe3PriorXYZEdge(int se3_vertex_index,
-                                           const Eigen::Vector3d &xyz,
-                                           Eigen::VectorXd noise) {
+void G2oGraphOptimizer::AddSe3PriorXYZEdge(int se3_vertex_index, const Eigen::Vector3d &xyz, Eigen::VectorXd noise) {
     Eigen::MatrixXd information_matrix = CalculateDiagMatrix(noise);
-    g2o::VertexSE3 *v_se3 =
-        dynamic_cast<g2o::VertexSE3 *>(graph_ptr_->vertex(se3_vertex_index));
+    g2o::VertexSE3 *v_se3 = dynamic_cast<g2o::VertexSE3 *>(graph_ptr_->vertex(se3_vertex_index));
     g2o::EdgeSE3PriorXYZ *edge(new g2o::EdgeSE3PriorXYZ());
     edge->setMeasurement(xyz);
     edge->setInformation(information_matrix);
@@ -153,24 +152,4 @@ void G2oGraphOptimizer::AddSe3PriorXYZEdge(int se3_vertex_index,
     graph_ptr_->addEdge(edge);
 }
 
-void G2oGraphOptimizer::AddSe3PriorQuaternionEdge(int se3_vertex_index,
-                                                  const Eigen::Quaterniond &quat,
-                                                  Eigen::VectorXd noise) {
-    Eigen::MatrixXd information_matrix =
-        CalculateSe3PriorQuaternionEdgeInformationMatrix(noise);
-    g2o::VertexSE3 *v_se3 =
-        dynamic_cast<g2o::VertexSE3 *>(graph_ptr_->vertex(se3_vertex_index));
-    g2o::EdgeSE3PriorQuat *edge(new g2o::EdgeSE3PriorQuat());
-    edge->setMeasurement(quat);
-    edge->setInformation(information_matrix);
-    edge->vertices()[0] = v_se3;
-    graph_ptr_->addEdge(edge);
-}
-
-// TODO: 姿态观测的信息矩阵尚未添加
-Eigen::MatrixXd G2oGraphOptimizer::CalculateSe3PriorQuaternionEdgeInformationMatrix(
-    Eigen::VectorXd noise) {
-    Eigen::MatrixXd information_matrix;
-    return information_matrix;
-}
 }  // namespace mapping_localization

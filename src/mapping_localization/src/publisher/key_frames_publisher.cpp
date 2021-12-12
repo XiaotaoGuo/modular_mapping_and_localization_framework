@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-06 21:11:44
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-24 00:38:24
+ * @Last Modified: 2021-12-12 16:07:01
  * @Modified By: Xiaotao Guo
  */
 
@@ -12,10 +12,7 @@
 #include <Eigen/Dense>
 
 namespace mapping_localization {
-KeyFramesPublisher::KeyFramesPublisher(ros::NodeHandle& nh,
-                                       std::string topic_name,
-                                       std::string frame_id,
-                                       int buff_size)
+KeyFramesPublisher::KeyFramesPublisher(ros::NodeHandle& nh, std::string topic_name, std::string frame_id, int buff_size)
     : nh_(nh), frame_id_(frame_id) {
     publisher_ = nh_.advertise<nav_msgs::Path>(topic_name, buff_size);
 }
@@ -29,7 +26,7 @@ void KeyFramesPublisher::Publish(const std::deque<KeyFrame>& key_frames) {
         KeyFrame key_frame = key_frames.at(i);
 
         geometry_msgs::PoseStamped pose_stamped;
-        ros::Time ros_time((float)key_frame.time);
+        ros::Time ros_time(key_frame.time);
         pose_stamped.header.stamp = ros_time;
         pose_stamped.header.frame_id = frame_id_;
 

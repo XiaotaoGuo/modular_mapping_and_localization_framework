@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-06 21:11:44
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-30 20:26:16
+ * @Last Modified: 2021-12-12 16:07:07
  * @Modified By: Xiaotao Guo
  */
 
@@ -22,7 +22,7 @@ LoopPosePublisher::LoopPosePublisher(ros::NodeHandle& nh, std::string topic_name
 void LoopPosePublisher::Publish(LoopPose& loop_pose) {
     geometry_msgs::PoseWithCovarianceStamped pose_stamped;
 
-    ros::Time ros_time((float)loop_pose.time);
+    ros::Time ros_time(loop_pose.time);
     pose_stamped.header.stamp = ros_time;
     pose_stamped.header.frame_id = frame_id_;
 

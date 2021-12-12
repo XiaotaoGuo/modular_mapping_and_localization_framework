@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-06 21:11:44
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-11-25 00:46:33
+ * @Last Modified: 2021-12-12 16:07:12
  * @Modified By: Xiaotao Guo
  */
 
@@ -22,7 +22,7 @@ OdometryPublisher::OdometryPublisher(ros::NodeHandle& nh,
 }
 
 void OdometryPublisher::Publish(const Eigen::Matrix4f& transform_matrix, double time) {
-    ros::Time ros_time((float)time);
+    ros::Time ros_time(time);
     PublishData(transform_matrix, ros_time);
 }
 
@@ -30,8 +30,7 @@ void OdometryPublisher::Publish(const Eigen::Matrix4f& transform_matrix) {
     PublishData(transform_matrix, ros::Time::now());
 }
 
-void OdometryPublisher::PublishData(const Eigen::Matrix4f& transform_matrix,
-                                    ros::Time time) {
+void OdometryPublisher::PublishData(const Eigen::Matrix4f& transform_matrix, ros::Time time) {
     odometry_.header.stamp = time;
 
     // set the position
