@@ -12,7 +12,10 @@
 #include <fstream>
 #include <string>
 
+#include "mapping_localization/models/graph_optimizer/ceres/ceres_graph_optimizer.hpp"
 #include "mapping_localization/models/graph_optimizer/g2o/g2o_graph_optimizer.hpp"
+#include "mapping_localization/models/graph_optimizer/gtsam/gtsam_graph_optimizer.hpp"
+
 #include "mapping_localization/sensor_data/cloud_data.hpp"
 #include "mapping_localization/sensor_data/key_frame.hpp"
 #include "mapping_localization/sensor_data/loop_pose.hpp"
@@ -69,26 +72,6 @@ private:
     // 优化器
     std::shared_ptr<InterfaceGraphOptimizer> graph_optimizer_ptr_;
 
-    class GraphOptimizerConfig {
-    public:
-        GraphOptimizerConfig() {
-            odom_edge_noise.resize(6);
-            close_loop_noise.resize(6);
-            gnss_noise.resize(3);
-        }
-
-    public:
-        bool use_gnss = true;
-        bool use_loop_close = false;
-
-        Eigen::VectorXd odom_edge_noise;
-        Eigen::VectorXd close_loop_noise;
-        Eigen::VectorXd gnss_noise;
-
-        int optimize_step_with_key_frame = 100;
-        int optimize_step_with_gnss = 100;
-        int optimize_step_with_loop = 10;
-    };
     GraphOptimizerConfig graph_optimizer_config_;
 
     int new_gnss_cnt_ = 0;

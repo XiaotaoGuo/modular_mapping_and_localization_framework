@@ -3,7 +3,7 @@
  * @Created Date: 2020-03-01 18:07:42
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-12-12 17:19:35
+ * @Last Modified: 2021-12-13 16:26:24
  * @Modified By: Xiaotao Guo
  */
 
@@ -68,8 +68,11 @@ public:
     void AddSe3Edge(int vertex_index1,
                     int vertex_index2,
                     const Eigen::Isometry3d &relative_pose,
-                    const Eigen::VectorXd noise) override;
-    void AddSe3PriorXYZEdge(int se3_vertex_index, const Eigen::Vector3d &xyz, Eigen::VectorXd noise) override;
+                    const Eigen::Vector3d &translation_noise,
+                    const Eigen::Vector3d &rotation_noise) override;
+    void AddSe3PriorXYZEdge(int se3_vertex_index,
+                            const Eigen::Vector3d &xyz,
+                            const Eigen::Vector3d &translation_noise) override;
 
 private:
     void AddRobustKernel(g2o::OptimizableGraph::Edge *edge, const std::string &kernel_type, double kernel_size);
@@ -81,6 +84,7 @@ private:
     std::string robust_kernel_name_;
     double robust_kernel_size_;
     bool need_robust_kernel_ = false;
+
     bool verbose_ = false;
 };
 }  // namespace mapping_localization

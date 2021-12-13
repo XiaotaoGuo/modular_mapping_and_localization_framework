@@ -23,3 +23,5 @@ AllowAllParametersOfDeclarationOnNextLine: false
 
 # 保留 Include 块之间的关系
 IncludeBlocks: Preserve
+
+AlignConsecutiveDeclarations: false

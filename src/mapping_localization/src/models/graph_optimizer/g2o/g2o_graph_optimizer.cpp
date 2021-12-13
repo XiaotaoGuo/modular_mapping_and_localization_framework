@@ -3,7 +3,7 @@
  * @Created Date: 2020-03-01 18:07:42
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-12-12 17:21:29
+ * @Last Modified: 2021-12-13 16:36:43
  * @Modified By: Xiaotao Guo
  */
 
@@ -109,8 +109,11 @@ void G2oGraphOptimizer::SetEdgeRobustKernel(std::string robust_kernel_name, doub
 void G2oGraphOptimizer::AddSe3Edge(int vertex_index1,
                                    int vertex_index2,
                                    const Eigen::Isometry3d &relative_pose,
-                                   const Eigen::VectorXd noise) {
-    Eigen::MatrixXd information_matrix = CalculateSe3EdgeInformationMatrix(noise);
+                                   const Eigen::Vector3d &translation_noise,
+                                   const Eigen::Vector3d &rotation_noise) {
+    Eigen::Matrix<double, 6, 1> noise;
+    noise << translation_noise, rotation_noise;
+    Eigen::Matrix<double, 6, 6> information_matrix = CalculateSe3EdgeInformationMatrix(noise);
     g2o::VertexSE3 *v1 = dynamic_cast<g2o::VertexSE3 *>(graph_ptr_->vertex(vertex_index1));
     g2o::VertexSE3 *v2 = dynamic_cast<g2o::VertexSE3 *>(graph_ptr_->vertex(vertex_index2));
 
@@ -142,8 +145,10 @@ void G2oGraphOptimizer::AddRobustKernel(g2o::OptimizableGraph::Edge *edge,
     edge->setRobustKernel(kernel);
 }
 
-void G2oGraphOptimizer::AddSe3PriorXYZEdge(int se3_vertex_index, const Eigen::Vector3d &xyz, Eigen::VectorXd noise) {
-    Eigen::MatrixXd information_matrix = CalculateDiagMatrix(noise);
+void G2oGraphOptimizer::AddSe3PriorXYZEdge(int se3_vertex_index,
+                                           const Eigen::Vector3d &xyz,
+                                           const Eigen::Vector3d &translation_noise) {
+    Eigen::MatrixXd information_matrix = CalculateDiagMatrix(translation_noise);
     g2o::VertexSE3 *v_se3 = dynamic_cast<g2o::VertexSE3 *>(graph_ptr_->vertex(se3_vertex_index));
     g2o::EdgeSE3PriorXYZ *edge(new g2o::EdgeSE3PriorXYZ());
     edge->setMeasurement(xyz);

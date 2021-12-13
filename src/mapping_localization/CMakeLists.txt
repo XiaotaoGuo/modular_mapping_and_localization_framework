@@ -40,6 +40,8 @@ include(cmake/PCL.cmake)
 include(cmake/eigen.cmake)
 include(cmake/geographic.cmake)
 include(cmake/g2o.cmake)
+include(cmake/ceres.cmake)
+include(cmake/gtsam.cmake)
 include(cmake/sophus.cmake)
 include(cmake/OpenCV.cmake)
 

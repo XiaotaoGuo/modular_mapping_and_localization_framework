@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-28 01:02:51
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-12-12 16:32:07
+ * @Last Modified: 2021-12-13 16:53:04
  * @Modified By: Xiaotao Guo
  */
 
@@ -32,14 +32,20 @@ bool BackEnd::InitParam(const YAML::Node& config_node) {
 }
 
 bool BackEnd::InitGraphOptimizer(const YAML::Node& config_node) {
-    std::string graph_optimizer_type = config_node["graph_optimizer_type"].as<std::string>();
-    if (graph_optimizer_type == "g2o") {
-        graph_optimizer_ptr_ = std::make_shared<G2oGraphOptimizer>(config_node[graph_optimizer_type]);
-    } else {
+    std::string graph_optimizer_type;
+    std::vector<std::string> options{"g2o", "ceres", "gtsam"};
+    if (!try_load_param(config_node, "graph_optimizer_type", graph_optimizer_type, std::string("g2o"), options)) {
         LOG(ERROR) << "没有找到与 " << graph_optimizer_type << " 对应的图优化模式,请检查配置文件";
         return false;
+    } else {
+        if (graph_optimizer_type == "g2o") {
+            graph_optimizer_ptr_ = std::make_shared<G2oGraphOptimizer>(config_node[graph_optimizer_type]);
+        } else if (graph_optimizer_type == "ceres") {
+            graph_optimizer_ptr_ = std::make_shared<CeresGraphOptimizer>(config_node[graph_optimizer_type]);
+        } else if (graph_optimizer_type == "gtsam") {
+            graph_optimizer_ptr_ = std::make_shared<GTSamGraphOptimizer>(config_node[graph_optimizer_type]);
+        }
     }
-    LOG(INFO) << "后端优化选择的优化器为：" << graph_optimizer_type;
 
     graph_optimizer_config_.use_gnss = config_node["use_gnss"].as<bool>();
     graph_optimizer_config_.use_loop_close = config_node["use_loop_close"].as<bool>();
@@ -48,17 +54,19 @@ bool BackEnd::InitGraphOptimizer(const YAML::Node& config_node) {
     graph_optimizer_config_.optimize_step_with_gnss = config_node["optimize_step_with_gnss"].as<int>();
     graph_optimizer_config_.optimize_step_with_loop = config_node["optimize_step_with_loop"].as<int>();
 
-    for (int i = 0; i < 6; ++i) {
-        graph_optimizer_config_.odom_edge_noise(i) =
-            config_node[graph_optimizer_type + "_param"]["odom_edge_noise"][i].as<double>();
-        graph_optimizer_config_.close_loop_noise(i) =
-            config_node[graph_optimizer_type + "_param"]["close_loop_noise"][i].as<double>();
-    }
+    std::vector<double> vec;
+    try_load_param(config_node["noise_model"]["odom"], "translation", vec, std::vector<double>{0.5, 0.5, 0.5});
+    graph_optimizer_config_.odom_translation_noise = Eigen::Map<Eigen::Vector3d>(vec.data());
+    try_load_param(config_node["noise_model"]["odom"], "rotation", vec, std::vector<double>{0.001, 0.001, 0.001});
+    graph_optimizer_config_.odom_rotation_noise = Eigen::Map<Eigen::Vector3d>(vec.data());
 
-    for (int i = 0; i < 3; i++) {
-        graph_optimizer_config_.gnss_noise(i) =
-            config_node[graph_optimizer_type + "_param"]["gnss_noise"][i].as<double>();
-    }
+    try_load_param(config_node["noise_model"]["close_loop"], "translation", vec, std::vector<double>{0.3, 0.3, 0.3});
+    graph_optimizer_config_.close_loop_translation_noise = Eigen::Map<Eigen::Vector3d>(vec.data());
+    try_load_param(config_node["noise_model"]["close_loop"], "rotation", vec, std::vector<double>{0.001, 0.001, 0.001});
+    graph_optimizer_config_.close_loop_rotation_noise = Eigen::Map<Eigen::Vector3d>(vec.data());
+
+    try_load_param(config_node["noise_model"]["gnss"], "translation", vec, std::vector<double>{2.0, 2.0, 2.0});
+    graph_optimizer_config_.gnss_translation_noise = Eigen::Map<Eigen::Vector3d>(vec.data());
 
     return true;
 }
@@ -104,8 +112,11 @@ bool BackEnd::InsertLoopPose(const LoopPose& loop_pose) {
 
     Eigen::Isometry3d isometry;
     isometry.matrix() = loop_pose.pose.cast<double>();
-    graph_optimizer_ptr_->AddSe3Edge(
-        loop_pose.index0, loop_pose.index1, isometry, graph_optimizer_config_.close_loop_noise);
+    graph_optimizer_ptr_->AddSe3Edge(loop_pose.index0,
+                                     loop_pose.index1,
+                                     isometry,
+                                     graph_optimizer_config_.close_loop_translation_noise,
+                                     graph_optimizer_config_.close_loop_rotation_noise);
 
     new_loop_cnt_++;
     // LOG(INFO) << "插入闭环：" << loop_pose.index0 << "," << loop_pose.index1;
@@ -182,10 +193,14 @@ bool BackEnd::AddNodeAndEdge(const PoseData& gnss_data) {
     // 添加激光里程计对应的边
     static KeyFrame last_key_frame = current_key_frame_;
     int node_num = graph_optimizer_ptr_->GetNodeNum();
-    if (0 && node_num > 1) {
+    if (node_num > 1) {
         Eigen::Matrix4f relative_pose = last_key_frame.pose.inverse() * current_key_frame_.pose;
         isometry.matrix() = relative_pose.cast<double>();
-        graph_optimizer_ptr_->AddSe3Edge(node_num - 2, node_num - 1, isometry, graph_optimizer_config_.odom_edge_noise);
+        graph_optimizer_ptr_->AddSe3Edge(node_num - 2,
+                                         node_num - 1,
+                                         isometry,
+                                         graph_optimizer_config_.odom_translation_noise,
+                                         graph_optimizer_config_.odom_rotation_noise);
     }
     last_key_frame = current_key_frame_;
 
@@ -194,7 +209,7 @@ bool BackEnd::AddNodeAndEdge(const PoseData& gnss_data) {
         Eigen::Vector3d xyz(static_cast<double>(gnss_data.pose(0, 3)),
                             static_cast<double>(gnss_data.pose(1, 3)),
                             static_cast<double>(gnss_data.pose(2, 3)));
-        graph_optimizer_ptr_->AddSe3PriorXYZEdge(node_num - 1, xyz, graph_optimizer_config_.gnss_noise);
+        graph_optimizer_ptr_->AddSe3PriorXYZEdge(node_num - 1, xyz, graph_optimizer_config_.gnss_translation_noise);
         new_gnss_cnt_++;
     }
 

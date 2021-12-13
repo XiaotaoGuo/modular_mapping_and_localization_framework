@@ -19,7 +19,9 @@
 
 ## 测试数据
 
-目前只在 KITTI 数据集上进行测试。
+- [x] KITTI with synced IMU (10 Hz)
+- [ ] KITTI with raw IMU (100 Hz)
+- [ ] KAIST
 
 ## 已测试模块
 
@@ -27,8 +29,10 @@
     - ICP, NDT 点云配准：[ICP, NDT 实现和性能对比](https://xiaotaoguo.com/p/pointcloud-registration/)
     - [A-LOAM](https://github.com/HKUST-Aerial-Robotics/A-LOAM)
     - [Lego-LOAM](https://github.com/RobustFieldAutonomyLab/LeGO-LOAM) （感谢 [@Mitchell-Lee-93](https://github.com/Mitchell-Lee-93) 对 lego-loam 在 KITTI 数据集上做的适配）
-- 后端：
-    - 基于 G2O 进行图优化
+- 图优化后端：
+    - G2O
+    - Ceres
+    - GTSam
 - 回环检测：
     - 基于距离检测
     - 基于 Scan Context 检测：[基于 SC 和距离进行回环检测对比](https://xiaotaoguo.com/p/lidar_loop_closure/)

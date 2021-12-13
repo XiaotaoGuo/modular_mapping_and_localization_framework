@@ -3,7 +3,7 @@
  * @Created Date: 2020-03-01 18:35:19
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-12-12 17:22:11
+ * @Last Modified: 2021-12-13 17:13:03
  * @Modified By: Xiaotao Guo
  */
 
@@ -19,19 +19,19 @@ namespace mapping_localization {
 // 优化选项
 class GraphOptimizerConfig {
 public:
-    GraphOptimizerConfig() {
-        odom_edge_noise.resize(6);
-        close_loop_noise.resize(6);
-        gnss_noise.resize(3);
-    }
+    GraphOptimizerConfig() {}
 
 public:
     bool use_gnss = true;
     bool use_loop_close = false;
 
-    Eigen::VectorXd odom_edge_noise;
-    Eigen::VectorXd close_loop_noise;
-    Eigen::VectorXd gnss_noise;
+    Eigen::Vector3d odom_translation_noise;
+    Eigen::Vector3d odom_rotation_noise;
+
+    Eigen::Vector3d close_loop_translation_noise;
+    Eigen::Vector3d close_loop_rotation_noise;
+
+    Eigen::Vector3d gnss_translation_noise;
 
     int optimize_step_with_key_frame = 100;
     int optimize_step_with_gnss = 100;
@@ -46,7 +46,7 @@ public:
     // 输入、输出数据
     virtual bool GetOptimizedPose(std::deque<Eigen::Matrix4f> &optimized_pose) = 0;
     virtual int GetNodeNum() = 0;
-    // 添加节点、边、鲁棒核
+    // 添加鲁棒核
     virtual void SetEdgeRobustKernel(std::string robust_kernel_name, double robust_kernel_size) = 0;
 
     ///
@@ -68,7 +68,8 @@ public:
     virtual void AddSe3Edge(int vertex_index1,
                             int vertex_index2,
                             const Eigen::Isometry3d &relative_pose,
-                            const Eigen::VectorXd noise) = 0;
+                            const Eigen::Vector3d &translation_noise,
+                            const Eigen::Vector3d &rotation_noise) = 0;
     ///
     ///@brief 加入先验位姿边，用于加入 GPS 位置约束
     ///
@@ -76,7 +77,9 @@ public:
     ///@param xyz
     ///@param noise
     ///
-    virtual void AddSe3PriorXYZEdge(int se3_vertex_index, const Eigen::Vector3d &xyz, Eigen::VectorXd noise) = 0;
+    virtual void AddSe3PriorXYZEdge(int se3_vertex_index,
+                                    const Eigen::Vector3d &xyz,
+                                    const Eigen::Vector3d &translation_noise) = 0;
 
     // 设置优化参数
     void SetMaxIterationsNum(int max_iterations_num);
