@@ -30,9 +30,9 @@
     - [A-LOAM](https://github.com/HKUST-Aerial-Robotics/A-LOAM)
     - [Lego-LOAM](https://github.com/RobustFieldAutonomyLab/LeGO-LOAM) （感谢 [@Mitchell-Lee-93](https://github.com/Mitchell-Lee-93) 对 lego-loam 在 KITTI 数据集上做的适配）
 - 图优化后端：
-    - G2O
-    - Ceres
-    - GTSam
+    - G2O：[G2O 学习记录](https://xiaotaoguo.com/p/g2o-usage-2/)
+    - Ceres：[Ceres 学习记录](https://xiaotaoguo.com/p/ceres-usage-2/)
+    - GTSam：[GTSAM 学习记录](https://xiaotaoguo.com/p/gtsam-usage-2/)
 - 回环检测：
     - 基于距离检测
     - 基于 Scan Context 检测：[基于 SC 和距离进行回环检测对比](https://xiaotaoguo.com/p/lidar_loop_closure/)
