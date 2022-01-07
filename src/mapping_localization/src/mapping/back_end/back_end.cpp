@@ -3,7 +3,7 @@
  * @Created Date: 2020-02-28 01:02:51
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-12-13 16:53:04
+ * @Last Modified: 2021-12-15 12:52:25
  * @Modified By: Xiaotao Guo
  */
 
@@ -184,7 +184,7 @@ bool BackEnd::AddNodeAndEdge(const PoseData& gnss_data) {
     Eigen::Isometry3d isometry;
     // 添加关键帧节点
     isometry.matrix() = current_key_frame_.pose.cast<double>();
-    if (!graph_optimizer_config_.use_gnss && graph_optimizer_ptr_->GetNodeNum() == 0)
+    if (graph_optimizer_ptr_->GetNodeNum() == 0)
         graph_optimizer_ptr_->AddSe3Node(isometry, true);
     else
         graph_optimizer_ptr_->AddSe3Node(isometry, false);

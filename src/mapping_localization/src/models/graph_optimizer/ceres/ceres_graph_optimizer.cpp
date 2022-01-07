@@ -3,7 +3,7 @@
  * @Created Date: 2021-12-09 23:24:10
  * @Author: Xiaotao Guo
  * -----
- * @Last Modified: 2021-12-13 17:39:56
+ * @Last Modified: 2021-12-15 12:11:17
  * @Modified By: Xiaotao Guo
  */
 
@@ -24,6 +24,8 @@ CeresGraphOptimizer::CeresGraphOptimizer(const YAML::Node &config_node) {
                    optimization_strategy_set_[0],
                    optimization_strategy_set_);
 
+    ceres::StringToLinearSolverType(linear_solver_type, &options_.linear_solver_type);
+    ceres::StringToTrustRegionStrategyType(optimization_strategy, &options_.trust_region_strategy_type);
     quaternion_local_parameterization_ = new ceres::EigenQuaternionParameterization;
 }
 

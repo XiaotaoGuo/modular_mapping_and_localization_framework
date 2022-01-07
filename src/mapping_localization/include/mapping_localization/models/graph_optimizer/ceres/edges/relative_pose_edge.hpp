@@ -3,7 +3,7 @@
  * @Created Date: 2021-12-11 17:28:38
  * @Author: Xiaotao Guo
  * -----
- * @Last Modified: 2021-12-12 19:17:01
+ * @Last Modified: 2021-12-14 14:44:01
  * @Modified By: Xiaotao Guo
  */
 
@@ -15,6 +15,8 @@
 namespace mapping_localization {
 class RelativePoseEdge {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     RelativePoseEdge(const PoseSE3& measurement, const Eigen::Matrix<double, 6, 6>& sqrt_information)
         : measurement_(measurement), sqrt_information_(sqrt_information) {}
 
@@ -58,8 +60,6 @@ public:
         return new ceres::AutoDiffCostFunction<RelativePoseEdge, 6, 3, 4, 3, 4>(
             new RelativePoseEdge(measurement, sqrt_information));
     }
-
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 private:
     // The measurement for the position of B relative to A in the A frame.

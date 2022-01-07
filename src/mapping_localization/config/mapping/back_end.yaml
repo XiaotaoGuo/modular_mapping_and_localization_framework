@@ -2,9 +2,9 @@
 key_frame_distance: 2.0 # 关键帧距离
 
 # 优化
-graph_optimizer_type: gtsam # 图优化库，目前支持 [g2o, ceres, gtsam]
+graph_optimizer_type: g2o # 图优化库，目前支持 [g2o, ceres, gtsam]
 
-use_gnss: false
+use_gnss: true
 use_loop_close: true 
 
 optimize_step_with_key_frame: 10000 # 没有其他信息时，每隔 step 发送一次优化的位姿

@@ -3,7 +3,7 @@
  * @Created Date: 2020-03-01 18:07:42
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-12-13 16:36:43
+ * @Last Modified: 2021-12-19 20:40:20
  * @Modified By: Xiaotao Guo
  */
 
@@ -40,6 +40,11 @@ G2oGraphOptimizer::G2oGraphOptimizer(const YAML::Node &config_node) {
         LOG(INFO) << "using solver type: " << solver_type;
         solver = solver_factory->construct(solver_type, solver_property);
     }
+
+    // Need if a edge with cache mechanics is used
+    // g2o::ParameterSE3Offset *cameraOffset = new g2o::ParameterSE3Offset;
+    // cameraOffset->setId(0);
+    // graph_ptr_->addParameter(cameraOffset);
 
     graph_ptr_->setAlgorithm(solver);
 
@@ -150,11 +155,20 @@ void G2oGraphOptimizer::AddSe3PriorXYZEdge(int se3_vertex_index,
                                            const Eigen::Vector3d &translation_noise) {
     Eigen::MatrixXd information_matrix = CalculateDiagMatrix(translation_noise);
     g2o::VertexSE3 *v_se3 = dynamic_cast<g2o::VertexSE3 *>(graph_ptr_->vertex(se3_vertex_index));
+
     g2o::EdgeSE3PriorXYZ *edge(new g2o::EdgeSE3PriorXYZ());
     edge->setMeasurement(xyz);
     edge->setInformation(information_matrix);
     edge->vertices()[0] = v_se3;
     graph_ptr_->addEdge(edge);
+
+    // TODO: analytic jacobian doesn't work well in this version
+    // g2o::EdgeSE3XYZPrior *edge(new g2o::EdgeSE3XYZPrior());
+    // edge->setMeasurement(xyz);
+    // edge->setInformation(information_matrix);
+    // edge->vertices()[0] = v_se3;
+    // edge->setParameterId(0, 0);
+    // graph_ptr_->addEdge(edge);
 }
 
 }  // namespace mapping_localization

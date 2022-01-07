@@ -3,7 +3,7 @@
  * @Created Date: 2020-03-01 18:05:35
  * @Author: Ren Qian
  * -----
- * @Last Modified: 2021-12-12 17:19:16
+ * @Last Modified: 2021-12-19 20:39:31
  * @Modified By: Xiaotao Guo
  */
 
@@ -28,10 +28,12 @@ public:
     }
 
     // TODO：Buggy
-    // void linearizeOplus() override {
-    //     // only update position
-    //     _jacobianOplusXi.block<3, 3>(0, 0) = Eigen::Matrix3d::Identity();
-    // }
+    void linearizeOplus() override {
+        // only update position
+        const VertexSE3* v = static_cast<const VertexSE3*>(_vertices[0]);
+        _jacobianOplusXi.block<3, 3>(0, 0) = v->estimate().rotation();
+        _jacobianOplusXi.block<3, 3>(0, 3) = Eigen::Matrix3d::Zero();
+    }
 
     void setMeasurement(const Eigen::Vector3d& m) override { _measurement = m; }
 
